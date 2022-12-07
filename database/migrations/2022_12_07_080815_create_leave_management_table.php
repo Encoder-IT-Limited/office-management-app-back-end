@@ -21,9 +21,9 @@ class CreateLeaveManagementTable extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->string('status');
-            $table->string('reason');
-            $table->date('accepted_start_date');
-            $table->date('accepted_end_date');
+            $table->string('reason')->nullable();
+            $table->date('accepted_start_date')->nullable();
+            $table->date('accepted_end_date')->nullable();
             $table->timestamps();
         });
     }
