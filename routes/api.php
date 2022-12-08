@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\LeaveManageController;
+use App\Http\Controllers\EmployeeNoteController;
+use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\UserController;
-use App\Models\LeaveManagement;
+use App\Models\Leave;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,7 +27,7 @@ Route::prefix('users')->group(function () {
     Route::get('index', [UserController::class, 'index']);
     Route::post('store', [UserController::class, 'store']);
     Route::get('show/{id}', [UserController::class, 'show']);
-    Route::post('update', [UserController::class, 'update']);
+    Route::patch('update', [UserController::class, 'update']);
     Route::delete('delete/{id}', [UserController::class, 'destroy']);
 });
 
@@ -34,14 +35,22 @@ Route::prefix('skills')->group(function () {
     Route::get('index', [SkillController::class, 'index']);
     Route::post('store', [SkillController::class, 'store']);
     Route::get('show/{id}', [SkillController::class, 'show']);
-    Route::post('update', [SkillController::class, 'update']);
+    Route::patch('update', [SkillController::class, 'update']);
     Route::delete('delete/{id}', [SkillController::class, 'destroy']);
 });
 
 Route::prefix('leave-apply')->group(function () {
-    Route::get('index', [LeaveManageController::class, 'index']);
-    Route::post('store', [LeaveManageController::class, 'store']);
-    Route::get('show/{id}', [LeaveManageController::class, 'show']);
-    Route::post('update', [LeaveManageController::class, 'update']);
-    Route::delete('delete/{id}', [LeaveManageController::class, 'destroy']);
+    Route::get('index', [LeaveController::class, 'index']);
+    Route::post('store', [LeaveController::class, 'store']);
+    Route::get('show/{id}', [LeaveController::class, 'show']);
+    Route::patch('update', [LeaveController::class, 'update']);
+    Route::delete('delete/{id}', [LeaveController::class, 'destroy']);
+});
+
+Route::prefix('employee-notes')->group(function () {
+    Route::get('index', [EmployeeNoteController::class, 'index']);
+    Route::post('store', [EmployeeNoteController::class, 'store']);
+    Route::get('show/{id}', [EmployeeNoteController::class, 'show']);
+    Route::patch('update', [EmployeeNoteController::class, 'update']);
+    Route::delete('delete/{id}', [EmployeeNoteController::class, 'destroy']);
 });

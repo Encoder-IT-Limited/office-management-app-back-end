@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLeaveManagementTable extends Migration
+class CreateLeavesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,14 @@ class CreateLeaveManagementTable extends Migration
      */
     public function up()
     {
-        Schema::create('leave_management', function (Blueprint $table) {
+        Schema::create('leaves', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('title');
             $table->text('description');
             $table->date('start_date');
             $table->date('end_date');
-            $table->string('status');
+            $table->enum('status', ['new', 'pending', 'accept', 'reject']);
             $table->string('reason')->nullable();
             $table->date('accepted_start_date')->nullable();
             $table->date('accepted_end_date')->nullable();
@@ -35,6 +35,6 @@ class CreateLeaveManagementTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('leave_management');
+        Schema::dropIfExists('leaves');
     }
 }

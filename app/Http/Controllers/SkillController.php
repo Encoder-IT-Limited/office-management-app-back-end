@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Validator;
 
 class SkillController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $skills = Skill::latest()->paginate(25);
+        $skills = Skill::latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
             'status' => 'Success',
@@ -22,7 +22,7 @@ class SkillController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'     => 'required'
+            'name'     => 'required|string'
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);
@@ -56,7 +56,7 @@ class SkillController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name'     => 'required',
-            'skill_id' => 'required'
+            'skill_id' => 'required|exists:skills,id'
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);

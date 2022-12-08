@@ -22,24 +22,21 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'     => 'required',
-            'email'    => 'required|email|unique:users',
-            'phone'    => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
-            'password' => 'required|confirmed',
-            'role_id'  => 'required'
+            'name'        => 'required|string',
+            'email'       => 'required|email|unique:users',
+            'phone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            'password'    => 'required|confirmed',
+            'role_id'     => 'required|exists:roles,id',
+            'designation' => 'sometimes|required|string'
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);
         }
 
-        $user = User::create([
-            'role_id'     => $request->role_id,
-            'name'        => $request->name,
-            'email'       => $request->email,
-            'phone'       => $request->phone,
-            'password'    => Hash::make($request->password),
-            'designation' => $request->designation,
-        ]);
+        $data = $validator->validated();
+        $data['password'] =  Hash::make($data['password']);
+
+        $user = User::create($data);
 
         return response()->json([
             'status' => 'Success',
@@ -49,10 +46,7 @@ class UserController extends Controller
 
     public function show($id)
     {
-        $user = User::find($id);
-
-        if (!$user)
-            return response()->json(['status' => 'User Not Found'], 404);
+        $user = User::findOrFail($id);
 
         return response()->json([
             'status' => 'Success',
@@ -63,24 +57,20 @@ class UserController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'    => 'required',
-            'email'   => 'required|email|unique:users,email,' . $request->user_id,
-            'phone'   => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
-            'user_id' => 'required',
+            'name'        => 'required|string',
+            'email'       => 'required|email|unique:users,email,' . $request->user_id,
+            'phone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            'user_id'     => 'required|exists:users,id',
+            'designation' => 'sometimes|required'
         ]);
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);
         }
 
-        $user = User::find($request->user_id);
-        if (!$user)
-            return response()->json(['status' => 'User Not Found'], 404);
+        $user = User::findOrFail($request->user_id);
 
-        $user->name  = $request->name;
-        $user->email = $request->email;
-        $user->phone = $request->phone;
-        $user->designation = $request->designation;
-        $user->save();
+        $user->update($validator->validated());
 
         return response()->json([
             'status' => 'Success',
@@ -90,11 +80,7 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        $user = User::find($id);
-
-        if (!$user)
-            return response()->json(['status' => 'User Not Found'], 404);
-        $user->delete();
+        $user = User::destroy($id);
 
         return response()->json([
             'status' => 'Deleted Success',

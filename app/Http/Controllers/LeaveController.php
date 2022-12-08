@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LeaveManagement;
+use App\Models\Leave;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class LeaveManageController extends Controller
+class LeaveController extends Controller
 {
     public function index(Request $request)
     {
-        $leaveData = LeaveManagement::latest()->paginate($request->per_page ?? 25);
+        $leaveData = Leave::latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
             'status' => 'Success',
@@ -21,24 +21,20 @@ class LeaveManageController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title'               => 'required',
-            'description'         => 'required',
-            'start_date'          => 'required|date',
-            'end_date'            => 'required|date',
-            // 'user_id'             => 'required',
+            'title'       => 'required|string',
+            'description' => 'required',
+            'start_date'  => 'required|date',
+            'end_date'    => 'required|date',
+            // 'status'      => 'sometimes|in:new,pending,accept,reject',
+            'user_id'     => 'required|exists:users,id',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);
         }
 
-        $leaveData = LeaveManagement::create([
-            'title' => $request->title,
-            'description'  => $request->description,
-            'start_date'  => $request->start_date,
-            'end_date'  => $request->end_date,
-            'status'  => "New",
-            'user_id'  => $request->user_id,
-        ]);
+        $data = $validator->validated();
+        $data['status'] = "new";
+        $leaveData = Leave::create($data);
 
         return response()->json([
             'status' => 'Success',
@@ -48,7 +44,7 @@ class LeaveManageController extends Controller
 
     public function show($id)
     {
-        $leaveData = LeaveManagement::find($id);
+        $leaveData = Leave::find($id);
 
         if (!$leaveData)
             return response()->json(['status' => 'Leave data Not Found'], 404);
@@ -62,17 +58,17 @@ class LeaveManageController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'title'       => 'required',
+            'title'       => 'required|string',
             'description' => 'required',
             'start_date'  => 'required|date',
             'end_date'    => 'required|date',
-            'leave_id'    => 'required'
+            'leave_id'    => 'required|exists:leaves,id'
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);
         }
 
-        $leaveData = LeaveManagement::find($request->leave_id);
+        $leaveData = Leave::find($request->leave_id);
 
         if (!$leaveData)
             return response()->json(['status' => 'Leave data Not Found'], 404);
@@ -91,7 +87,7 @@ class LeaveManageController extends Controller
 
     public function destroy($id)
     {
-        $leaveData = LeaveManagement::find($id);
+        $leaveData = Leave::find($id);
 
         if (!$leaveData)
             return response()->json(['status' => 'Leave data Not Found'], 404);
