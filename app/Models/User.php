@@ -46,4 +46,35 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'skill_user', 'user_id', 'skill_id')->withTimestamps();;
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id')->withTimestamps();;
+    }
+
+    public function employeeNotes()
+    {
+        return $this->hasMany(EmploteeNote::class, 'user_id');
+    }
+
+    public function projectTask()
+    {
+        return $this->hasMany(ProjectTask::class, 'developer_id');
+    }
+
+    public function uploads()
+    {
+        return $this->morphMany(Upload::class, 'uploadable');
+    }
+
+    public function getUserRoleAttribute()
+    {
+        return $this->roles;
+    }
 }

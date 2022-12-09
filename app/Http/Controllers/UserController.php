@@ -11,6 +11,9 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
+        $user = User::find(1);
+        dd($user->user_role);
+        dd($user->roles);
         $users = User::latest()->paginate($request->per_page ?? 25);
 
         return response()->json([

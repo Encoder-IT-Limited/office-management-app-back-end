@@ -23,8 +23,17 @@ class Project extends Model
 
     protected $cast = [
         'start_date' => 'datetime',
-        'end_date' => 'datetime'
+        'end_date' => 'datetime',
+        'is_kpi_filled' => 'boolean'
     ];
 
-    
+    public function projectTasks()
+    {
+        return $this->hasMany(ProjectTask::class, 'project_id');
+    }
+
+    public function getTasksAttribute()
+    {
+        return $this->projectTasks()->get();
+    }
 }

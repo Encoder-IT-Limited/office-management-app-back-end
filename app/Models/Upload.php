@@ -10,9 +10,14 @@ class Upload extends Model
     use HasFactory;
 
     protected $table = 'uploads';
-    protected $primaryKey = 'id';
+    // protected $primaryKey = 'id';
 
     protected $fillable = [
         'file',
     ];
+
+    public function uploadable()
+    {
+        return $this->morphTo();
+    }
 }

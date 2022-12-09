@@ -11,11 +11,20 @@ class EmployeeNote extends Model
 
     protected $table = 'employee_notes';
 
-    protected $primaryKey = 'id';
+    // protected $primaryKey = 'id';
 
     protected $fillable = [
         'note',
         'user_id',
         'is_positive'
     ];
+
+    protected $casts = [
+        'is_positive' => 'boolean',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

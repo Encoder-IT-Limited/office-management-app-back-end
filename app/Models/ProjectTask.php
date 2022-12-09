@@ -23,4 +23,14 @@ class ProjectTask extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
     ];
+
+    public function project()
+    {
+        return $this->belongsTo(ProjectTask::class, 'project_id');
+    }
+
+    public function developer()
+    {
+        return $this->belongsTo(User::class, 'developer_id');
+    }
 }

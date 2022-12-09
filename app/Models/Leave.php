@@ -21,4 +21,14 @@ class Leave extends Model
         'accepted_end_date',
         'user_id'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function uploads()
+    {
+        return $this->morphMany(Upload::class, 'uploadable');
+    }
 }
