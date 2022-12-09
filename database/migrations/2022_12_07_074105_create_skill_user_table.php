@@ -17,6 +17,7 @@ class CreateSkillUserTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('skill_id')->constrained('skills')->onDelete('cascade');
+            $table->string('experience', 10);
             $table->timestamps();
         });
     }
