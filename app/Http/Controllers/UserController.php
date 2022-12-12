@@ -11,9 +11,6 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $user = User::find(1);
-        dd($user->user_role);
-        dd($user->roles);
         $users = User::latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
@@ -27,7 +24,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name'        => 'required|string',
             'email'       => 'required|email|unique:users',
-            'phone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            'phone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
             'password'    => 'required|confirmed',
             'role_id'     => 'required|exists:roles,id',
             'designation' => 'sometimes|required|string'
