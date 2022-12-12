@@ -26,17 +26,23 @@ class UserController extends Controller
             'email'       => 'required|email|unique:users',
             'phone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
             'password'    => 'required|confirmed',
+            'designation' => 'sometimes|required|string',
             'role_id'     => 'required|exists:roles,id',
-            'designation' => 'sometimes|required|string'
+            'skills'    => 'required|array'
         ]);
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);
         }
 
         $data = $validator->validated();
         $data['password'] =  Hash::make($data['password']);
-
         $user = User::create($data);
+
+        if ($user) {
+            $user->roles()->attach($request->role_id);
+            $user->skills()->attach($request->skills);
+        }
 
         return response()->json([
             'status' => 'Success',

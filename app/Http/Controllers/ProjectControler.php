@@ -34,14 +34,9 @@ class ProjectControler extends Controller
             return response()->json(['error' => $validator->errors()]);
         }
 
-        $project             = new Project();
-        $project->name       = $request->name;
-        $project->budget     = $request->budget;
-        $project->start_date = $request->start_date;
-        $project->end_date   = $request->end_date;
-        $project->status     = 'lead';
-        $project->client_id  = $request->client_id;
-        $project->save();
+        $data = $validator->validated();
+        $data['status'] =  "lead";
+        $project = Project::create($data);
 
         if ($project) {
             foreach ($request->developer_task as $developerTask) {

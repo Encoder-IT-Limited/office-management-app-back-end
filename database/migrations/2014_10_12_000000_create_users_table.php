@@ -20,7 +20,7 @@ class CreateUsersTable extends Migration
             $table->string('phone', 20);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('designation', 64);
+            $table->string('designation', 64)->nullable();
             $table->enum('status', ['active', 'inactive']);
             $table->rememberToken();
             $table->timestamps();
