@@ -22,7 +22,7 @@ class SkillController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'     => 'required|string'
+            'name' => 'required|string|unique:skills'
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);

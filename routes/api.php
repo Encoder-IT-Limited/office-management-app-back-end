@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmployeeNoteController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\ProjectControler;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\UserController;
 use App\Models\Leave;
@@ -24,7 +25,18 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
+
     Route::get('logout', [AuthController::class, 'logout']);
+
+    Route::prefix('roles')->group(function () {
+        Route::get('index', [RoleController::class, 'index']);
+        Route::post('store', [RoleController::class, 'store']);
+        Route::get('show/{id}', [RoleController::class, 'show']);
+        Route::patch('update', [RoleController::class, 'update']);
+        Route::delete('delete/{id}', [RoleController::class, 'destroy']);
+        Route::get('all-permissions', [RoleController::class, 'allPermissions']);
+        Route::post('permission-store', [RoleController::class, 'permissionStore']);
+    });
 
     Route::prefix('users')->group(function () {
         Route::get('index', [UserController::class, 'index']);
@@ -58,7 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('delete/{id}', [EmployeeNoteController::class, 'destroy']);
     });
 
-    Route::prefix('projects')->middleware('roles:admin')->group(function () {
+    Route::prefix('projects')->group(function () {
         Route::get('index', [ProjectControler::class, 'index']);
         Route::post('store', [ProjectControler::class, 'store']);
         Route::get('show/{id}', [ProjectControler::class, 'show']);
