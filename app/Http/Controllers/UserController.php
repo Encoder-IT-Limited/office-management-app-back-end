@@ -28,7 +28,7 @@ class UserController extends Controller
             'password'    => 'required|confirmed',
             'designation' => 'sometimes|required|string',
             'role_id'     => 'required|exists:roles,id',
-            'skills'    => 'required|array'
+            'skill_id'    => 'sometimes|required|exists:roles,id'
         ]);
 
         if ($validator->fails()) {
@@ -41,7 +41,7 @@ class UserController extends Controller
 
         if ($user) {
             $user->roles()->attach($request->role_id);
-            $user->skills()->attach($request->skills);
+            $user->skills()->attach($request->skill_id);
         }
 
         return response()->json([
@@ -78,6 +78,11 @@ class UserController extends Controller
 
         $user->update($validator->validated());
 
+        if (isset($request->role_id))
+            $user->roles()->sync($request->role_id);
+        if (isset($request->skill_id))
+            $user->skills()->sync($request->skill_id);
+
         return response()->json([
             'status' => 'Success',
             'user'   => $user
@@ -86,7 +91,7 @@ class UserController extends Controller
 
     public function destroy($id)
     {
-        $user = User::destroy($id);
+        User::destroy($id);
 
         return response()->json([
             'status' => 'Deleted Success',

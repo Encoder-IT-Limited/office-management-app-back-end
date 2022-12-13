@@ -18,6 +18,7 @@ class CreateEmployeeNotesTable extends Migration
             $table->foreignId('user_id')->constrained('id')->on('users')->onDelete('cascade');
             $table->text('note', 500);
             $table->boolean('is_positive');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

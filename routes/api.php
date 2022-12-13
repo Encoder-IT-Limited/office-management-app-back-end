@@ -22,6 +22,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::prefix('users')->group(function () {
+    Route::get('index', [UserController::class, 'index']);
+    Route::post('store', [UserController::class, 'store']);
+    Route::get('show/{id}', [UserController::class, 'show']);
+    Route::patch('update', [UserController::class, 'update']);
+    Route::delete('delete/{id}', [UserController::class, 'destroy']);
+});
 Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -38,13 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('permission-store', [RoleController::class, 'permissionStore']);
     });
 
-    Route::prefix('users')->group(function () {
-        Route::get('index', [UserController::class, 'index']);
-        Route::post('store', [UserController::class, 'store']);
-        Route::get('show/{id}', [UserController::class, 'show']);
-        Route::patch('update', [UserController::class, 'update']);
-        Route::delete('delete/{id}', [UserController::class, 'destroy']);
-    });
+
 
     Route::prefix('skills')->group(function () {
         Route::get('index', [SkillController::class, 'index']);

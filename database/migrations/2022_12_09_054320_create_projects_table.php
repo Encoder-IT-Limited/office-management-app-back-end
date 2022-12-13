@@ -22,6 +22,7 @@ class CreateProjectsTable extends Migration
             $table->enum('status', ['lead', 'pending', 'on_going', 'accepted', 'rejected', 'completed']);
             $table->foreignId('client_id')->constrained('id')->on('users')->onDelete('cascade');
             $table->boolean('is_kpi_filled')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

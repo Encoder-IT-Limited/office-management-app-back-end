@@ -24,6 +24,7 @@ class CreateLeavesTable extends Migration
             $table->string('reason')->nullable();
             $table->date('accepted_start_date')->nullable();
             $table->date('accepted_end_date')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

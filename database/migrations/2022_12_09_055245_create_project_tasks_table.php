@@ -20,6 +20,7 @@ class CreateprojectTasksTable extends Migration
             $table->foreignId('developer_id')->constrained('id')->on('users')->onDelete('cascade');
             $table->date('start_date');
             $table->date('end_date');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

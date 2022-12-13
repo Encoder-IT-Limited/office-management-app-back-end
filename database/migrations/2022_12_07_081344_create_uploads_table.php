@@ -17,6 +17,7 @@ class CreateUploadsTable extends Migration
             $table->id();
             $table->text('path', 500);
             $table->morphs('uploadable');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
