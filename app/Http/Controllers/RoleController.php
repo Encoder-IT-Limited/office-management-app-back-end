@@ -24,7 +24,7 @@ class RoleController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name'          => 'required|string|unique:roles',
-            // 'permission_id' => 'required|exists:permissions,id'
+            'permission_id' => 'sometimes|required|exists:permissions,id'
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);

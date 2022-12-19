@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::latest()->paginate($request->per_page ?? 25);
+        $users = User::with('roles', 'skills')->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
             'status' => 'Success',

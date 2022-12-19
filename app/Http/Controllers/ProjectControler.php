@@ -12,7 +12,7 @@ class ProjectControler extends Controller
 
     public function index(Request $request)
     {
-        $porjects = Project::latest()->paginate($request->per_page ?? 25);
+        $porjects = Project::with('projectTasks')->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
             'status'   => 'Success',

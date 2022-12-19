@@ -28,7 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('logout', [AuthController::class, 'logout']);
 
-    Route::prefix('roles')->group(function () {
+    Route::prefix('roles')->middleware('role:admin')->group(function () {
         Route::get('index', [RoleController::class, 'index']);
         Route::post('store', [RoleController::class, 'store']);
         Route::get('show/{id}', [RoleController::class, 'show']);
@@ -40,10 +40,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('users')->group(function () {
         Route::get('index', [UserController::class, 'index'])->middleware('permission:can-user-index');
-        Route::post('store', [UserController::class, 'store']);
-        Route::get('show/{id}', [UserController::class, 'show']);
-        Route::patch('update', [UserController::class, 'update']);
-        Route::delete('delete/{id}', [UserController::class, 'destroy']);
+        Route::post('store', [UserController::class, 'store'])->middleware('permission:can-user-store');
+        Route::get('show/{id}', [UserController::class, 'show'])->middleware('permission:can-user-show');
+        Route::patch('update', [UserController::class, 'update'])->middleware('permission:can-user-update');
+        Route::delete('delete/{id}', [UserController::class, 'destroy'])->middleware('permission:can-user-delete');
     });
 
     Route::prefix('skills')->group(function () {
@@ -54,21 +54,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('delete/{id}', [SkillController::class, 'destroy']);
     });
 
-    Route::prefix('leave-apply')->group(function () {
-        Route::get('index', [LeaveController::class, 'index']);
-        Route::post('store', [LeaveController::class, 'store']);
-        Route::get('show/{id}', [LeaveController::class, 'show']);
-        Route::patch('update', [LeaveController::class, 'update']);
-        Route::delete('delete/{id}', [LeaveController::class, 'destroy']);
-    });
+    // Route::prefix('leave-apply')->group(function () {
+    //     Route::get('index', [LeaveController::class, 'index']);
+    //     Route::post('store', [LeaveController::class, 'store']);
+    //     Route::get('show/{id}', [LeaveController::class, 'show']);
+    //     Route::patch('update', [LeaveController::class, 'update']);
+    //     Route::delete('delete/{id}', [LeaveController::class, 'destroy']);
+    // });
 
-    Route::prefix('employee-notes')->group(function () {
-        Route::get('index', [EmployeeNoteController::class, 'index']);
-        Route::post('store', [EmployeeNoteController::class, 'store']);
-        Route::get('show/{id}', [EmployeeNoteController::class, 'show']);
-        Route::patch('update', [EmployeeNoteController::class, 'update']);
-        Route::delete('delete/{id}', [EmployeeNoteController::class, 'destroy']);
-    });
+    // Route::prefix('employee-notes')->group(function () {
+    //     Route::get('index', [EmployeeNoteController::class, 'index']);
+    //     Route::post('store', [EmployeeNoteController::class, 'store']);
+    //     Route::get('show/{id}', [EmployeeNoteController::class, 'show']);
+    //     Route::patch('update', [EmployeeNoteController::class, 'update']);
+    //     Route::delete('delete/{id}', [EmployeeNoteController::class, 'destroy']);
+    // });
 
     Route::prefix('projects')->group(function () {
         Route::get('index', [ProjectControler::class, 'index']);
