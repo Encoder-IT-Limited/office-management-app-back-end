@@ -16,13 +16,13 @@ class PermissionMiddleware
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next, ...$permissions)
+    public function handle(Request $request, Closure $next, $permission)
     {
         if (Auth::check()) {
             $user = User::findOrFail(Auth::id());
-            if (!$user->hasPermission(...$permissions)) {
+            if (!$user->hasPermission($permission)) {
                 return response()->json([
-                    'error' => "User with this 'ROLE' is not Authorized"
+                    'error' => "User with this 'Permission' is not Authorized"
                 ], 401);
             }
         }
