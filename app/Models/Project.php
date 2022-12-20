@@ -33,6 +33,11 @@ class Project extends Model
         return $this->hasMany(ProjectTask::class, 'project_id');
     }
 
+    public function clients()
+    {
+        return $this->belongsTo(User::class, 'client_id');
+    }
+
     public function getTasksAttribute()
     {
         return $this->projectTasks()->get();
