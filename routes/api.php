@@ -5,6 +5,7 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EmployeeNoteController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\ProjectControler;
+use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\UserController;
@@ -55,21 +56,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('delete/{id}', [SkillController::class, 'destroy']);
     });
 
-    // Route::prefix('leave-apply')->group(function () {
-    //     Route::get('index', [LeaveController::class, 'index']);
-    //     Route::post('store', [LeaveController::class, 'store']);
-    //     Route::get('show/{id}', [LeaveController::class, 'show']);
-    //     Route::patch('update', [LeaveController::class, 'update']);
-    //     Route::delete('delete/{id}', [LeaveController::class, 'destroy']);
-    // });
+    Route::prefix('leave-apply')->group(function () {
+        Route::get('index', [LeaveController::class, 'index']);
+        Route::post('store', [LeaveController::class, 'store']);
+        Route::get('show/{id}', [LeaveController::class, 'show']);
+        Route::patch('update', [LeaveController::class, 'update']);
+        Route::delete('delete/{id}', [LeaveController::class, 'destroy']);
+    });
 
-    // Route::prefix('employee-notes')->group(function () {
-    //     Route::get('index', [EmployeeNoteController::class, 'index']);
-    //     Route::post('store', [EmployeeNoteController::class, 'store']);
-    //     Route::get('show/{id}', [EmployeeNoteController::class, 'show']);
-    //     Route::patch('update', [EmployeeNoteController::class, 'update']);
-    //     Route::delete('delete/{id}', [EmployeeNoteController::class, 'destroy']);
-    // });
+    Route::prefix('employee-notes')->group(function () {
+        Route::get('index', [EmployeeNoteController::class, 'index']);
+        Route::post('store', [EmployeeNoteController::class, 'store']);
+        Route::get('show/{id}', [EmployeeNoteController::class, 'show']);
+        Route::patch('update', [EmployeeNoteController::class, 'update']);
+        Route::delete('delete/{id}', [EmployeeNoteController::class, 'destroy']);
+    });
 
     Route::prefix('projects')->group(function () {
         Route::get('index', [ProjectControler::class, 'index']);
@@ -77,6 +78,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('show/{id}', [ProjectControler::class, 'show']);
         Route::patch('update', [ProjectControler::class, 'update']);
         Route::delete('delete/{id}', [ProjectControler::class, 'destroy']);
+    });
+
+    Route::prefix('reminders')->group(function () {
+        Route::get('index', [ReminderController::class, 'index']);
+        Route::post('store', [ReminderController::class, 'store']);
+        Route::get('show/{id}', [ReminderController::class, 'show']);
+        Route::patch('update', [ReminderController::class, 'update']);
+        Route::delete('delete/{id}', [ReminderController::class, 'destroy']);
     });
 
     Route::prefix('calendar')->group(function () {

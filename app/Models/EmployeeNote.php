@@ -24,7 +24,7 @@ class EmployeeNote extends Model
         'is_positive' => 'boolean',
     ];
 
-    public function user()
+    public function users()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
