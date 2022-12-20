@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EmployeeNoteController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\ProjectControler;
@@ -76,5 +77,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('show/{id}', [ProjectControler::class, 'show']);
         Route::patch('update', [ProjectControler::class, 'update']);
         Route::delete('delete/{id}', [ProjectControler::class, 'destroy']);
+    });
+
+    Route::prefix('calendar')->group(function () {
+        Route::get('developer/{id}', [CalendarController::class, 'developerCalendar']);
+        Route::get('project/{id}', [CalendarController::class, 'projectCalendar']);
     });
 });

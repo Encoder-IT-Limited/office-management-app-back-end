@@ -27,7 +27,7 @@ class ProjectTask extends Model
 
     public function project()
     {
-        return $this->belongsTo(ProjectTask::class, 'project_id');
+        return $this->belongsTo(Project::class, 'project_id');
     }
 
     public function developer()
