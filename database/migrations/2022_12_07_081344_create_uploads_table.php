@@ -15,7 +15,7 @@ class CreateUploadsTable extends Migration
     {
         Schema::create('uploads', function (Blueprint $table) {
             $table->id();
-            $table->text('path', 500);
+            $table->string('path');
             $table->morphs('uploadable');
             $table->softDeletes();
             $table->timestamps();

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EmployeeNote;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class EmployeeNoteController extends Controller
@@ -30,11 +31,32 @@ class EmployeeNoteController extends Controller
         }
 
         $data = $validator->validated();
-        $note = EmployeeNote::create($data);
+        $employeeNote = EmployeeNote::create($data);
+
+        if ($employeeNote) {
+            if ($request->has('document')) {
+                $validator = Validator::make($request->all(), [
+                    'document' => 'required|mimes:doc,pdf,docx,zip,jpeg,png,jpg,gif,svg,webp,avif|max:20480',
+                ]);
+                if ($validator->fails()) {
+                    return response()->json(['error' => $validator->errors()], 422);
+                }
+                if ($employeeNote->uploads && Storage::disk('public')->exists($employeeNote->uploads[0]->path)) {
+                    Storage::disk('public')->delete($employeeNote->uploads[0]->path);
+                }
+
+                $file = $request->file('document');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $stored_path = $request->file('document')->storeAs('employee_note/document/' . $employeeNote->id, $fileName, 'public');
+                $employeeNote->uploads()->create([
+                    'path' => $stored_path
+                ]);
+            }
+        }
 
         return response()->json([
             'status'  => 'Success',
-            'note' => $note
+            'note' => $employeeNote
         ], 201);
     }
 

@@ -12,7 +12,8 @@ class ReminderController extends Controller
 {
     public function index(Request $request)
     {
-        $reminder = Reminder::with('users', 'clients', 'projects')->first();
+        $reminder = Reminder::with('users', 'clients', 'projects')->where('id', Auth::user()->id)->get();
+
         return response()->json([
             'status'   => 'Success',
             'reminders' => $reminder

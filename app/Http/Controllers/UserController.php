@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Upload;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::with('roles', 'skills')->latest()->paginate($request->per_page ?? 25);
+        $users = User::with('roles', 'skills', 'uploads')->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
             'status' => 'Success',
@@ -42,6 +44,22 @@ class UserController extends Controller
         if ($user) {
             $user->roles()->attach($request->role_id);
             $user->skills()->attach($request->skill_id);
+
+            if ($request->has('document')) {
+                $validator = Validator::make($request->all(), [
+                    'document' => 'required|mimes:doc,pdf,docx,zip,jpeg,png,jpg,gif,svg,webp,avif|max:20480',
+                ]);
+                if ($validator->fails()) {
+                    return response()->json(['error' => $validator->errors()], 422);
+                }
+
+                $file = $request->file('document');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $stored_path = $request->file('document')->storeAs('user/file/' . $user->id, $fileName, 'public');
+                $user->uploads()->create([
+                    'path' => $stored_path
+                ]);
+            }
         }
 
         return response()->json([
@@ -82,6 +100,25 @@ class UserController extends Controller
             $user->roles()->sync($request->role_id);
         if (isset($request->skill_id))
             $user->skills()->sync($request->skill_id);
+
+        if ($request->has('document')) {
+            $validator = Validator::make($request->all(), [
+                'document' => 'required|mimes:doc,pdf,docx,zip,jpeg,png,jpg,gif,svg,webp,avif|max:20480',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 422);
+            }
+            if ($user->uploads && Storage::disk('public')->exists($user->uploads[0]->path)) {
+                Storage::disk('public')->delete($user->uploads[0]->path);
+            }
+
+            $file = $request->file('document');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $stored_path = $request->file('document')->storeAs('user/file/' . $user->id, $fileName, 'public');
+            $user->uploads()->create([
+                'path' => $stored_path
+            ]);
+        }
 
         return response()->json([
             'status' => 'Success',

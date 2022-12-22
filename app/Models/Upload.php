@@ -14,7 +14,9 @@ class Upload extends Model
     // protected $primaryKey = 'id';
 
     protected $fillable = [
-        'file',
+        'path',
+        'uploadable_id',
+        'uploadable_type'
     ];
 
     public function uploadable()

@@ -82,10 +82,33 @@ class LeaveController extends Controller
 
     public function destroy($id)
     {
-        $leaveData = Leave::destroy($id);
+        Leave::destroy($id);
 
         return response()->json([
             'status' => 'Deleted Success',
         ], 200);
+    }
+
+    public function leaveStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'leave_id'            => 'required|exists:leaves,id',
+            'status'              => 'required|in:accepted,rejected',
+            'reason'              => 'sometimes|required|string',
+            'accepted_start_date' => 'sometimes|required|date',
+            'accepted_end_date'   => 'sometimes|required|date'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()]);
+        }
+
+        $leave = Leave::findOrFail($request->leave_id);
+        $leave->update($validator->validated());
+
+        return response()->json([
+            'status' => 'Success',
+            'leave'   => $leave
+        ], 201);
     }
 }

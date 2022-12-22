@@ -44,7 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('index', [UserController::class, 'index'])->middleware('permission:can-user-index');
         Route::post('store', [UserController::class, 'store'])->middleware('permission:can-user-store');
         Route::get('show/{id}', [UserController::class, 'show'])->middleware('permission:can-user-show');
-        Route::patch('update', [UserController::class, 'update'])->middleware('permission:can-user-update');
+        Route::post('update', [UserController::class, 'update'])->middleware('permission:can-user-update');
         Route::delete('delete/{id}', [UserController::class, 'destroy'])->middleware('permission:can-user-delete');
     });
 
@@ -56,12 +56,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('delete/{id}', [SkillController::class, 'destroy']);
     });
 
-    Route::prefix('leave-apply')->group(function () {
+    Route::prefix('leave')->group(function () {
         Route::get('index', [LeaveController::class, 'index']);
         Route::post('store', [LeaveController::class, 'store']);
         Route::get('show/{id}', [LeaveController::class, 'show']);
         Route::patch('update', [LeaveController::class, 'update']);
         Route::delete('delete/{id}', [LeaveController::class, 'destroy']);
+        Route::post('status', [LeaveController::class, 'leaveStatus']);
     });
 
     Route::prefix('employee-notes')->group(function () {

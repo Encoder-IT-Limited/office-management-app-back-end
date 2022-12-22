@@ -28,4 +28,9 @@ class EmployeeNote extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function uploads()
+    {
+        return $this->morphMany(Upload::class, 'uploadable');
+    }
 }
