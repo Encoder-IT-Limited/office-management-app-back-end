@@ -20,9 +20,10 @@ class CreateRemindersTable extends Migration
             $table->foreignId('user_id')->constrained('id')->on('users')->onDelete('cascade');
             $table->date('date');
             $table->time('time');
-            $table->string('reminder_time');
-            $table->text('description');
+            $table->time('reminder_at');
+            $table->text('description', 500);
             $table->boolean('status')->default(1);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

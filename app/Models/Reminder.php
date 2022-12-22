@@ -19,7 +19,7 @@ class Reminder extends Model
         'client_id',
         'date',
         'time',
-        'reminder_time',
+        'reminder_at',
         'description',
         'status'
     ];

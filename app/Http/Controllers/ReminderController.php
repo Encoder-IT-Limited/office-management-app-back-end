@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reminder;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -11,23 +12,22 @@ class ReminderController extends Controller
 {
     public function index(Request $request)
     {
-        $reminders = Reminder::with('users', 'clients', 'reminders')->latest()->paginate($request->per_page ?? 25);
-
+        $reminder = Reminder::with('users', 'clients', 'projects')->first();
         return response()->json([
             'status'   => 'Success',
-            'reminders' => $reminders
+            'reminders' => $reminder
         ], 200);
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'client_id'     => 'required|exists:users,id',
-            'project_id'    => 'sometimes|required|exists:projects,id',
-            'date'          => 'required|date',
-            'time'          => 'required|time',
-            'reminder_time' => 'required',
-            'description'   => 'required|string',
+            'client_id'   => 'required|exists:users,id',
+            'project_id'  => 'sometimes|required|exists:projects,id',
+            'date'        => 'required',
+            'time'        => 'required',
+            'reminder_at' => 'required',
+            'description' => 'required|string',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);
@@ -56,13 +56,14 @@ class ReminderController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'client_id'     => 'required|exists:users,id',
-            'project_id'    => 'sometimes|required|exists:projects,id',
-            'date'          => 'required|date',
-            'time'          => 'required|time',
-            'reminder_time' => 'required',
-            'description'   => 'required|string',
-            'reminder_id'   => 'required|exists:reminders,id'
+            'client_id'   => 'required|exists:users,id',
+            'project_id'  => 'sometimes|required|exists:projects,id',
+            'date'        => 'required',
+            'time'        => 'required',
+            'reminder_at' => 'required',
+            'description' => 'required|string',
+            'reminder_id' => 'required|exists:reminders,id',
+            'user_id'     => 'required|exists:users,id'
         ]);
 
         if ($validator->fails()) {
