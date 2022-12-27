@@ -3,14 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Leave;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class LeaveController extends Controller
 {
     public function index(Request $request)
     {
-        $leaveData = Leave::latest()->paginate($request->per_page ?? 25);
+        $user = User::findOrFail(Auth::id());
+
+        $leaveData = Leave::with('user');
+
+        if ($user->hasrole(['manager', ['developer']])) {
+            $leaveData->where('user_id', $user->id);
+        }
+        $leaveData->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
             'status'     => 'Success',

@@ -3,19 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmployeeNote;
+use App\Models\User;
+use App\Traits\HasPermissionsTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class EmployeeNoteController extends Controller
 {
+    use HasPermissionsTrait;
     public function index(Request $request)
     {
-        $notes = EmployeeNote::with('users')->latest()->paginate($request->per_page ?? 25);
+        $user = User::findOrFail(Auth::id());
+
+        $employeeNotes = EmployeeNote::with('users');
+
+        if ($user->hasRole(['manager', 'developer'])) {
+            $employeeNotes->where('user_id', $user->id);
+        }
+
+        $employeeNotes->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
             'status'   => 'Success',
-            'notes' => $notes
+            'notes' => $employeeNotes
         ], 200);
     }
 
