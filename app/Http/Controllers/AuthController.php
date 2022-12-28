@@ -22,10 +22,12 @@ class AuthController extends Controller
 
             if (Auth::attempt($request->only(['email', 'password']))) {
                 $user = Auth::user();
+                $user->roles;
                 return response()->json([
                     'status' => true,
                     'message' => "Successfully Login",
-                    'token' => $user->createToken('Api Token')->plainTextToken
+                    'token' => $user->createToken('Api Token')->plainTextToken,
+                    'user' => $user
                 ], 200);
             }
 
