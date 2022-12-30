@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,8 +22,9 @@ class AuthController extends Controller
             }
 
             if (Auth::attempt($request->only(['email', 'password']))) {
-                $user = Auth::user();
-                $user->roles;
+                $user = User::with(['roles' => function ($role) {
+                    $role->with('permissions');
+                }])->find(Auth::id());
                 return response()->json([
                     'status' => true,
                     'message' => "Successfully Login",

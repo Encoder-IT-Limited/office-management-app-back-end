@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('show/{id}', [UserController::class, 'show'])->middleware('permission:can-user-show');
         Route::post('update', [UserController::class, 'update'])->middleware('permission:can-user-update');
         Route::delete('delete/{id}', [UserController::class, 'destroy'])->middleware('permission:can-user-delete');
+        Route::get('details', [UserController::class, 'details']);
     });
 
     Route::prefix('skills')->group(function () {

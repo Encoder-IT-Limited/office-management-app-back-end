@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Upload;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -132,6 +133,18 @@ class UserController extends Controller
 
         return response()->json([
             'status' => 'Deleted Success',
+        ], 200);
+    }
+
+    public function details()
+    {
+        $user = User::with(['roles' => function ($role) {
+            $role->with('permissions');
+        }])->find(Auth::id());
+
+        return response()->json([
+            'status' => 'Success',
+            'user' => $user
         ], 200);
     }
 }
