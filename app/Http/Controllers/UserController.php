@@ -14,26 +14,37 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::with('roles', 'skills', 'uploads')->latest()->paginate($request->per_page ?? 25);
+        $users = User::with('roles', 'skills', 'uploads');
 
+        if ($request->has('user_type')) {
+            if ($request->user_type == "client")
+                $users->whereHas('roles', function ($role) {
+                    $role->where('slug', 'client');
+                });
+
+            if ($request->user_type == "developer")
+                $users->whereHas('roles', function ($role) {
+                    $role->where('slug', 'developer');
+                });
+        }
+        $users_data = $users->latest()->paginate($request->per_page ?? 25);
         return response()->json([
             'status' => 'Success',
-            'users'   => $users
+            'users'   => $users_data
         ], 200);
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'        => 'required|string',
-            'email'       => 'required|email|unique:users',
-            'phone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
-            'password'    => 'required|confirmed',
-            'designation' => 'sometimes|required|string',
-            'role_id'     => 'required|exists:roles,id',
-            'skill_id'    => 'sometimes|required|exists:roles,id'
+            'name'              => 'required|string',
+            'email'             => 'required|email|unique:users',
+            'phone'             => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
+            'password'          => 'required|confirmed',
+            'designation'       => 'sometimes|required|string',
+            'role_id'           => 'required|exists:roles,id',
+            'skills.*.skill_id' => 'sometimes|required|exists:skills,id'
         ]);
-
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);
         }
@@ -44,7 +55,7 @@ class UserController extends Controller
 
         if ($user) {
             $user->roles()->attach($request->role_id);
-            $user->skills()->attach($request->skill_id);
+            $user->skills()->attach($request->skills);
 
             if ($request->has('document')) {
                 $validator = Validator::make($request->all(), [
@@ -84,7 +95,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name'        => 'required|string',
             'email'       => 'required|email|unique:users,email,' . $request->user_id,
-            'phone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            'phone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
             'user_id'     => 'required|exists:users,id',
             'designation' => 'sometimes|required'
         ]);
@@ -98,9 +109,9 @@ class UserController extends Controller
         $user->update($validator->validated());
 
         if (isset($request->role_id))
-            $user->roles()->sync($request->role_id);
-        if (isset($request->skill_id))
-            $user->skills()->sync($request->skill_id);
+            $user->roles()->sync($request->role_id);  
+        if (isset($request->skills))
+            $user->skills()->sync($request->skills);
 
         if ($request->has('document')) {
             $validator = Validator::make($request->all(), [

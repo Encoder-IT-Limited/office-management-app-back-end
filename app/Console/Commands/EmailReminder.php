@@ -42,14 +42,14 @@ class EmailReminder extends Command
     public function handle()
     {
         $reminders = Reminder::with('users')->where('date', Carbon::now()->toDateString())->where('status', 1)->get();
-
-        foreach ($reminders as $reminder) {
-            $reminder_at = new Carbon($reminder->reminder_at);
-            $now = Carbon::now()->toTimeString();
-            if ($reminder_at->diffInMinutes($now) == 0) {
-                info('this is send');
-                Mail::to($reminder->users->email)->send(new ReminderMail($reminder));
-            }
-        }
+        info('this is send');
+        // foreach ($reminders as $reminder) {
+        //     $reminder_at = new Carbon($reminder->reminder_at);
+        //     $now = Carbon::now()->toTimeString();
+        //     if ($reminder_at->diffInMinutes($now) == 0) {
+        //         info('this is send');
+        //         Mail::to($reminder->users->email)->send(new ReminderMail($reminder));
+        //     }
+        // }
     }
 }

@@ -50,20 +50,20 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('skills')->group(function () {
-        Route::get('index', [SkillController::class, 'index']);
-        Route::post('store', [SkillController::class, 'store']);
-        Route::get('show/{id}', [SkillController::class, 'show']);
-        Route::patch('update', [SkillController::class, 'update']);
-        Route::delete('delete/{id}', [SkillController::class, 'destroy']);
+        Route::get('index', [SkillController::class, 'index'])->middleware('permission:can-skill-index');
+        Route::post('store', [SkillController::class, 'store'])->middleware('permission:can-skill-store');
+        Route::get('show/{id}', [SkillController::class, 'show'])->middleware('permission:can-skill-show');
+        Route::patch('update', [SkillController::class, 'update'])->middleware('permission:can-skill-update');
+        Route::delete('delete/{id}', [SkillController::class, 'destroy'])->middleware('permission:can-skill-delete');
     });
 
     Route::prefix('leave')->group(function () {
-        Route::get('index', [LeaveController::class, 'index']);
-        Route::post('store', [LeaveController::class, 'store']);
-        Route::get('show/{id}', [LeaveController::class, 'show']);
-        Route::patch('update', [LeaveController::class, 'update']);
-        Route::delete('delete/{id}', [LeaveController::class, 'destroy']);
-        Route::post('status', [LeaveController::class, 'leaveStatus']);
+        Route::get('index', [LeaveController::class, 'index'])->middleware('permission:can-leave-index');
+        Route::post('store', [LeaveController::class, 'store'])->middleware('permission:can-leave-store');
+        Route::get('show/{id}', [LeaveController::class, 'show'])->middleware('permission:can-leave-show');
+        Route::patch('update', [LeaveController::class, 'update'])->middleware('permission:can-leave-update');
+        Route::delete('delete/{id}', [LeaveController::class, 'destroy'])->middleware('permission:can-leave-delete');
+        Route::post('status', [LeaveController::class, 'leaveStatus'])->middleware('permission:can-leave-status');
     });
 
     Route::prefix('employee-notes')->group(function () {
@@ -75,11 +75,11 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('projects')->group(function () {
-        Route::get('index', [ProjectControler::class, 'index']);
-        Route::post('store', [ProjectControler::class, 'store']);
-        Route::get('show/{id}', [ProjectControler::class, 'show']);
-        Route::patch('update', [ProjectControler::class, 'update']);
-        Route::delete('delete/{id}', [ProjectControler::class, 'destroy']);
+        Route::get('index', [ProjectControler::class, 'index'])->middleware('permission:can-project-index');
+        Route::post('store', [ProjectControler::class, 'store'])->middleware('permission:can-project-update');
+        Route::get('show/{id}', [ProjectControler::class, 'show'])->middleware('permission:can-project-show');
+        Route::patch('update', [ProjectControler::class, 'update'])->middleware('permission:can-project-update');
+        Route::delete('delete/{id}', [ProjectControler::class, 'destroy'])->middleware('permission:can-project-delete');
     });
 
     Route::prefix('reminders')->group(function () {
@@ -93,5 +93,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('calendar')->group(function () {
         Route::get('developer/{id}', [CalendarController::class, 'developerCalendar']);
         Route::get('project/{id}', [CalendarController::class, 'projectCalendar']);
+    });
+
+    Route::prefix('dashboard')->group(function () {
+        Route::get('index', [CalendarController::class, 'developerCalendar'])->middleware('can-dashboard-index');
     });
 });

@@ -12,7 +12,9 @@ class ProjectControler extends Controller
 
     public function index(Request $request)
     {
-        $porjects = Project::with('projectTasks')->latest()->paginate($request->per_page ?? 25);
+        $porjects = Project::with(['clients', 'projectTasks' => function ($data) {
+            $data->with('developer');
+        }])->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
             'status'   => 'Success',
@@ -28,7 +30,7 @@ class ProjectControler extends Controller
             'start_date'     => 'required|date',
             'end_date'       => 'required|date',
             'client_id'      => 'required|exists:users,id',
-            'developer_task' => 'required|array',
+            'developer_task' => 'sometimes|required|array',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);
@@ -38,7 +40,7 @@ class ProjectControler extends Controller
         $data['status'] =  "lead";
         $project = Project::create($data);
 
-        if ($project) {
+        if ($project && $request->has("developer_task")) {
             foreach ($request->developer_task as $developerTask) {
                 $projectTask               = new ProjectTask();
                 $projectTask->task         = $developerTask['task'];
@@ -73,7 +75,7 @@ class ProjectControler extends Controller
             'budget'     => 'required',
             'start_date' => 'required|date',
             'end_date'   => 'required|date',
-            'status'     => 'required|in:lead,pending,on_going,accepted,rejected,completed',
+            // 'status'     => 'required|in:lead,pending,on_going,accepted,rejected,completed',
             'client_id'  => 'required|exists:users,id',
             'project_id' => 'required|exists:projects,id'
         ]);
