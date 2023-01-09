@@ -116,4 +116,25 @@ class ProjectControler extends Controller
             'status' => 'Deleted Success',
         ], 200);
     }
+
+    public function kpiStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'project_id' => 'required|exists:projects,id',
+            'kpi_status' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()]);
+        }
+        // dd($request->project_id, $request->kpi_status);
+
+        $project = Project::findOrFail($request->project_id);
+        $project->update(['is_kpi_filled' => $request->kpi_status]);
+
+        return response()->json([
+            'status'  => 'Success',
+            'project' => $project
+        ], 201);
+    }
 }

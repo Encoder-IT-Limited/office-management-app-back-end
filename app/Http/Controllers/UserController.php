@@ -97,7 +97,8 @@ class UserController extends Controller
             'email'       => 'required|email|unique:users,email,' . $request->user_id,
             'phone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
             'user_id'     => 'required|exists:users,id',
-            'designation' => 'sometimes|required'
+            'designation' => 'sometimes|required',
+            'password'    => 'sometimes|required|confirmed'
         ]);
 
         if ($validator->fails()) {
@@ -109,7 +110,7 @@ class UserController extends Controller
         $user->update($validator->validated());
 
         if (isset($request->role_id))
-            $user->roles()->sync($request->role_id);  
+            $user->roles()->sync($request->role_id);
         if (isset($request->skills))
             $user->skills()->sync($request->skills);
 

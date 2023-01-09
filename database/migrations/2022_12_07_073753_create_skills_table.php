@@ -16,7 +16,7 @@ class CreateSkillsTable extends Migration
         Schema::create('skills', function (Blueprint $table) {
             $table->id();
             $table->string('name', 64);
-            $table->string('slug')->unique();
+            $table->string('slug');
             $table->softDeletes();
             $table->timestamps();
         });
