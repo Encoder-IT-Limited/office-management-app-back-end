@@ -94,9 +94,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('calendar')->group(function () {
         Route::get('developer/{id}', [CalendarController::class, 'developerCalendar']);
         Route::get('project/{id}', [CalendarController::class, 'projectCalendar']);
+        Route::get('calender_view', [CalendarController::class, 'calenderView']);
     });
 
     Route::prefix('dashboard')->group(function () {
         Route::get('index', [CalendarController::class, 'developerCalendar'])->middleware('can-dashboard-index');
     });
+
+    
 });

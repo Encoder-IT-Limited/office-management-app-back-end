@@ -23,11 +23,11 @@ class EmployeeNoteController extends Controller
             $employeeNotes->where('user_id', $user->id);
         }
 
-        $employeeNotes->latest()->paginate($request->per_page ?? 25);
-
+        // $employeeNotes->latest()->paginate($request->per_page ?? 25);
+        $query = $employeeNotes->latest()->paginate($request->per_page ?? 25);
         return response()->json([
             'status'   => 'Success',
-            'notes' => $employeeNotes
+            'notes' => $query
         ], 200);
     }
 
@@ -37,6 +37,7 @@ class EmployeeNoteController extends Controller
             'user_id'     => 'required|exists:users,id',
             'is_positive' => 'required|boolean',
             'note'        => 'required|string',
+            'document'    => 'sometimes|required|mimes:doc,pdf,docx,zip,jpeg,png,jpg,gif,svg,webp,avif|max:20480',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);

@@ -15,15 +15,14 @@ class LeaveController extends Controller
         $user = User::findOrFail(Auth::id());
 
         $leaveData = Leave::with('user');
-
-        if ($user->hasrole(['manager', ['developer']])) {
+        if ($user->hasrole(['manager', 'developer'])) {
             $leaveData->where('user_id', $user->id);
         }
-        $leaveData->latest()->paginate($request->per_page ?? 25);
+        $query = $leaveData->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
             'status'     => 'Success',
-            'leave_data' => $leaveData
+            'leave_data' => $query
         ], 200);
     }
 

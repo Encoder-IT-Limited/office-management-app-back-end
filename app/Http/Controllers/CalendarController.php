@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ProjectTask;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CalendarController extends Controller
@@ -41,5 +42,13 @@ class CalendarController extends Controller
         }
 
         return response()->json($projectCalendars);
+    }
+
+    public function calenderView()
+    {
+        $developerDates = User::with('projectTask', 'skills')->whereHas('roles', function ($role) {
+            return $role->where('slug', 'developer');
+        })->get();
+        return response()->json($developerDates);
     }
 }
