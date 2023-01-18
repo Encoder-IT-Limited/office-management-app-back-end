@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EmployeeNoteController;
@@ -101,5 +102,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('index', [CalendarController::class, 'developerCalendar'])->middleware('can-dashboard-index');
     });
 
-    
+    Route::prefix('attendace')->group(function () {
+        Route::get('check-in', [AttendanceController::class, 'checkIn']);
+        Route::get('check-out', [AttendanceController::class, 'checkOut']);
+        Route::get('employee-attendance', [AttendanceController::class, 'employeeAttendance']);
+    });
 });
