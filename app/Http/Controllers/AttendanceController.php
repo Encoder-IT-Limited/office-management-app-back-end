@@ -109,7 +109,7 @@ class AttendanceController extends Controller
         }
 
         $users = User::whereHas('roles', function ($role) {
-            $role->where('slug', 'developer');
+            $role->where('slug', 'developer')->orWhere('slug', 'manager');
         })->where('status', 'active')->pluck('id')->toArray();
 
         $delay_array = array();
