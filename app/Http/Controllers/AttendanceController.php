@@ -107,26 +107,15 @@ class AttendanceController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()]);
         }
-
-        $users = User::whereHas('roles', function ($role) {
+        $year = $request->year;
+        $month = $request->month;
+        $queries = User::delays($year, $month)->whereHas('roles', function ($role) {
             $role->where('slug', 'developer')->orWhere('slug', 'manager');
-        })->where('status', 'active')->pluck('id')->toArray();
+        })->where('status', 'active')->orderBy('created_at', 'desc')->paginate($request->per_page ?? 8);
 
-        $delay_array = array();
-        foreach ($users as $user) {
-            $data = Attendace::with('employee')->where('employee_id', $user)->whereTime('check_in', '>', Carbon::parse('09:30'))
-                ->whereYear('check_in', '=', $request->year)->whereMonth('check_in', '=', $request->month)->get();
-            if ($data->isNotEmpty()) {
-                $delay_array[] = [
-                    'id' => $data[0]->employee_id,
-                    'name' => $data[0]->employee->name,
-                    'delay' => count($data),
-                ];
-            }
-        }
         return response()->json([
             'status'  => 'Success',
-            'delay' => $delay_array
+            'delay' => $queries
         ], 201);
     }
 }

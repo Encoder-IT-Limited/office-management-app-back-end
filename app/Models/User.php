@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasPermissionsTrait;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -74,6 +75,19 @@ class User extends Authenticatable
     public function uploads()
     {
         return $this->morphMany(Upload::class, 'uploadable');
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendace::class, 'employee_id');
+    }
+
+    public function scopeDelays($query, $year, $month)
+    {
+        return $query->with(['attendances' => function ($attendance) use ($year, $month) {
+            return $attendance->whereTime('attendaces.check_in', '>', Carbon::parse('09:30:00'))
+                ->whereYear('check_in', '=',  $year)->whereMonth('check_in', '=', $month);
+        }]);
     }
 
     public function getUserRoleAttribute()
