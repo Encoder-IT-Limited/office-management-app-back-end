@@ -106,5 +106,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('check-in', [AttendanceController::class, 'checkIn']);
         Route::get('check-out', [AttendanceController::class, 'checkOut']);
         Route::get('employee-attendance', [AttendanceController::class, 'employeeAttendance']);
+        Route::get('employee-delay', [AttendanceController::class, 'employeeDelay']);
     });
 });

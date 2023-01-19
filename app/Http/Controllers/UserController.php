@@ -14,7 +14,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::with('roles', 'skills', 'uploads');
+        $users = User::with('roles', 'skills', 'uploads')->where('status', 'active');
 
         if ($request->has('user_type')) {
             if ($request->user_type == "client")
@@ -25,6 +25,11 @@ class UserController extends Controller
             if ($request->user_type == "developer")
                 $users->whereHas('roles', function ($role) {
                     $role->where('slug', 'developer');
+                });
+
+            if ($request->user_type == "manager")
+                $users->whereHas('roles', function ($role) {
+                    $role->where('slug', 'manager');
                 });
         }
         $users_data = $users->latest()->paginate($request->per_page ?? 25);

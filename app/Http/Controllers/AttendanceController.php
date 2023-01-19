@@ -7,6 +7,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
@@ -78,23 +79,54 @@ class AttendanceController extends Controller
         }
 
         $user = User::findOrFail(Auth::id());
-        $attendance = Attendace::with('employee');
+        $query = Attendace::with('employee');
 
         if ($request->has('employee_id'))
-            $attendance->where('employee_id', $request->employee_id);
+            $query->where('employee_id', $request->employee_id);
         if ($request->has('month'))
-            $attendance->whereMonth('check_in', '=', $request->month);
+            $query->whereMonth('check_in', '=', $request->month);
         if ($request->has('year'))
-            $attendance->whereYear('check_in', '=', $request->year);
+            $query->whereYear('check_in', '=', $request->year);
 
         if ($user->hasRole('developer'))
-            $attendance->where('employee_id', $user->id);
+            $query->where('employee_id', $user->id);
 
-        $data = $attendance->paginate($request->per_page ?? 25);
-        dd($data);
+        $attendances = $query->paginate($request->per_page ?? 25);
         return response()->json([
             'status'  => 'Success',
-            'attendance' => $data
+            'attendance' => $attendances
+        ], 201);
+    }
+
+    public function employeeDelay(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'month'       => 'sometimes|required',
+            'year'        => 'sometimes|required'
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()]);
+        }
+
+        $users = User::whereHas('roles', function ($role) {
+            $role->where('slug', 'developer');
+        })->where('status', 'active')->pluck('id')->toArray();
+
+        $delay_array = array();
+        foreach ($users as $user) {
+            $data = Attendace::with('employee')->where('employee_id', $user)->whereTime('check_in', '>', Carbon::parse('09:30'))
+                ->whereYear('check_in', '=', $request->year)->whereMonth('check_in', '=', $request->month)->get();
+            if ($data->isNotEmpty()) {
+                $delay_array[] = [
+                    'id' => $data[0]->employee_id,
+                    'name' => $data[0]->employee->name,
+                    'delay' => count($data),
+                ];
+            }
+        }
+        return response()->json([
+            'status'  => 'Success',
+            'delay' => $delay_array
         ], 201);
     }
 }
