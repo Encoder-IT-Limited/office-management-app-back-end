@@ -25,6 +25,11 @@ class AuthController extends Controller
                 $user = User::with(['roles' => function ($role) {
                     $role->with('permissions');
                 }])->find(Auth::id());
+
+                if ($user->hasRole('developer')) {
+                    (new AttendanceController)->checkIn(new Request($request->all()));
+                }
+
                 return response()->json([
                     'status' => true,
                     'message' => "Successfully Login",
@@ -35,13 +40,13 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => false,
-                'message' => "Credentials are doen't match",
+                'message' => "Credentials doesn't match",
             ], 401);
         } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'message' => $e->getMessage()
-            ], 500);
+            ], $e->getCode());
         }
     }
 

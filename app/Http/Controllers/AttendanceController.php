@@ -14,25 +14,24 @@ class AttendanceController extends Controller
 {
     public function checkIn(Request $request)
     {
-        $carbon = Carbon::now();
-        $check_in = $carbon->subMinutes(5)->toDateTimeString();
-
-        $user_check = Attendace::where('employee_id', Auth::id())->whereDate('check_in', $carbon)->first();
-        if ($user_check) {
-            return response()->json([
-                'status'  => 'Success',
-                'message' => "You are already checked-in"
-            ], 201);
+        $user = User::findOrFail(Auth::id());
+        $check_in = Carbon::now();
+        if ($user->hasRole('admin')) {
+            $check_in = Carbon::createFromFormat('Y-m-d H:i:s', $request->check_in);
         }
+
+        $user_check = Attendace::whereDate('check_in', $check_in)->where('employee_id', $user->id)->first();
+        if ($user_check) abort(409, 'You are already checked-in');
+
         $attendance = Attendace::create([
             'employee_id' => Auth::id(),
-            'check_in' => $check_in,
+            'check_in' => $check_in->subMinutes(5),
         ]);
 
         return response()->json([
-            'status'  => 'Success',
+            'attendance'  => $attendance,
             'message' => "You are successfully checked-in"
-        ], 201);
+        ], 200);
     }
 
     public function checkOut(Request $request)
@@ -91,7 +90,7 @@ class AttendanceController extends Controller
         if ($user->hasRole('developer'))
             $query->where('employee_id', $user->id);
 
-        $attendances = $query->paginate($request->per_page ?? 25);
+        $attendances = $query->latest()->paginate($request->per_page ?? 25);
         return response()->json([
             'status'  => 'Success',
             'attendance' => $attendances
