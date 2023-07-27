@@ -21,7 +21,10 @@ class AttendanceController extends Controller
         }
 
         $user_check = Attendace::whereDate('check_in', $check_in)->where('employee_id', $user->id)->first();
-        if ($user_check) abort(409, 'You are already checked-in');
+        if ($user_check)
+            return response()->json([
+                'message' => "You are already checked-in"
+            ], 201);;
 
         $attendance = Attendace::create([
             'employee_id' => Auth::id(),

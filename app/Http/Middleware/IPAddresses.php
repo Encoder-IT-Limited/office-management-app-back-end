@@ -17,7 +17,9 @@ class IPAddresses
     public function handle(Request $request, Closure $next)
     {
         if ($request->ip() != env('IP_ADDRESS')) {
-            abort(403);
+            return response()->json([
+                'message' => "You havn't permission with your IP"
+            ]);
         }
         return $next($request);
     }

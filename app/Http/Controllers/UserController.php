@@ -157,7 +157,7 @@ class UserController extends Controller
 
     public function restore(Request $request)
     {
-        User::find($request->id)->withTrashed()->restore();
+        User::withTrashed()->find($request->id)->restore();
 
         return response()->json([
             'status' => 'Restore Successfully',
