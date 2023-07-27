@@ -14,7 +14,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $queries = User::with('roles', 'skills', 'uploads')->where('status', 'active');
+        $queries = User::with('roles', 'skills', 'uploads')->where('status', 'active')->withTrashed();
 
         $queries->when($request->has('user_type'), function ($query) use ($request) {
             $request->validate([
@@ -142,7 +142,25 @@ class UserController extends Controller
         User::destroy($id);
 
         return response()->json([
-            'status' => 'Deleted Success',
+            'status' => 'Deleted Successfully',
+        ], 200);
+    }
+
+    public function forceDestroy($id)
+    {
+        User::withTrashed()->find($id)->forceDelete();
+
+        return response()->json([
+            'status' => 'Deleted Successfully',
+        ], 200);
+    }
+
+    public function restore(Request $request)
+    {
+        User::find($request->id)->withTrashed()->restore();
+
+        return response()->json([
+            'status' => 'Restore Successfully',
         ], 200);
     }
 
