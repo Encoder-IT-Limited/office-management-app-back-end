@@ -14,28 +14,21 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::with('roles', 'skills', 'uploads')->where('status', 'active');
+        $queries = User::with('roles', 'skills', 'uploads')->where('status', 'active');
 
-        if ($request->has('user_type')) {
-            if ($request->user_type == "client")
-                $users->whereHas('roles', function ($role) {
-                    $role->where('slug', 'client');
-                });
+        $queries->when($request->has('user_type'), function ($query) use ($request) {
+            $request->validate([
+                'user_type' => 'required|array',
+                'user_type.*' => 'required|in:client,developer,manager,admin',
+            ]);
+            return $query->whereHas('roles', function ($role) use ($request) {
+                return $role->whereIn('slug', $request->user_type);
+            });
+        });
 
-            if ($request->user_type == "developer")
-                $users->whereHas('roles', function ($role) {
-                    $role->where('slug', 'developer');
-                });
-
-            if ($request->user_type == "manager")
-                $users->whereHas('roles', function ($role) {
-                    $role->where('slug', 'manager');
-                });
-        }
-        $users_data = $users->latest()->paginate($request->per_page ?? 25);
+        $users = $queries->latest()->paginate($request->per_page ?? 25);
         return response()->json([
-            'status' => 'Success',
-            'users'   => $users_data
+            'users'   => $users
         ], 200);
     }
 
