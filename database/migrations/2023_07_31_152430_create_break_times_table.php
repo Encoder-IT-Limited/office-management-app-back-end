@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAttendacesTable extends Migration
+class CreateBreakTimesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreateAttendacesTable extends Migration
      */
     public function up()
     {
-        Schema::create('attendaces', function (Blueprint $table) {
+        Schema::create('break_times', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained('users')->onDelete('cascade');
-            $table->timestamp('check_in');
-            $table->timestamp('check_out')->nullable();
-            $table->enum('message', ['leave', 'sick_leave', 'early_leave', 'present', 'absance'])->default('present');
-            $table->softDeletes();
+            $table->timestamp('start_time');
+            $table->timestamp('end_time')->nullable();
+            $table->string('reason');
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ class CreateAttendacesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('attendaces');
+        Schema::dropIfExists('break_times');
     }
 }

@@ -15,7 +15,7 @@ class Attendace extends Model
         'check_in',
         'check_out',
         'date',
-        'status'
+        'message'
     ];
 
     protected $appends = ['duration'];

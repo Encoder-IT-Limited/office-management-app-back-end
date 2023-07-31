@@ -20,7 +20,7 @@ class CreateLeavesTable extends Migration
             $table->text('description');
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('status', ['new', 'pending', 'accepted', 'rejected']);
+            $table->enum('message', ['new', 'pending', 'accepted', 'rejected']);
             $table->string('reason')->nullable();
             $table->date('accepted_start_date')->nullable();
             $table->date('accepted_end_date')->nullable();

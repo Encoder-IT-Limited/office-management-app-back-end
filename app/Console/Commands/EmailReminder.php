@@ -41,7 +41,7 @@ class EmailReminder extends Command
      */
     public function handle()
     {
-        $reminders = Reminder::with('users')->where('date', Carbon::now()->toDateString())->where('status', 1)->get();
+        $reminders = Reminder::with('users')->where('date', Carbon::now()->toDateString())->where('message', 1)->get();
         info('this is send');
         // foreach ($reminders as $reminder) {
         //     $reminder_at = new Carbon($reminder->reminder_at);

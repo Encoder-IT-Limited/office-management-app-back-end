@@ -17,7 +17,7 @@ class Project extends Model
         'budget',
         'start_date',
         'end_date',
-        'status',
+        'message',
         'client_id',
     ];
 

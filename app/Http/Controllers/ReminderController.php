@@ -15,7 +15,7 @@ class ReminderController extends Controller
         $reminder = Reminder::with('users', 'clients', 'projects')->where('id', Auth::user()->id)->get();
 
         return response()->json([
-            'status'   => 'Success',
+            'message'   => 'Success',
             'reminders' => $reminder
         ], 200);
     }
@@ -39,7 +39,7 @@ class ReminderController extends Controller
         $reminder = Reminder::create($data);
 
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Successfully Added',
             'reminder' => $reminder
         ], 201);
     }
@@ -49,7 +49,7 @@ class ReminderController extends Controller
         $reminder = Reminder::findOrFail($id);
 
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Success',
             'reminder' => $reminder
         ], 200);
     }
@@ -75,7 +75,7 @@ class ReminderController extends Controller
         $reminder->update($validator->validated());
 
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Success Updated',
             'reminder' => $reminder
         ], 201);
     }
@@ -85,7 +85,7 @@ class ReminderController extends Controller
         Reminder::destroy($id);
 
         return response()->json([
-            'status' => 'Deleted Success',
+            'message' => 'Deleted Successfully',
         ], 200);
     }
 }

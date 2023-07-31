@@ -41,7 +41,8 @@ class UserController extends Controller
             'password'          => 'required|confirmed',
             'designation'       => 'sometimes|required|string',
             'role_id'           => 'required|exists:roles,id',
-            'skills.*.skill_id' => 'sometimes|required|exists:skills,id'
+            'skills.*.skill_id' => 'sometimes|required|exists:skills,id',
+            'skills.*.experience' => 'sometimes|required|max:10'
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 500);
@@ -73,7 +74,7 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Added',
             'user'   => $user
         ], 201);
     }
@@ -83,7 +84,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Success',
             'user'   => $user
         ], 200);
     }
@@ -132,7 +133,7 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Updated',
             'user'   => $user
         ], 201);
     }
@@ -142,7 +143,7 @@ class UserController extends Controller
         User::destroy($id);
 
         return response()->json([
-            'status' => 'Deleted Successfully',
+            'message' => 'Deleted Successfully',
         ], 200);
     }
 
@@ -151,7 +152,7 @@ class UserController extends Controller
         User::withTrashed()->find($id)->forceDelete();
 
         return response()->json([
-            'status' => 'Deleted Successfully',
+            'message' => 'Deleted Successfully',
         ], 200);
     }
 
@@ -160,7 +161,7 @@ class UserController extends Controller
         User::withTrashed()->find($request->id)->restore();
 
         return response()->json([
-            'status' => 'Restore Successfully',
+            'message' => 'Restore Successfully',
         ], 200);
     }
 
@@ -171,7 +172,7 @@ class UserController extends Controller
         }])->find(Auth::id());
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Added',
             'user' => $user
         ], 200);
     }

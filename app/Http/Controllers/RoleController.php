@@ -15,7 +15,7 @@ class RoleController extends Controller
         $roles = Role::with('permissions')->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
-            'status'   => 'Success',
+            'message'   => 'Success',
             'roles' => $roles
         ], 200);
     }
@@ -40,7 +40,7 @@ class RoleController extends Controller
         }
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Added',
             'role'   => $role
         ], 201);
     }
@@ -50,7 +50,7 @@ class RoleController extends Controller
         $role = Role::with('permissions')->findOrFail($id);
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Show',
             'role'   => $role
         ], 200);
     }
@@ -76,18 +76,17 @@ class RoleController extends Controller
         }
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Updated',
             'role'   => $role
         ], 201);
     }
 
     public function destroy($id)
     {
-        $role = Role::findOrFail($id);
-        $role->delete();
+        $role = Role::findOrFail($id)->forceDelete();
 
         return response()->json([
-            'status' => 'Deleted Success',
+            'message' => 'Deleted Success',
         ], 200);
     }
 
@@ -96,7 +95,7 @@ class RoleController extends Controller
         $permissions = Permission::latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
-            'status'   => 'Success',
+            'message'   => 'Successfully get',
             'permissions' => $permissions
         ], 200);
     }
@@ -116,7 +115,7 @@ class RoleController extends Controller
         ]);
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Added',
             'permission'   => $permission
         ], 201);
     }

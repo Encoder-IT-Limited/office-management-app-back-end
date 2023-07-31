@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendace;
+use App\Models\BreakTime;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -46,7 +47,7 @@ class AttendanceController extends Controller
         $check_in = $user_check->first();
         if (!$check_in) {
             return response()->json([
-                'status'  => 'Success',
+                'message'  => 'Success',
                 'message' => "You are not checked-in"
             ], 201);
         }
@@ -59,12 +60,11 @@ class AttendanceController extends Controller
             ]);
 
             return response()->json([
-                'status'  => 'Success',
+                'message'  => 'Success',
                 'message' => "You are successfully checked-out"
             ], 201);
         }
         return response()->json([
-            'status'  => 'Success',
             'message' => "You are already checked-out"
         ], 201);
     }
@@ -95,7 +95,7 @@ class AttendanceController extends Controller
 
         $attendances = $query->latest()->paginate($request->per_page ?? 25);
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Success',
             'attendance' => $attendances
         ], 201);
     }
@@ -113,11 +113,44 @@ class AttendanceController extends Controller
         $month = $request->month;
         $queries = User::delays($year, $month)->whereHas('roles', function ($role) {
             $role->where('slug', 'developer')->orWhere('slug', 'manager');
-        })->where('status', 'active')->orderBy('created_at', 'desc')->paginate($request->per_page ?? 8);
+        })->where('message', 'active')->orderBy('created_at', 'desc')->paginate($request->per_page ?? 8);
 
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Success',
             'delay' => $queries
         ], 201);
+    }
+
+    public function breakStart(Request $request)
+    {
+        Validator::make($request->all(), [
+            'reason'       => 'required|string',
+        ]);
+
+        $break = Attendace::create([
+            'employee_id' => Auth::id(),
+            'start_time' => Carbon::now(),
+            'status' => $request->reason,
+        ]);
+
+        return response()->json([
+            'break'  => $break,
+            'message' => "Break Start"
+        ], 200);
+    }
+
+    public function breakEnd(Request $request)
+    {
+        Validator::make($request->all(), [
+            'id' => 'required|exists:break_times,id',
+        ]);
+
+        $break = BreakTime::findOrFail($request->id);
+        $break->update(['end_time' => Carbon::now()]);
+
+        return response()->json([
+            'break'  => $break,
+            'message' => "Break End"
+        ], 200);
     }
 }

@@ -26,7 +26,7 @@ class EmployeeNoteController extends Controller
         // $employeeNotes->latest()->paginate($request->per_page ?? 25);
         $query = $employeeNotes->latest()->paginate($request->per_page ?? 25);
         return response()->json([
-            'status'   => 'Success',
+            'message'   => 'Successfully Get',
             'notes' => $query
         ], 200);
     }
@@ -68,7 +68,7 @@ class EmployeeNoteController extends Controller
         }
 
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Success Added',
             'note' => $employeeNote
         ], 201);
     }
@@ -78,7 +78,7 @@ class EmployeeNoteController extends Controller
         $note = EmployeeNote::findOrFail($id);
 
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Success',
             'note' => $note
         ], 200);
     }
@@ -100,7 +100,7 @@ class EmployeeNoteController extends Controller
         $note->update($validator->validated());
 
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Success updated',
             'note' => $note
         ], 201);
     }
@@ -110,7 +110,7 @@ class EmployeeNoteController extends Controller
         EmployeeNote::destroy($id);
 
         return response()->json([
-            'status' => 'Deleted Success',
+            'message' => 'Deleted Successfully',
         ], 200);
     }
 }

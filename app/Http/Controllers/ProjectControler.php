@@ -18,7 +18,7 @@ class ProjectControler extends Controller
         }])->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
-            'status'   => 'Success',
+            'message'   => 'Success',
             'porjects' => $porjects
         ], 200);
     }
@@ -38,7 +38,7 @@ class ProjectControler extends Controller
         }
 
         $data = $validator->validated();
-        $data['status'] =  "lead";
+        $data['message'] =  "lead";
         $project = Project::create($data);
 
         if ($project && $request->has("developer_task")) {
@@ -54,7 +54,7 @@ class ProjectControler extends Controller
         }
 
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Success Added',
             'project' => $project
         ], 201);
     }
@@ -64,7 +64,7 @@ class ProjectControler extends Controller
         $project = Project::findOrFail($id);
 
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Success',
             'project' => $project
         ], 200);
     }
@@ -76,7 +76,7 @@ class ProjectControler extends Controller
             'budget'     => 'required',
             'start_date' => 'required|date',
             'end_date'   => 'required|date',
-            'status'     => 'required|in:lead,pending,on_going,accepted,rejected,completed',
+            'message'     => 'required|in:lead,pending,on_going,accepted,rejected,completed',
             'client_id'  => 'required|exists:users,id',
             'project_id' => 'required|exists:projects,id'
         ]);
@@ -102,7 +102,7 @@ class ProjectControler extends Controller
         }
 
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Success Updated',
             'project' => $project
         ], 201);
     }
@@ -114,7 +114,7 @@ class ProjectControler extends Controller
         $project->delete();
 
         return response()->json([
-            'status' => 'Deleted Success',
+            'message' => 'Deleted Success',
         ], 200);
     }
 
@@ -122,7 +122,7 @@ class ProjectControler extends Controller
     {
         $validator = Validator::make($request->all(), [
             'project_id' => 'required|exists:projects,id',
-            'status' => 'required|status'
+            'message' => 'required|status'
         ]);
 
         if ($validator->fails()) {
@@ -130,10 +130,10 @@ class ProjectControler extends Controller
         }
 
         $project = Project::findOrFail($request->project_id);
-        $project->update(['status' => $request->status]);
+        $project->update(['message' => $request->status]);
 
         return response()->json([
-            'status'  => 'Success',
+            'message'  => 'Success Updated',
             'project' => $project
         ], 201);
     }
@@ -142,7 +142,7 @@ class ProjectControler extends Controller
     {
         $status = ProjectStatus::all();
         return response()->json([
-            'status' => $status
+            'message' => $status
         ]);
     }
 }

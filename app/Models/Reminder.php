@@ -21,13 +21,13 @@ class Reminder extends Model
         'time',
         'reminder_at',
         'description',
-        'status'
+        'message'
     ];
 
     protected $cast = [
         'time' => 'time',
         'date' => 'date:d/m/Y',
-        'status' => 'boolean'
+        'message' => 'boolean'
     ];
 
     public function users()

@@ -16,7 +16,7 @@ class Leave extends Model
         'description',
         'start_date',
         'end_date',
-        'status',
+        'message',
         'reason',
         'accepted_start_date',
         'accepted_end_date',

@@ -66,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('show/{id}', [LeaveController::class, 'show'])->middleware('permission:can-leave-show');
         Route::patch('update', [LeaveController::class, 'update'])->middleware('permission:can-leave-update');
         Route::delete('delete/{id}', [LeaveController::class, 'destroy'])->middleware('permission:can-leave-delete');
-        Route::post('status', [LeaveController::class, 'leaveStatus'])->middleware('permission:can-leave-status');
+        Route::post('message', [LeaveController::class, 'leaveStatus'])->middleware('permission:can-leave-status');
     });
 
     Route::prefix('employee-notes')->group(function () {
@@ -83,8 +83,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('show/{id}', [ProjectControler::class, 'show'])->middleware('permission:can-project-show');
         Route::patch('update', [ProjectControler::class, 'update'])->middleware('permission:can-project-update');
         Route::delete('delete/{id}', [ProjectControler::class, 'destroy'])->middleware('permission:can-project-delete');
-        Route::post('status', [ProjectControler::class, 'projectstatus']);
-        Route::get('status', [ProjectControler::class, 'getStatus']);
+        Route::post('message', [ProjectControler::class, 'projectstatus']);
+        Route::get('message', [ProjectControler::class, 'getStatus']);
     });
 
     Route::prefix('reminders')->group(function () {
@@ -110,5 +110,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('check-out', [AttendanceController::class, 'checkOut']);
         Route::get('employee-attendance', [AttendanceController::class, 'employeeAttendance']);
         Route::get('employee-delay', [AttendanceController::class, 'employeeDelay']);
+        Route::get('break-start', [AttendanceController::class, 'breakStart']);
+        Route::get('break-end', [AttendanceController::class, 'breakEnd']);
     });
 });

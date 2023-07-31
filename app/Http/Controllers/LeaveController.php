@@ -21,7 +21,7 @@ class LeaveController extends Controller
         $query = $leaveData->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
-            'status'     => 'Success',
+            'message'     => 'Success',
             'leave_data' => $query
         ], 200);
     }
@@ -40,11 +40,11 @@ class LeaveController extends Controller
         }
 
         $data           = $validator->validated();
-        $data['status'] = "new";
+        $data['message'] = "new";
         $leaveData      = Leave::create($data);
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Added',
             'leave_data'   => $leaveData
         ], 201);
     }
@@ -54,10 +54,10 @@ class LeaveController extends Controller
         $leaveData = Leave::find($id);
 
         if (!$leaveData)
-            return response()->json(['status' => 'Leave data Not Found'], 404);
+            return response()->json(['message' => 'Leave data Not Found'], 404);
 
         return response()->json([
-            'status'     => 'Success',
+            'message'     => 'Success',
             'leave_data' => $leaveData
         ], 200);
     }
@@ -83,7 +83,7 @@ class LeaveController extends Controller
         $leaveData->save();
 
         return response()->json([
-            'status'    => 'Success',
+            'message'    => 'Successfully Updated',
             'leaveData' => $leaveData
         ], 201);
     }
@@ -93,7 +93,7 @@ class LeaveController extends Controller
         Leave::destroy($id);
 
         return response()->json([
-            'status' => 'Deleted Success',
+            'message' => 'Deleted Successfully',
         ], 200);
     }
 
@@ -101,7 +101,7 @@ class LeaveController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'leave_id'            => 'required|exists:leaves,id',
-            'status'              => 'required|in:accepted,rejected',
+            'message'              => 'required|in:accepted,rejected',
             'reason'              => 'sometimes|required|string',
             'accepted_start_date' => 'sometimes|required|date',
             'accepted_end_date'   => 'sometimes|required|date'
@@ -115,7 +115,7 @@ class LeaveController extends Controller
         $leave->update($validator->validated());
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Added',
             'leave'   => $leave
         ], 201);
     }

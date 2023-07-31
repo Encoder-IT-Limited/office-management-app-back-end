@@ -46,6 +46,7 @@ class RolePermissionSeeder extends Seeder
             'can-note-update',
             'can-note-delete',
             'can-see-month',
+            'can-see-project-budget'
 
         ];
         // $role = Role::findOrFail(1);
@@ -59,12 +60,12 @@ class RolePermissionSeeder extends Seeder
         // }
 
         $status = [
-            ['status' => "lead"],
-            ['status' => "pending"],
-            ['status' => "on-going"],
-            ['status' => "accepted"],
-            ['status' => "rejected"],
-            ['status' => "Completed"],
+            ['message' => "lead"],
+            ['message' => "pending"],
+            ['message' => "on-going"],
+            ['message' => "accepted"],
+            ['message' => "rejected"],
+            ['message' => "Completed"],
         ];
 
         foreach ($status as $p) {

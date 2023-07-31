@@ -16,7 +16,7 @@ class SkillController extends Controller
         $skills = Skill::latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Success',
             'skills'   => $skills
         ], 200);
     }
@@ -36,7 +36,7 @@ class SkillController extends Controller
         ]);
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Added',
             'skill'   => $skill
         ], 201);
     }
@@ -46,10 +46,10 @@ class SkillController extends Controller
         $skill = Skill::find($id);
 
         if (!$skill)
-            return response()->json(['status' => 'skill Not Found'], 404);
+            return response()->json(['message' => 'skill Not Found'], 404);
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Added',
             'skill'   => $skill
         ], 200);
     }
@@ -66,14 +66,14 @@ class SkillController extends Controller
 
         $skill = Skill::find($request->skill_id);
         if (!$skill)
-            return response()->json(['status' => 'skill Not Found'], 404);
+            return response()->json(['message' => 'skill Not Found'], 404);
 
         $skill->name  = $request->name;
         $skill->slug = Str::slug($request->name);
         $skill->save();
 
         return response()->json([
-            'status' => 'Success',
+            'message'   => 'Successfully Updated',
             'skill'   => $skill
         ], 201);
     }
@@ -83,12 +83,12 @@ class SkillController extends Controller
         $skill = Skill::find($id);
 
         if (!$skill)
-            return response()->json(['status' => 'skill Not Found'], 404);
+            return response()->json(['message' => 'skill Not Found'], 404);
 
         $skill->delete();
 
         return response()->json([
-            'status' => 'Deleted Success',
+            'message' => 'Deleted Successfully',
         ], 200);
     }
 }

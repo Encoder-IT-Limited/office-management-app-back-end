@@ -31,7 +31,7 @@ class AuthController extends Controller
                 }
 
                 return response()->json([
-                    'status' => true,
+                    'message' => true,
                     'message' => "Successfully Login",
                     'token' => $user->createToken('Api Token')->plainTextToken,
                     'user' => $user
@@ -39,12 +39,12 @@ class AuthController extends Controller
             }
 
             return response()->json([
-                'status' => false,
+                'message' => false,
                 'message' => "Credentials doesn't match",
             ], 401);
         } catch (Exception $e) {
             return response()->json([
-                'status' => false,
+                'message' => false,
                 'message' => $e->getMessage()
             ], $e->getCode());
         }
@@ -56,12 +56,12 @@ class AuthController extends Controller
             Auth::user()->tokens()->delete();
 
             return response()->json([
-                'status' => true,
+                'message' => true,
                 'message' => 'User Logged Out Successfully'
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'status' => false,
+                'message' => false,
                 'message' => $e->getMessage()
             ], 500);
         }

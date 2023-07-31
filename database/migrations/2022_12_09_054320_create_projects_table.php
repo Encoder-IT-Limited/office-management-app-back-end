@@ -19,9 +19,8 @@ class CreateProjectsTable extends Migration
             $table->string('budget', 32);
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('status', ['lead', 'pending', 'on_going', 'accepted', 'rejected', 'completed']);
+            $table->enum('message', ['lead', 'pending', 'on_going', 'accepted', 'rejected', 'completed']);
             $table->foreignId('client_id')->constrained('id')->on('users')->onDelete('cascade');
-            $table->boolean('is_kpi_filled')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
