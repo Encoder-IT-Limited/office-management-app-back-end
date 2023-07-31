@@ -40,7 +40,7 @@ class EmployeeNoteController extends Controller
             'document'    => 'sometimes|required|mimes:doc,pdf,docx,zip,jpeg,png,jpg,gif,svg,webp,avif|max:20480',
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $data = $validator->validated();
@@ -93,7 +93,7 @@ class EmployeeNoteController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $note = EmployeeNote::findOrFail($request->note_id);

@@ -83,7 +83,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('show/{id}', [ProjectControler::class, 'show'])->middleware('permission:can-project-show');
         Route::patch('update', [ProjectControler::class, 'update'])->middleware('permission:can-project-update');
         Route::delete('delete/{id}', [ProjectControler::class, 'destroy'])->middleware('permission:can-project-delete');
-        Route::post('kpi_status', [ProjectControler::class, 'kpiStatus']);
+        Route::post('status', [ProjectControler::class, 'projectstatus']);
+        Route::get('status', [ProjectControler::class, 'getStatus']);
     });
 
     Route::prefix('reminders')->group(function () {

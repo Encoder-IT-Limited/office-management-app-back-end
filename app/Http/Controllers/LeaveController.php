@@ -36,7 +36,7 @@ class LeaveController extends Controller
             'user_id'     => 'required|exists:users,id',
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $data           = $validator->validated();
@@ -72,7 +72,7 @@ class LeaveController extends Controller
             'leave_id'    => 'required|exists:leaves,id'
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $leaveData              = Leave::findOrFail($request->leave_id);
@@ -108,7 +108,7 @@ class LeaveController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $leave = Leave::findOrFail($request->leave_id);

@@ -19,7 +19,6 @@ class Project extends Model
         'end_date',
         'status',
         'client_id',
-        'is_kpi_filled'
     ];
 
     protected $cast = [

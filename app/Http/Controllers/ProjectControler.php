@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\ProjectStatus;
 use App\Models\ProjectTask;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -33,7 +34,7 @@ class ProjectControler extends Controller
             'developer_task' => 'sometimes|required|array',
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $data = $validator->validated();
@@ -75,13 +76,13 @@ class ProjectControler extends Controller
             'budget'     => 'required',
             'start_date' => 'required|date',
             'end_date'   => 'required|date',
-            // 'status'     => 'required|in:lead,pending,on_going,accepted,rejected,completed',
+            'status'     => 'required|in:lead,pending,on_going,accepted,rejected,completed',
             'client_id'  => 'required|exists:users,id',
             'project_id' => 'required|exists:projects,id'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $project = Project::findOrFail($request->project_id);
@@ -117,24 +118,31 @@ class ProjectControler extends Controller
         ], 200);
     }
 
-    public function kpiStatus(Request $request)
+    public function projectstatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'project_id' => 'required|exists:projects,id',
-            'kpi_status' => 'required'
+            'status' => 'required|status'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
-        // dd($request->project_id, $request->kpi_status);
 
         $project = Project::findOrFail($request->project_id);
-        $project->update(['is_kpi_filled' => $request->kpi_status]);
+        $project->update(['status' => $request->status]);
 
         return response()->json([
             'status'  => 'Success',
             'project' => $project
         ], 201);
+    }
+
+    public function getStatus()
+    {
+        $status = ProjectStatus::all();
+        return response()->json([
+            'status' => $status
+        ]);
     }
 }

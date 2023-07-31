@@ -44,7 +44,7 @@ class UserController extends Controller
             'skills.*.skill_id' => 'sometimes|required|exists:skills,id'
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $data = $validator->validated();
@@ -100,7 +100,7 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $user = User::findOrFail($request->user_id);

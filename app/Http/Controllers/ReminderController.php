@@ -31,7 +31,7 @@ class ReminderController extends Controller
             'description' => 'required|string',
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $data = $validator->validated();
@@ -68,7 +68,7 @@ class ReminderController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $reminder = Reminder::findOrFail($request->reminder_id);

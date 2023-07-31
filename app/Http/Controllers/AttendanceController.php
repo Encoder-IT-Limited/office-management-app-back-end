@@ -77,7 +77,7 @@ class AttendanceController extends Controller
             'year'        => 'sometimes|required'
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $user = User::findOrFail(Auth::id());
@@ -107,7 +107,7 @@ class AttendanceController extends Controller
             'year'        => 'sometimes|required'
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
         $year = $request->year;
         $month = $request->month;

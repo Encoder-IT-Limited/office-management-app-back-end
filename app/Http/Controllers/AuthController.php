@@ -18,7 +18,7 @@ class AuthController extends Controller
                 'password' => 'required|min:8',
             ]);
             if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()]);
+                return response()->json(['error' => $validator->errors()], 500);
             }
 
             if (Auth::attempt($request->only(['email', 'password']))) {

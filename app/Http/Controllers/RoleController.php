@@ -27,7 +27,7 @@ class RoleController extends Controller
             'permission_id' => 'sometimes|required|exists:permissions,id'
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $role = Role::create([
@@ -63,7 +63,7 @@ class RoleController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $role = Role::findOrFail($request->role_id);
@@ -107,7 +107,7 @@ class RoleController extends Controller
             'name' => 'required|string|unique:permissions'
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $permission = Permission::create([

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Models\ProjectStatus;
 use App\Models\Role;
 use Illuminate\Database\Seeder;
 
@@ -47,14 +48,27 @@ class RolePermissionSeeder extends Seeder
             'can-see-month',
 
         ];
-        $role = Role::findOrFail(1);
-        foreach ($permission as $p) {
-            // foreach($permission[$role->slug] as $permission){
-            //     Permission::where('slug', $permission)->first()->attach($role->id);
-            // }
+        // $role = Role::findOrFail(1);
+        // foreach ($permission as $p) {
+        //     // foreach($permission[$role->slug] as $permission){
+        //     //     Permission::where('slug', $permission)->first()->attach($role->id);
+        //     // }
 
-            $permission_ids = Permission::where('slug', $p)->pluck('id');
-            $role->permissions()->attach($permission_ids);
+        //     $permission_ids = Permission::where('slug', $p)->pluck('id');
+        //     $role->permissions()->attach($permission_ids);
+        // }
+
+        $status = [
+            ['status' => "lead"],
+            ['status' => "pending"],
+            ['status' => "on-going"],
+            ['status' => "accepted"],
+            ['status' => "rejected"],
+            ['status' => "Completed"],
+        ];
+
+        foreach ($status as $p) {
+            ProjectStatus::create($p);
         }
     }
 }

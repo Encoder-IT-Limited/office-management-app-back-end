@@ -27,7 +27,7 @@ class SkillController extends Controller
             'name' => 'required|string|unique:skills'
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $skill = Skill::create([
@@ -61,7 +61,7 @@ class SkillController extends Controller
             'skill_id' => 'required|exists:skills,id'
         ]);
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()], 500);
         }
 
         $skill = Skill::find($request->skill_id);
