@@ -169,10 +169,13 @@ class UserController extends Controller
     {
         $user = User::with(['roles' => function ($role) {
             $role->with('permissions');
+        }, 'attendances' => function ($q) {
+            $q->whereDate('created_at', '=', date('Y-m-d'))->where('employee_id', Auth::id());
+        }, 'breakTimes' => function ($q) {
+            $q->whereDate('created_at', '=', date('Y-m-d'))->where('employee_id', Auth::id());
         }])->find(Auth::id());
 
         return response()->json([
-            'message'   => 'Successfully Added',
             'user' => $user
         ], 200);
     }

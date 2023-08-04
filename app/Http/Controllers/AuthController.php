@@ -15,26 +15,23 @@ class AuthController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
-                'password' => 'required|min:8',
+                'password' => 'required|min:6',
             ]);
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()], 500);
             }
 
             if (Auth::attempt($request->only(['email', 'password']))) {
-                $user = User::with(['roles' => function ($role) {
-                    $role->with('permissions');
-                }])->find(Auth::id());
+                $user = User::find(Auth::id());
 
-                if ($user->hasRole('developer')) {
-                    (new AttendanceController)->checkIn(new Request($request->all()));
-                }
+                // if ($user->hasRole('developer')) {
+                //     (new AttendanceController)->checkIn(new Request($request->all()));
+                // }
 
                 return response()->json([
                     'message' => true,
                     'message' => "Successfully Login",
                     'token' => $user->createToken('Api Token')->plainTextToken,
-                    'user' => $user
                 ], 200);
             }
 

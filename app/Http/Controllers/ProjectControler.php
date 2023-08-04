@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\ProjectStatus;
 use App\Models\ProjectTask;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ProjectControler extends Controller
@@ -13,13 +14,22 @@ class ProjectControler extends Controller
 
     public function index(Request $request)
     {
-        $porjects = Project::with(['clients', 'projectTasks' => function ($data) {
+        $user = Auth::user();
+        $query = Project::with(['clients', 'projectTasks' => function ($data) {
             $data->with('developer');
-        }])->latest()->paginate($request->per_page ?? 25);
+        }, 'status']);
+        if ($user->hasRole('developer')) {
+            $query->whereHas('projectTasks', function ($q) use ($user) {
+                $q->where('developer_id', $user->id);
+            });
+        } elseif ($user->hasRole('client')) {
+            $query->where('client', $user->id);
+        }
+        $projects = $query->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
             'message'   => 'Success',
-            'porjects' => $porjects
+            'porjects' => $projects
         ], 200);
     }
 
@@ -32,13 +42,13 @@ class ProjectControler extends Controller
             'end_date'       => 'required|date',
             'client_id'      => 'required|exists:users,id',
             'developer_task' => 'sometimes|required|array',
+            'status_id' => 'required|exists:project_statuses,id'
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 500);
         }
 
         $data = $validator->validated();
-        $data['message'] =  "lead";
         $project = Project::create($data);
 
         if ($project && $request->has("developer_task")) {
@@ -76,7 +86,7 @@ class ProjectControler extends Controller
             'budget'     => 'required',
             'start_date' => 'required|date',
             'end_date'   => 'required|date',
-            'message'     => 'required|in:lead,pending,on_going,accepted,rejected,completed',
+            'status_id' => 'required|exists:project_statuses,id',
             'client_id'  => 'required|exists:users,id',
             'project_id' => 'required|exists:projects,id'
         ]);
@@ -142,7 +152,7 @@ class ProjectControler extends Controller
     {
         $status = ProjectStatus::all();
         return response()->json([
-            'message' => $status
+            'status' => $status
         ]);
     }
 }

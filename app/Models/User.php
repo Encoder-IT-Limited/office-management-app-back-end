@@ -94,4 +94,9 @@ class User extends Authenticatable
     {
         return $this->roles;
     }
+
+    public function breakTimes()
+    {
+        return $this->hasMany(BreakTime::class, 'employee_id');
+    }
 }

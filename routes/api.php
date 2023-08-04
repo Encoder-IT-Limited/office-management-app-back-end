@@ -84,7 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('update', [ProjectControler::class, 'update'])->middleware('permission:can-project-update');
         Route::delete('delete/{id}', [ProjectControler::class, 'destroy'])->middleware('permission:can-project-delete');
         Route::post('message', [ProjectControler::class, 'projectstatus']);
-        Route::get('message', [ProjectControler::class, 'getStatus']);
+        Route::get('status', [ProjectControler::class, 'getStatus']);
     });
 
     Route::prefix('reminders')->group(function () {
@@ -110,7 +110,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('check-out', [AttendanceController::class, 'checkOut']);
         Route::get('employee-attendance', [AttendanceController::class, 'employeeAttendance']);
         Route::get('employee-delay', [AttendanceController::class, 'employeeDelay']);
-        Route::get('break-start', [AttendanceController::class, 'breakStart']);
+        Route::post('break-start', [AttendanceController::class, 'breakStart']);
         Route::get('break-end', [AttendanceController::class, 'breakEnd']);
+        Route::get('employee-break', [AttendanceController::class, 'getBreakData']);
+        Route::patch('update', [AttendanceController::class, 'attendaceUpdate'])->middleware('permission:can-attendance-update');
     });
 });

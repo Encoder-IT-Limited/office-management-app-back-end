@@ -30,8 +30,9 @@ class AttendanceController extends Controller
         $attendance = Attendace::create([
             'employee_id' => Auth::id(),
             'check_in' => $check_in->subMinutes(5),
+            'check_out' => null
         ]);
-
+        // $attendance = Attendace::findOrFail($data->id);
         return response()->json([
             'attendance'  => $attendance,
             'message' => "You are successfully checked-in"
@@ -73,8 +74,6 @@ class AttendanceController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'employee_id' => 'sometimes|required|exists:users,id',
-            'month'       => 'sometimes|required',
-            'year'        => 'sometimes|required'
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 500);
@@ -86,9 +85,12 @@ class AttendanceController extends Controller
         if ($request->has('employee_id'))
             $query->where('employee_id', $request->employee_id);
         if ($request->has('month'))
-            $query->whereMonth('check_in', '=', $request->month);
+            $query->whereMonth('created_at', '=', $request->month);
         if ($request->has('year'))
-            $query->whereYear('check_in', '=', $request->year);
+            $query->whereYear('created_at', '=', $request->year);
+        if ($request->has('date'))
+            $query->whereDay('created_at', '=', $request->date);
+
 
         if ($user->hasRole('developer'))
             $query->where('employee_id', $user->id);
@@ -111,9 +113,15 @@ class AttendanceController extends Controller
         }
         $year = $request->year;
         $month = $request->month;
-        $queries = User::delays($year, $month)->whereHas('roles', function ($role) {
+        $query = User::delays($year, $month)->whereHas('roles', function ($role) {
             $role->where('slug', 'developer')->orWhere('slug', 'manager');
-        })->where('message', 'active')->orderBy('created_at', 'desc')->paginate($request->per_page ?? 8);
+        })->where('status', 'active')->orderBy('created_at', 'desc');
+
+        $user = User::findOrFail(Auth::id());
+        if (!$user->hasRole('admin'))
+            $queries = $query->where('id', $user->id);
+
+        $queries = $query->paginate($request->per_page ?? 8);
 
         return response()->json([
             'message'  => 'Success',
@@ -124,13 +132,13 @@ class AttendanceController extends Controller
     public function breakStart(Request $request)
     {
         Validator::make($request->all(), [
-            'reason'       => 'required|string',
+            'reason' => 'required|string',
         ]);
 
-        $break = Attendace::create([
+        $break = BreakTime::create([
             'employee_id' => Auth::id(),
             'start_time' => Carbon::now(),
-            'status' => $request->reason,
+            'reason' => $request->reason,
         ]);
 
         return response()->json([
@@ -141,16 +149,53 @@ class AttendanceController extends Controller
 
     public function breakEnd(Request $request)
     {
-        Validator::make($request->all(), [
-            'id' => 'required|exists:break_times,id',
-        ]);
-
-        $break = BreakTime::findOrFail($request->id);
+        $break = BreakTime::whereDate('created_at', '=', date('Y-m-d'))->where('end_time', null)->where('employee_id', Auth::id());
         $break->update(['end_time' => Carbon::now()]);
 
         return response()->json([
             'break'  => $break,
             'message' => "Break End"
         ], 200);
+    }
+
+    public function getBreakData(Request $request)
+    {
+        $user = Auth::user();
+        $query = BreakTime::with('employee');
+        if ($user->hasRole('developer'))
+            $query->where('employee_id', $user->id);
+        if ($request->has('employee_id'))
+            $query->where('employee_id', $request->employee_id);
+        if ($request->has('month'))
+            $query->whereMonth('created_at', '=', $request->month);
+        if ($request->has('year'))
+            $query->whereYear('created_at', '=', $request->year);
+        if ($request->has('date'))
+            $query->whereDate('created_at', '=', $request->date);
+        else
+            $query->whereDate('created_at', '=', date('Y-m-d'));
+
+        $breaks = $query->latest()->paginate($request->per_page ?? 25);
+        return response()->json([
+            'message'  => 'Success',
+            'attendance' => $breaks
+        ], 201);
+    }
+
+    public function attendaceUpdate(Request $request)
+    {
+        Validator::make($request->all(), [
+            'id' => 'required|exists:attendaces,id',
+        ]);
+        $attendance = Attendace::findOrFail($request->id);
+
+        $attendance->update([
+            'check_in' => date('Y-m-d h:i:s', strtotime($request->check_in)),
+            'check_out' => date('Y-m-d h:i:s', strtotime($request->check_out)),
+        ]);
+
+        return response()->json([
+            'message'  => 'Successfully updated',
+        ]);
     }
 }

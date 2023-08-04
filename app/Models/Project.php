@@ -19,6 +19,7 @@ class Project extends Model
         'end_date',
         'message',
         'client_id',
+        'status_id'
     ];
 
     protected $cast = [
@@ -40,5 +41,10 @@ class Project extends Model
     public function getTasksAttribute()
     {
         return $this->projectTasks()->get();
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(ProjectStatus::class, 'status_id');
     }
 }

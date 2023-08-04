@@ -19,7 +19,7 @@ class CreateProjectsTable extends Migration
             $table->string('budget', 32);
             $table->date('start_date');
             $table->date('end_date');
-            $table->enum('message', ['lead', 'pending', 'on_going', 'accepted', 'rejected', 'completed']);
+            $table->foreignId('status_id')->constrained('project_statuses')->onDelete('cascade');
             $table->foreignId('client_id')->constrained('id')->on('users')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();

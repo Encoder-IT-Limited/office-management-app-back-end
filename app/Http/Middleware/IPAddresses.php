@@ -16,7 +16,7 @@ class IPAddresses
      */
     public function handle(Request $request, Closure $next)
     {
-        $allowedIps = ['192.168.50.70', '192.168.50.16', '192.168.50.154', '192.168.50.142', '192.168.50.57', '192.168.50.100'];
+        $allowedIps = ['192.168.50.70', '192.168.50.16', '192.168.50.154', '192.168.50.142', '192.168.50.57', '192.168.50.100', '192.168.50.230', '192.168.50.137'];
         if (!in_array($request->ip(), $allowedIps)) {
             // if ($request->ip() != env('IP_ADDRESS')) {
             return response()->json([
