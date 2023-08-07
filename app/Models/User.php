@@ -85,7 +85,7 @@ class User extends Authenticatable
     public function scopeDelays($query, $year, $month)
     {
         return $query->with(['attendances' => function ($attendance) use ($year, $month) {
-            return $attendance->whereTime('attendaces.check_in', '>', Carbon::parse('09:30:00'))
+            return $attendance->whereTime('attendaces.check_in', '>', Carbon::parse('08:30:00'))
                 ->whereYear('check_in', '=',  $year)->whereMonth('check_in', '=', $month);
         }]);
     }

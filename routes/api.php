@@ -105,7 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('index', [CalendarController::class, 'developerCalendar'])->middleware('can-dashboard-index');
     });
 
-    Route::prefix('attendace')->middleware('ip.address')->group(function () {
+    Route::prefix('attendace')->group(function () {
         Route::get('check-in', [AttendanceController::class, 'checkIn']);
         Route::get('check-out', [AttendanceController::class, 'checkOut']);
         Route::get('employee-attendance', [AttendanceController::class, 'employeeAttendance']);

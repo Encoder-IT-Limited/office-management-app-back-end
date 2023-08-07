@@ -149,11 +149,10 @@ class AttendanceController extends Controller
 
     public function breakEnd(Request $request)
     {
-        $break = BreakTime::whereDate('created_at', '=', date('Y-m-d'))->where('end_time', null)->where('employee_id', Auth::id());
+        $break = BreakTime::whereDate('created_at', '=', date('Y-m-d'))->where('end_time', null)->where('employee_id', Auth::id())->latest()->first();
         $break->update(['end_time' => Carbon::now()]);
 
         return response()->json([
-            'break'  => $break,
             'message' => "Break End"
         ], 200);
     }
@@ -184,18 +183,24 @@ class AttendanceController extends Controller
 
     public function attendaceUpdate(Request $request)
     {
-        Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'id' => 'required|exists:attendaces,id',
+            'check_in' => 'required',
+            'check_out' => 'required'
         ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 500);
+        }
+
         $attendance = Attendace::findOrFail($request->id);
 
         $attendance->update([
-            'check_in' => date('Y-m-d h:i:s', strtotime($request->check_in)),
-            'check_out' => date('Y-m-d h:i:s', strtotime($request->check_out)),
+            'check_in' => $request->check_in,
+            'check_out' => $request->check_out,
         ]);
 
         return response()->json([
-            'message'  => 'Successfully updated',
-        ]);
+            'message' => 'Updated Successfully',
+        ], 200);
     }
 }
