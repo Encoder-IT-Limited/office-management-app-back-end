@@ -104,13 +104,22 @@ class UserController extends Controller
             return response()->json(['error' => $validator->errors()], 500);
         }
 
+        $updatableData = $validator->validated();
+
+        if($request->has('password')){
+            $updatableData['password'] = Hash::make($request->get('password'));
+        }
+
         $user = User::findOrFail($request->user_id);
+        
         $data = $validator->validated();
+
         if ($request->has('password')) {
             $data['password'] =  Hash::make($data['password']);
         }
         $user->update($data);
 
+        $user->update($updatableData);
 
         if (isset($request->role_id))
             $user->roles()->sync($request->role_id);
