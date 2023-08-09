@@ -16,23 +16,19 @@ class AttendanceController extends Controller
     public function checkIn(Request $request)
     {
         $user = User::findOrFail(Auth::id());
-        $check_in = Carbon::now();
-        if ($user->hasRole('admin')) {
-            $check_in = Carbon::createFromFormat('Y-m-d H:i:s', $request->check_in);
-        }
+        $checkedInAt = Carbon::now();
 
-        $user_check = Attendace::whereDate('check_in', $check_in)->where('employee_id', $user->id)->first();
-        if ($user_check)
+        if ($user->attendances()->whereDate('check_in', $checkedInAt)->count() > 0)
             return response()->json([
                 'message' => "You are already checked-in"
-            ], 201);;
+            ], 500);;
 
         $attendance = Attendace::create([
             'employee_id' => Auth::id(),
-            'check_in' => $check_in->subMinutes(5),
+            'check_in' => $checkedInAt->subMinutes(5),
             'check_out' => null
         ]);
-        // $attendance = Attendace::findOrFail($data->id);
+
         return response()->json([
             'attendance'  => $attendance,
             'message' => "You are successfully checked-in"
@@ -41,30 +37,29 @@ class AttendanceController extends Controller
 
     public function checkOut(Request $request)
     {
-        $carbon = Carbon::now();
-        // $carbon_out = $carbon->toDateTimeString();
+        $checkedOutAt = Carbon::now();
+        $user = User::findOrFail(Auth::id());
 
-        $user_check = Attendace::whereDate('check_in', $carbon)->where('employee_id', Auth::id());
-        $check_in = $user_check->first();
-        if (!$check_in) {
+        if (!$user->attendances()->whereDate('check_in', $checkedOutAt)->count() == 0) {
             return response()->json([
                 'message'  => 'Success',
                 'message' => "You are not checked-in"
             ], 201);
         }
 
-        $check_out = $user_check->whereNull('check_out')->first();
-        if ($check_out) {
-            $attendance = Attendace::where('employee_id', Auth::id());
-            $data = $attendance->update([
-                'check_out' => $carbon
+        $todayAttendance = $user->attendances()->whereDate('check_in', $checkedOutAt)->whereNull('check_out');
+
+        if ($todayAttendance->count() > 0) {
+            $todayAttendance->update([
+                'check_out' => $checkedOutAt
             ]);
 
             return response()->json([
                 'message'  => 'Success',
                 'message' => "You are successfully checked-out"
-            ], 201);
+            ], 200);
         }
+
         return response()->json([
             'message' => "You are already checked-out"
         ], 201);
@@ -72,12 +67,9 @@ class AttendanceController extends Controller
 
     public function employeeAttendance(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $this->validateWith([
             'employee_id' => 'sometimes|required|exists:users,id',
         ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 500);
-        }
 
         $user = User::findOrFail(Auth::id());
         $query = Attendace::with('employee');
@@ -85,17 +77,17 @@ class AttendanceController extends Controller
         if ($request->has('employee_id'))
             $query->where('employee_id', $request->employee_id);
         if ($request->has('month'))
-            $query->whereMonth('created_at', '=', $request->month);
+            $query->whereMonth('check_in', '=', $request->month);
         if ($request->has('year'))
-            $query->whereYear('created_at', '=', $request->year);
+            $query->whereYear('check_in', '=', $request->year);
         if ($request->has('date'))
-            $query->whereDay('created_at', '=', $request->date);
+            $query->whereDay('check_in', '=', $request->date);
 
 
         if ($user->hasRole('developer'))
             $query->where('employee_id', $user->id);
 
-        $attendances = $query->latest()->paginate($request->per_page ?? 25);
+        $attendances = $query->latest()->paginate($request->per_page ?? 31);
         return response()->json([
             'message'  => 'Success',
             'attendance' => $attendances
