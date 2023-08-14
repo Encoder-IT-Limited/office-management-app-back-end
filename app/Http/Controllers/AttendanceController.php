@@ -21,7 +21,7 @@ class AttendanceController extends Controller
         if ($user->attendances()->whereDate('check_in', $checkedInAt)->count() > 0)
             return response()->json([
                 'message' => "You are already checked-in"
-            ], 500);;
+            ], 500);
 
         $attendance = Attendace::create([
             'employee_id' => Auth::id(),
@@ -181,7 +181,7 @@ class AttendanceController extends Controller
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:attendaces,id',
             'check_in' => 'required',
-            'check_out' => 'required'
+            'check_out' => 'nullable'
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 500);
@@ -195,7 +195,7 @@ class AttendanceController extends Controller
         ]);
 
         return response()->json([
-            'attendance' => $attendance,
+            'attendance' => $attendance->load('employee'),
             'message' => 'Updated Successfully',
         ], 200);
     }
