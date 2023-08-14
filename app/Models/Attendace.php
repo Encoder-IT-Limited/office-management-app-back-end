@@ -18,6 +18,11 @@ class Attendace extends Model
         'message'
     ];
 
+    protected $casts = [
+        'check_in' => 'datetime',
+        'check_out' => 'datetime'
+    ];
+
     protected $appends = ['duration'];
 
 

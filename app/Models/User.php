@@ -28,7 +28,8 @@ class User extends Authenticatable
         'password',
         'phone',
         'designation',
-        'message'
+        'status',
+        'delay_time'
     ];
 
     /**
@@ -82,10 +83,10 @@ class User extends Authenticatable
         return $this->hasMany(Attendace::class, 'employee_id');
     }
 
-    public function scopeDelays($query, $year, $month)
+    public function scopeDelays($query, $year, $month, $delay_time)
     {
-        return $query->with(['attendances' => function ($attendance) use ($year, $month) {
-            return $attendance->whereTime('attendaces.check_in', '>', Carbon::parse('08:30:00'))
+        return $query->withCount(['attendances AS delay_count' => function ($attendance) use ($year, $month, $delay_time) {
+            return $attendance->whereTime('attendaces.check_in', '>', $delay_time)
                 ->whereYear('check_in', '=',  $year)->whereMonth('check_in', '=', $month);
         }]);
     }

@@ -16,7 +16,7 @@ class AttendanceController extends Controller
     public function checkIn(Request $request)
     {
         $user = User::findOrFail(Auth::id());
-        $checkedInAt = Carbon::now();
+        $checkedInAt = Carbon::now()->subMinutes(5);
 
         if ($user->attendances()->whereDate('check_in', $checkedInAt)->count() > 0)
             return response()->json([
@@ -25,12 +25,12 @@ class AttendanceController extends Controller
 
         $attendance = Attendace::create([
             'employee_id' => Auth::id(),
-            'check_in' => $checkedInAt->subMinutes(5),
+            'check_in' => $checkedInAt,
             'check_out' => null
         ]);
 
         return response()->json([
-            'attendance'  => $attendance,
+            'attendance'  => $attendance->load('employee'),
             'message' => "You are successfully checked-in"
         ], 200);
     }
@@ -40,7 +40,7 @@ class AttendanceController extends Controller
         $checkedOutAt = Carbon::now();
         $user = User::findOrFail(Auth::id());
 
-        if (!$user->attendances()->whereDate('check_in', $checkedOutAt)->count() == 0) {
+        if ($user->attendances()->whereDate('check_in', $checkedOutAt)->count() == 0) {
             return response()->json([
                 'message'  => 'Success',
                 'message' => "You are not checked-in"
@@ -50,12 +50,14 @@ class AttendanceController extends Controller
         $todayAttendance = $user->attendances()->whereDate('check_in', $checkedOutAt)->whereNull('check_out');
 
         if ($todayAttendance->count() > 0) {
-            $todayAttendance->update([
+            $attendance = $todayAttendance->first();
+            $attendance->update([
                 'check_out' => $checkedOutAt
             ]);
 
+
             return response()->json([
-                'message'  => 'Success',
+                'attendance'  => $attendance->load('employee'),
                 'message' => "You are successfully checked-out"
             ], 200);
         }
@@ -103,13 +105,14 @@ class AttendanceController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 500);
         }
+        $user = User::findOrFail(Auth::id());
+        $delay_time = $user->delay_time;
         $year = $request->year;
         $month = $request->month;
-        $query = User::delays($year, $month)->whereHas('roles', function ($role) {
+        $query = User::delays($year, $month, $delay_time)->whereHas('roles', function ($role) {
             $role->where('slug', 'developer')->orWhere('slug', 'manager');
         })->where('status', 'active')->orderBy('created_at', 'desc');
 
-        $user = User::findOrFail(Auth::id());
         if (!$user->hasRole('admin'))
             $queries = $query->where('id', $user->id);
 
@@ -192,6 +195,7 @@ class AttendanceController extends Controller
         ]);
 
         return response()->json([
+            'attendance' => $attendance,
             'message' => 'Updated Successfully',
         ], 200);
     }
