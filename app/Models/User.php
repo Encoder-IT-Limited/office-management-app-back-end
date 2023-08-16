@@ -80,13 +80,18 @@ class User extends Authenticatable
 
     public function attendances()
     {
-        return $this->hasMany(Attendace::class, 'employee_id');
+        return $this->hasMany(Attendance::class, 'employee_id');
+    }
+
+    public function todayAttendance()
+    {
+        return $this->hasOne(Attendance::class, 'employee_id')->whereDate('check_in', Carbon::now());
     }
 
     public function scopeDelays($query, $year, $month, $delay_time)
     {
         return $query->withCount(['attendances AS delay_count' => function ($attendance) use ($year, $month, $delay_time) {
-            return $attendance->whereTime('attendaces.check_in', '>', $delay_time)
+            return $attendance->whereTime('attendances.check_in', '>', $delay_time)
                 ->whereYear('check_in', '=',  $year)->whereMonth('check_in', '=', $month);
         }]);
     }

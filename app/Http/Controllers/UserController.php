@@ -14,7 +14,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $queries = User::with('roles', 'skills', 'uploads')->where('status', 'active')->withTrashed();
+        $queries = User::with('roles', 'skills', 'todayAttendance', 'uploads')->where('status', 'active')->withTrashed();
 
         $queries->when($request->has('user_type'), function ($query) use ($request) {
             $request->validate([
@@ -91,7 +91,8 @@ class UserController extends Controller
 
     public function update(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $this->validateWith([
+            'user_id'     => 'required|exists:users,id',
             'name'        => 'required|string',
             'email'       => 'required|email|unique:users,email,' . $request->user_id,
             'phone'       => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
@@ -100,24 +101,13 @@ class UserController extends Controller
             'password'    => 'sometimes|required|confirmed'
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 500);
-        }
+        $updatableData = $validated()->except('user_id');
 
-        $updatableData = $validator->validated();
-
-        if($request->has('password')){
+        if ($request->has('password')) {
             $updatableData['password'] = Hash::make($request->get('password'));
         }
 
         $user = User::findOrFail($request->user_id);
-        
-        $data = $validator->validated();
-
-        if ($request->has('password')) {
-            $data['password'] =  Hash::make($data['password']);
-        }
-        $user->update($data);
 
         $user->update($updatableData);
 
@@ -146,9 +136,8 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'message'   => 'Successfully Updated',
             'user'   => $user
-        ], 201);
+        ], 200);
     }
 
     public function destroy($id)
@@ -182,11 +171,7 @@ class UserController extends Controller
     {
         $user = User::with(['roles' => function ($role) {
             $role->with('permissions');
-        }, 'attendances' => function ($q) {
-            $q->whereDate('created_at', '=', date('Y-m-d'))->where('employee_id', Auth::id());
-        }, 'breakTimes' => function ($q) {
-            $q->whereDate('created_at', '=', date('Y-m-d'))->where('employee_id', Auth::id());
-        }])->find(Auth::id());
+        }, 'todayAttendance'])->find(Auth::id());
 
         return response()->json([
             'user' => $user

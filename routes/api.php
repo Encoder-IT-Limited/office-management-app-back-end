@@ -105,14 +105,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('index', [CalendarController::class, 'developerCalendar'])->middleware('can-dashboard-index');
     });
 
-    Route::prefix('attendace')->group(function () {
+    Route::prefix('breaks')->group(function () {
+        Route::get('/', [AttendanceController::class, 'getEmployeeBreaks']);
+        Route::post('start', [AttendanceController::class, 'startingBreak']);
+        Route::get('end', [AttendanceController::class, 'endingBreak']);
+    });
+
+    Route::prefix('attendances')->group(function () {
+        Route::get('/', [AttendanceController::class, 'getEmployeeAttendances']);
         Route::get('check-in', [AttendanceController::class, 'checkIn']);
         Route::get('check-out', [AttendanceController::class, 'checkOut']);
-        Route::get('employee-attendance', [AttendanceController::class, 'employeeAttendance']);
-        Route::get('employee-delay', [AttendanceController::class, 'employeeDelay']);
-        Route::post('break-start', [AttendanceController::class, 'breakStart']);
-        Route::get('break-end', [AttendanceController::class, 'breakEnd']);
-        Route::get('employee-break', [AttendanceController::class, 'getBreakData']);
-        Route::patch('update', [AttendanceController::class, 'attendaceUpdate'])->middleware('permission:can-attendance-update');
+        Route::get('delays', [AttendanceController::class, 'getEmployeeDelays'])->middleware('permission:read-delays');
+
+        Route::patch('create', [AttendanceController::class, 'createAttendance'])->middleware('permission:can-attendance-update');
     });
 });

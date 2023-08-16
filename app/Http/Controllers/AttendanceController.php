@@ -2,201 +2,205 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendace;
-use App\Models\BreakTime;
-use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+
+use Exception;
+use Carbon\Carbon;
+
+use App\Models\{User, BreakTime, Attendance};
 
 class AttendanceController extends Controller
 {
+    private $year, $month, $date;
+
+    public function __construct()
+    {
+        $this->year = Carbon::today()->format('Y');
+        $this->month = Carbon::today()->format('m');
+        $this->date = Carbon::today()->format('d');
+    }
+
     public function checkIn(Request $request)
     {
         $user = User::findOrFail(Auth::id());
         $checkedInAt = Carbon::now()->subMinutes(5);
+        if ($user->hasRole('admin')) {
+            if ($request->has('employee_id')) {
+                $user = User::findOrFail($request->employee_id);
+            }
+            if ($request->has('check_in')) {
+                $checkedInAt = Carbon::parse($request->check_in);
+            }
+        }
 
-        if ($user->attendances()->whereDate('check_in', $checkedInAt)->count() > 0)
+        if (!$user->todayAttendance) {
+            $todayAttendance = $user->todayAttendance()->create([
+                'check_in' => $checkedInAt,
+            ])->refresh();
+
             return response()->json([
-                'message' => "You are already checked-in"
-            ], 500);
-
-        $attendance = Attendace::create([
-            'employee_id' => Auth::id(),
-            'check_in' => $checkedInAt,
-            'check_out' => null
-        ]);
-
-        return response()->json([
-            'attendance'  => $attendance->load('employee'),
-            'message' => "You are successfully checked-in"
-        ], 200);
+                'attendance'  => $todayAttendance->load('employee'),
+            ], 200);
+        } else throw new Exception('You are already checked-in', 500);
     }
 
     public function checkOut(Request $request)
     {
-        $checkedOutAt = Carbon::now();
         $user = User::findOrFail(Auth::id());
+        $checkedOutAt = Carbon::now();
 
-        if ($user->attendances()->whereDate('check_in', $checkedOutAt)->count() == 0) {
-            return response()->json([
-                'message'  => 'Success',
-                'message' => "You are not checked-in"
-            ], 201);
+        if ($user->hasRole('admin')) {
+            if ($request->has('employee_id')) {
+                $user = User::findOrFail($request->employee_id);
+            }
+            if ($request->has('check_out')) {
+                $checkedOutAt = Carbon::parse($request->check_out);
+            }
         }
 
-        $todayAttendance = $user->attendances()->whereDate('check_in', $checkedOutAt)->whereNull('check_out');
-
-        if ($todayAttendance->count() > 0) {
-            $attendance = $todayAttendance->first();
-            $attendance->update([
+        if ($user->todayAttendance && !$user->todayAttendance->check_out) {
+            $user->todayAttendance->update([
                 'check_out' => $checkedOutAt
             ]);
 
-
             return response()->json([
-                'attendance'  => $attendance->load('employee'),
-                'message' => "You are successfully checked-out"
+                'attendance'  => $user->todayAttendance->load('employee'),
             ], 200);
         }
-
-        return response()->json([
-            'message' => "You are already checked-out"
-        ], 201);
+        throw new Exception('You are already checked-out or not checked-in yet!', 500);
     }
 
-    public function employeeAttendance(Request $request)
+    public function createAttendance(Request $request)
     {
-        $this->validateWith([
+        $validated = $this->validateWith([
+            'id' => 'sometimes|required|exists:attendances,id',
+            'check_in' => 'sometimes|required',
+            'check_out' => 'sometimes|required'
+        ]);
+
+        $attendance = Attendance::updateOrCreate($validated);
+
+        return response()->json([
+            'attendance' => $attendance,
+        ], 200);
+    }
+
+    public function getEmployeeAttendances(Request $request)
+    {
+        $validated = $this->validateWith([
+            'year'        => 'sometimes|required',
+            'month'       => 'sometimes|required',
+            'date'        => 'sometimes|required',
             'employee_id' => 'sometimes|required|exists:users,id',
         ]);
 
+        $this->year = $validated['year'] ?? $this->year;
+        $this->month = $validated['month'] ?? $this->month;
+
+        $queries = Attendance::with('employee')->whereYear('check_in', '=', $this->year)
+            ->whereMonth('check_in', '=', $this->month);
+
         $user = User::findOrFail(Auth::id());
-        $query = Attendace::with('employee');
-
-        if ($request->has('employee_id'))
-            $query->where('employee_id', $request->employee_id);
-        if ($request->has('month'))
-            $query->whereMonth('check_in', '=', $request->month);
-        if ($request->has('year'))
-            $query->whereYear('check_in', '=', $request->year);
-        if ($request->has('date'))
-            $query->whereDay('check_in', '=', $request->date);
-
-
-        if ($user->hasRole('developer'))
-            $query->where('employee_id', $user->id);
-
-        $attendances = $query->latest()->paginate($request->per_page ?? 31);
-        return response()->json([
-            'message'  => 'Success',
-            'attendance' => $attendances
-        ], 201);
-    }
-
-    public function employeeDelay(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'month'       => 'sometimes|required',
-            'year'        => 'sometimes|required'
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 500);
+        if ($user->hasRole('admin')) {
+            $queries->when($request->has('employee_id'), function ($employeeQ) use ($request) {
+                $employeeQ->where('employee_id', $request->employee_id);
+            })->when($request->has('date'), function ($dateQ) use ($request) {
+                $dateQ->whereDay('check_in', '=', $request->date);
+            });
         }
-        $user = User::findOrFail(Auth::id());
-        $delay_time = $user->delay_time;
-        $year = $request->year;
-        $month = $request->month;
-        $query = User::delays($year, $month, $delay_time)->whereHas('roles', function ($role) {
-            $role->where('slug', 'developer')->orWhere('slug', 'manager');
-        })->where('status', 'active')->orderBy('created_at', 'desc');
 
-        if (!$user->hasRole('admin'))
-            $queries = $query->where('id', $user->id);
+        if ($user->hasRole('developer')) $queries->where('employee_id', $user->id);
 
-        $queries = $query->paginate($request->per_page ?? 8);
+        $attendances = $queries->latest()->paginate($request->per_page ?? 31);
 
         return response()->json([
-            'message'  => 'Success',
-            'delay' => $queries
-        ], 201);
+            'attendance' => $attendances
+        ], 200);
     }
 
-    public function breakStart(Request $request)
+    public function getEmployeeDelays(Request $request)
     {
-        Validator::make($request->all(), [
+        $validated = $this->validateWith([
+            'month'       => 'sometimes|required',
+            'year'        => 'sometimes|required',
+        ]);
+
+        $this->year = $validated['year'] ?? $this->year;
+        $this->month = $validated['month'] ?? $this->month;
+
+        $employees = User::withCount(['attendances as delays_count' => function ($delayQ) {
+            return $delayQ->whereYear('check_in', '=', $this->year)
+                ->whereMonth('check_in', '=', $this->month)
+                ->delay();
+        }])->paginate($request->per_page ?? 20);
+
+        return response()->json([
+            'employees' => $employees ?? []
+        ], 200);
+    }
+
+    public function startingBreak(Request $request)
+    {
+        $this->validateWith([
             'reason' => 'required|string',
         ]);
 
-        $break = BreakTime::create([
-            'employee_id' => Auth::id(),
+        $user = User::findOrFail(Auth::id());
+
+        $break = $user->breakTimes()->updateOrCreate([
+            'end_time' => null
+        ], [
             'start_time' => Carbon::now(),
             'reason' => $request->reason,
         ]);
 
         return response()->json([
-            'break'  => $break,
-            'message' => "Break Start"
+            'break'  => $break->load('employee'),
         ], 200);
     }
 
-    public function breakEnd(Request $request)
+    public function endingBreak(Request $request)
     {
-        $break = BreakTime::whereDate('created_at', '=', date('Y-m-d'))->where('end_time', null)->where('employee_id', Auth::id())->latest()->first();
-        $break->update(['end_time' => Carbon::now()]);
+        $user = User::findOrFail(Auth::id());
+        $user->breakTimes()->whereNull('end_time')->update(['end_time' => Carbon::now()]);
 
         return response()->json([
-            'message' => "Break End"
+            'break'  => $user->breakTimes()->latest()->first()->load('employee'),
         ], 200);
     }
 
-    public function getBreakData(Request $request)
+    public function getEmployeeBreaks(Request $request)
     {
-        $user = Auth::user();
-        $query = BreakTime::with('employee');
-        if ($user->hasRole('developer'))
-            $query->where('employee_id', $user->id);
-        if ($request->has('employee_id'))
-            $query->where('employee_id', $request->employee_id);
-        if ($request->has('month'))
-            $query->whereMonth('created_at', '=', $request->month);
-        if ($request->has('year'))
-            $query->whereYear('created_at', '=', $request->year);
-        if ($request->has('date'))
-            $query->whereDate('created_at', '=', $request->date);
-        else
-            $query->whereDate('created_at', '=', date('Y-m-d'));
-
-        $breaks = $query->latest()->paginate($request->per_page ?? 25);
-        return response()->json([
-            'message'  => 'Success',
-            'attendance' => $breaks
-        ], 201);
-    }
-
-    public function attendaceUpdate(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'id' => 'required|exists:attendaces,id',
-            'check_in' => 'required',
-            'check_out' => 'nullable'
+        $validated = $this->validateWith([
+            'year'        => 'sometimes|required',
+            'month'       => 'sometimes|required',
+            'date'        => 'sometimes|required',
+            'employee_id' => 'sometimes|required|exists:users,id',
         ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 500);
+
+        $this->year = $validated['year'] ?? $this->year;
+        $this->month = $validated['month'] ?? $this->month;
+        $this->date = $validated['date'] ?? $this->date;
+
+        $user = User::findOrFail(Auth::id());
+        $queries = BreakTime::with('employee')
+            ->whereYear('start_time', '=', $this->year)
+            ->whereMonth('start_time', '=', $this->month)
+            ->whereYear('start_time', '=', $this->date);
+
+        if ($user->hasRole('admin')) {
+            $queries->when($request->has('employee_id'), function ($employeeQ) use ($request) {
+                $employeeQ->where('employee_id', $request->employee_id);
+            });
         }
 
-        $attendance = Attendace::findOrFail($request->id);
+        if ($user->hasRole('developer')) $queries->where('employee_id', $user->id);
 
-        $attendance->update([
-            'check_in' => $request->check_in,
-            'check_out' => $request->check_out,
-        ]);
+        $breaks = $queries->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
-            'attendance' => $attendance->load('employee'),
-            'message' => 'Updated Successfully',
+            'breaks' => $breaks
         ], 200);
     }
 }
