@@ -117,6 +117,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('check-out', [AttendanceController::class, 'checkOut']);
         Route::get('delays', [AttendanceController::class, 'getEmployeeDelays'])->middleware('permission:read-delays');
 
-        Route::patch('create', [AttendanceController::class, 'createAttendance'])->middleware('permission:can-attendance-update');
+        Route::post('create', [AttendanceController::class, 'createAttendance'])->middleware('permission:can-attendance-update');
     });
 });

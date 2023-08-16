@@ -74,12 +74,13 @@ class AttendanceController extends Controller
     public function createAttendance(Request $request)
     {
         $validated = $this->validateWith([
+            'employee_id' => 'required|exists:users,id',
             'id' => 'sometimes|required|exists:attendances,id',
             'check_in' => 'sometimes|required',
             'check_out' => 'sometimes|required'
         ]);
 
-        $attendance = Attendance::updateOrCreate($validated);
+        $attendance = Attendance::updateOrCreate($request->except(['check_in', 'check_out']), $validated);
 
         return response()->json([
             'attendance' => $attendance,

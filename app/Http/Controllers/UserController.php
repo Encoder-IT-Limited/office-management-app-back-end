@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Upload;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -171,7 +172,9 @@ class UserController extends Controller
     {
         $user = User::with(['roles' => function ($role) {
             $role->with('permissions');
-        }, 'todayAttendance'])->find(Auth::id());
+        }, 'todayAttendance', 'breakTimes' => function ($breakQ) {
+            $breakQ->whereDate('start_time', Carbon::today());
+        }])->find(Auth::id());
 
         return response()->json([
             'user' => $user
