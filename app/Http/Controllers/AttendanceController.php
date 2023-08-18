@@ -185,36 +185,17 @@ class AttendanceController extends Controller
         $this->month = $validated['month'] ?? $this->month;
         $this->date = $validated['date'] ?? $this->date;
         // dd(BreakTime::sum(DB::raw('TIMESTAMPDIFF(SECOND, start_time, end_time)')));
-        $user = User::findOrFail(Auth::id());
-        $queries = BreakTime::with('employee')
-            ->whereYear('start_time', '=', $this->year)
-            ->whereMonth('start_time', '=', $this->month)
-            ->whereYear('start_time', '=', $this->date);
 
-        if ($user->hasRole('admin')) {
-            $queries->when($request->has('employee_id'), function ($employeeQ) use ($request) {
-                $employeeQ->where('employee_id', $request->employee_id);
-            });
-        }
-
-        if ($user->hasRole('developer')) $queries->where('employee_id', $user->id);
-
-        $breaks = $queries->latest()->paginate($request->per_page ?? 25);
-
-        //
         $employees = User::with(['breakTimes' => function ($breakQ) {
-            return $breakQ
-                // ->break($this->year, $this->month, $this->date)
-                ->select('break_times.*')
-                ->selectRaw(DB::raw('TIMESTAMPDIFF(SECOND, start_time, end_time) as start_time_count'));
+            $breakQ
+                ->break($this->year, $this->month, $this->date)
+                ->select('employee_id')
+                ->selectRaw('SUM(TIMESTAMPDIFF(SECOND, start_time, end_time)) as break_duration')
+                ->groupBy('employee_id');
         }])->withCount(['breakTimes as break_count' => function ($breakQ) {
-            // return $breakQ->break($this->year, $this->month, $this->date)->whereDate('start_time', Carbon::today());
+            return $breakQ->break($this->year, $this->month, $this->date);
         }])
-            // ->withSum(["breakTimes"  => function ($breakQ) {
-            //     return $breakQ
-            //         // ->break($this->year, $this->month, $this->date)
-            //         ->selectRaw(['break_times.*', DB::raw('TIMESTAMPDIFF(SECOND, start_time, end_time) as start_time_count')]);
-            // }], 'start_time_count')
+
             ->paginate($request->per_page ?? 20);
 
         return response()->json([
@@ -244,7 +225,7 @@ class AttendanceController extends Controller
         $queries = BreakTime::with('employee')
             ->whereYear('start_time', '=', $this->year)
             ->whereMonth('start_time', '=', $this->month)
-            ->whereYear('start_time', '=', $this->date);
+            ->whereDay('start_time', '=', $this->date);
 
         if ($user->hasRole('admin')) {
             $queries->when($request->has('employee_id'), function ($employeeQ) use ($request) {

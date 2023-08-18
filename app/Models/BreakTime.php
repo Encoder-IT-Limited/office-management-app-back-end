@@ -36,6 +36,6 @@ class BreakTime extends Model
     {
         return $query->whereYear('start_time', '=', $year)
             ->whereMonth('start_time', '=', $month)
-            ->whereYear('start_time', '=', $date);
+            ->whereDay('start_time', '=', $date);
     }
 }
