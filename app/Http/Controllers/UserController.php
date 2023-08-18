@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+    private $year, $month, $date;
+
+    public function __construct()
+    {
+        $this->year = Carbon::today()->format('Y');
+        $this->month = Carbon::today()->format('m');
+        $this->date = Carbon::today()->format('d');
+    }
+
     public function index(Request $request)
     {
         $queries = User::with('roles', 'skills', 'todayAttendance', 'uploads')->where('status', 'active')->withTrashed();
@@ -174,6 +183,10 @@ class UserController extends Controller
             $role->with('permissions');
         }, 'todayAttendance', 'breakTimes' => function ($breakQ) {
             $breakQ->whereDate('start_time', Carbon::today());
+        }])->withCount(['attendances as delays_count' => function ($delayQ) {
+            return $delayQ->whereYear('check_in', '=', $this->year)
+                ->whereMonth('check_in', '=', $this->month)
+                ->delay();
         }])->find(Auth::id());
 
         return response()->json([

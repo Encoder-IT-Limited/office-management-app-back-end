@@ -50,7 +50,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
+    
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id')->withTimestamps();;
@@ -104,5 +104,12 @@ class User extends Authenticatable
     public function breakTimes()
     {
         return $this->hasMany(BreakTime::class, 'employee_id');
+    }
+
+    public function getBreakDurationAttribute()
+    {
+        return $this->breakTimes->reduce(function ($total, $break) {
+            return $total + Carbon::parse($break->start_time)->diffInSeconds($break->end_time);
+        }, 0);
     }
 }

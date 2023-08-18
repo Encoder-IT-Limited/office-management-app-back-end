@@ -9,6 +9,7 @@ use Exception;
 use Carbon\Carbon;
 
 use App\Models\{User, BreakTime, Attendance};
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
@@ -183,7 +184,7 @@ class AttendanceController extends Controller
         $this->year = $validated['year'] ?? $this->year;
         $this->month = $validated['month'] ?? $this->month;
         $this->date = $validated['date'] ?? $this->date;
-
+        // dd(BreakTime::sum(DB::raw('TIMESTAMPDIFF(SECOND, start_time, end_time)')));
         $user = User::findOrFail(Auth::id());
         $queries = BreakTime::with('employee')
             ->whereYear('start_time', '=', $this->year)
@@ -200,6 +201,63 @@ class AttendanceController extends Controller
 
         $breaks = $queries->latest()->paginate($request->per_page ?? 25);
 
+        //
+        $employees = User::with(['breakTimes' => function ($breakQ) {
+            return $breakQ
+                // ->break($this->year, $this->month, $this->date)
+                ->select('break_times.*')
+                ->selectRaw(DB::raw('TIMESTAMPDIFF(SECOND, start_time, end_time) as start_time_count'));
+        }])->withCount(['breakTimes as break_count' => function ($breakQ) {
+            // return $breakQ->break($this->year, $this->month, $this->date)->whereDate('start_time', Carbon::today());
+        }])
+            // ->withSum(["breakTimes"  => function ($breakQ) {
+            //     return $breakQ
+            //         // ->break($this->year, $this->month, $this->date)
+            //         ->selectRaw(['break_times.*', DB::raw('TIMESTAMPDIFF(SECOND, start_time, end_time) as start_time_count')]);
+            // }], 'start_time_count')
+            ->paginate($request->per_page ?? 20);
+
+        return response()->json([
+            'employees' => $employees ?? []
+        ], 200);
+        //
+
+        return response()->json([
+            'breaks' => $breaks
+        ], 200);
+    }
+
+    public function getEmployeeBreakDetails(Request $request)
+    {
+        $validated = $this->validateWith([
+            'year'        => 'sometimes|required',
+            'month'       => 'sometimes|required',
+            'date'        => 'sometimes|required',
+            'employee_id' => 'sometimes|required|exists:users,id',
+        ]);
+
+        $this->year = $validated['year'] ?? $this->year;
+        $this->month = $validated['month'] ?? $this->month;
+        $this->date = $validated['date'] ?? $this->date;
+
+        $user = User::findOrFail(Auth::id());
+        $queries = BreakTime::with('employee')
+            ->whereYear('start_time', '=', $this->year)
+            ->whereMonth('start_time', '=', $this->month)
+            ->whereYear('start_time', '=', $this->date);
+
+        if ($user->hasRole('admin')) {
+            $queries->when($request->has('employee_id'), function ($employeeQ) use ($request) {
+                $employeeQ->where('employee_id', $request->employee_id);
+            });
+        }
+
+        if ($user->hasRole('developer')) $queries->where('employee_id', $user->id);
+
+        $breaks = $queries->latest()->paginate($request->per_page ?? 25);
+        //
+
+        //
         return response()->json([
             'breaks' => $breaks
         ], 200);

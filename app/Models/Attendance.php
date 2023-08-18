@@ -51,7 +51,7 @@ class Attendance extends Model
 
     public function getIsDelayAttribute()
     {
-        if ($this->employee->delay_time) {
+        if ($this->employee) {
             $this->checkedIn = $this->employee->delay_time;
         }
         return $this->check_in > Carbon::parse($this->checkedIn);
