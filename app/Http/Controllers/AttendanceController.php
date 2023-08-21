@@ -172,6 +172,23 @@ class AttendanceController extends Controller
         ], 200);
     }
 
+    public function createBreak(Request $request)
+    {
+        $validated = $this->validateWith([
+            'id' => 'sometimes|required|exists:break_times,id',
+            'employee_id' => 'required|exists:users,id',
+            'start_time' => 'required',
+            'end_time' => 'sometimes|required',
+            'reason' => 'required'
+        ]);
+
+        $break = BreakTime::updateOrCreate($request->except(['start_time', 'end_time']), $validated);
+
+        return response()->json([
+            'break' => $break,
+        ], 200);
+    }
+
     public function getEmployeeBreaks(Request $request)
     {
         $validated = $this->validateWith([
@@ -184,7 +201,6 @@ class AttendanceController extends Controller
         $this->year = $validated['year'] ?? $this->year;
         $this->month = $validated['month'] ?? $this->month;
         $this->date = $validated['date'] ?? $this->date;
-        // dd(BreakTime::sum(DB::raw('TIMESTAMPDIFF(SECOND, start_time, end_time)')));
 
         $employees = User::with(['breakTimes' => function ($breakQ) {
             $breakQ
@@ -194,27 +210,31 @@ class AttendanceController extends Controller
                 ->groupBy('employee_id');
         }])->withCount(['breakTimes as break_count' => function ($breakQ) {
             return $breakQ->break($this->year, $this->month, $this->date);
-        }])
+        }])->paginate($request->per_page ?? 20);
 
-            ->paginate($request->per_page ?? 20);
+        $employees->getCollection()->transform(function ($employee) {
+            $employee = $employee->toArray();
+            if ($employee['break_count'] > 0) {
+                $employee['break_time_duration'] = (int) $employee['break_times'][0]['break_duration'];
+            } else {
+                $employee['break_time_duration'] = 0;
+            }
+            unset($employee['break_times']);
+            return $employee;
+        });
 
         return response()->json([
             'employees' => $employees ?? []
-        ], 200);
-        //
-
-        return response()->json([
-            'breaks' => $breaks
         ], 200);
     }
 
     public function getEmployeeBreakDetails(Request $request)
     {
         $validated = $this->validateWith([
-            'year'        => 'sometimes|required',
-            'month'       => 'sometimes|required',
-            'date'        => 'sometimes|required',
-            'employee_id' => 'sometimes|required|exists:users,id',
+            'year'        => 'required',
+            'month'       => 'required',
+            'date'        => 'required',
+            'employee_id' => 'required|exists:users,id',
         ]);
 
         $this->year = $validated['year'] ?? $this->year;
@@ -222,10 +242,7 @@ class AttendanceController extends Controller
         $this->date = $validated['date'] ?? $this->date;
 
         $user = User::findOrFail(Auth::id());
-        $queries = BreakTime::with('employee')
-            ->whereYear('start_time', '=', $this->year)
-            ->whereMonth('start_time', '=', $this->month)
-            ->whereDay('start_time', '=', $this->date);
+        $queries = BreakTime::with('employee')->break($this->year, $this->month, $this->date);
 
         if ($user->hasRole('admin')) {
             $queries->when($request->has('employee_id'), function ($employeeQ) use ($request) {
@@ -236,9 +253,7 @@ class AttendanceController extends Controller
         if ($user->hasRole('developer')) $queries->where('employee_id', $user->id);
 
         $breaks = $queries->latest()->paginate($request->per_page ?? 25);
-        //
 
-        //
         return response()->json([
             'breaks' => $breaks
         ], 200);
