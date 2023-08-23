@@ -21,7 +21,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('designation', 64)->nullable();
-            $table->timestamp('delay_time', 64)->nullable();
+            $table->time('delay_time')->nullable();
             $table->enum('status', ['active', 'inactive']);
             $table->rememberToken();
             $table->softDeletes();

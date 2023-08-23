@@ -17,7 +17,8 @@ class Attendance extends Model
         'check_in',
         'check_out',
         'date',
-        'message'
+        'status',
+        'delay_time'
     ];
 
     protected $casts = [
@@ -52,7 +53,7 @@ class Attendance extends Model
     public function getIsDelayAttribute()
     {
         if ($this->employee) {
-            $this->checkedIn = $this->employee->delay_time;
+            $this->checkedIn = $this->delay_time;
         }
         return $this->check_in > Carbon::parse($this->checkedIn);
     }

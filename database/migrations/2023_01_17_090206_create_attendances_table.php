@@ -18,7 +18,8 @@ class CreateAttendancesTable extends Migration
             $table->foreignId('employee_id')->constrained('users')->onDelete('cascade');
             $table->timestamp('check_in');
             $table->timestamp('check_out')->nullable();
-            $table->enum('message', ['leave', 'sick_leave', 'early_leave', 'present', 'absance'])->default('present');
+            $table->timestamp('delay_time')->nullable();
+            $table->enum('status', ['leave', 'sick_leave', 'early_leave', 'present', 'absence'])->default('present');
             $table->softDeletes();
             $table->timestamps();
         });

@@ -35,9 +35,12 @@ class AttendanceController extends Controller
             }
         }
 
+        $delayTime = Carbon::parse($user->delay_time);
+
         if (!$user->todayAttendance) {
             $todayAttendance = $user->todayAttendance()->create([
                 'check_in' => $checkedInAt,
+                'delay_time' => $delayTime
             ])->refresh();
 
             return response()->json([

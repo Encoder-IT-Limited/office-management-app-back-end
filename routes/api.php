@@ -114,10 +114,10 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('attendances')->group(function () {
-        Route::get('/', [AttendanceController::class, 'getEmployeeAttendances'])->middleware('permission:read-attendance');
-        Route::get('check-in', [AttendanceController::class, 'checkIn'])->middleware('permission:checkin-attendance');
-        Route::get('check-out', [AttendanceController::class, 'checkOut'])->middleware('permission:checkout-attendance');
-        Route::get('delays', [AttendanceController::class, 'getEmployeeDelays'])->middleware('permission:read-delays');
-        Route::post('create', [AttendanceController::class, 'createAttendance'])->middleware('permission:update-attendance');
+        Route::get('/', [AttendanceController::class, 'getEmployeeAttendances']);//->middleware('permission:read-attendance');
+        Route::get('check-in', [AttendanceController::class, 'checkIn']); //->middleware('permission:checkin-attendance');
+        Route::get('check-out', [AttendanceController::class, 'checkOut']);//->middleware('permission:checkout-attendance');
+        Route::get('delays', [AttendanceController::class, 'getEmployeeDelays']);//->middleware('permission:read-delays');
+        Route::post('create', [AttendanceController::class, 'createAttendance']);//->middleware('permission:update-attendance');
     });
 });
