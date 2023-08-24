@@ -9,7 +9,6 @@ use Exception;
 use Carbon\Carbon;
 
 use App\Models\{User, BreakTime, Attendance};
-use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
@@ -84,6 +83,10 @@ class AttendanceController extends Controller
             'check_out' => 'sometimes|required'
         ]);
 
+        $user = User::findOrFail($request->employee_id);
+
+        $validated['delay_time'] = Carbon::parse($request->delay_time) ?? Carbon::parse($user->delay_time);
+
         $attendance = Attendance::updateOrCreate($request->except(['check_in', 'check_out']), $validated);
 
         return response()->json([
@@ -134,11 +137,7 @@ class AttendanceController extends Controller
         $this->year = $validated['year'] ?? $this->year;
         $this->month = $validated['month'] ?? $this->month;
 
-        $employees = User::withCount(['attendances as delays_count' => function ($delayQ) {
-            return $delayQ->whereYear('check_in', '=', $this->year)
-                ->whereMonth('check_in', '=', $this->month)
-                ->delay();
-        }])->paginate($request->per_page ?? 20);
+        $employees = User::delaysCount($this->year, $this->month)->paginate($request->per_page ?? 20);
 
         return response()->json([
             'employees' => $employees ?? []
@@ -207,12 +206,12 @@ class AttendanceController extends Controller
 
         $employees = User::with(['breakTimes' => function ($breakQ) {
             $breakQ
-                ->break($this->year, $this->month, $this->date)
+                ->breakFilter($this->year, $this->month, $this->date)
                 ->select('employee_id')
                 ->selectRaw('SUM(TIMESTAMPDIFF(SECOND, start_time, end_time)) as break_duration')
                 ->groupBy('employee_id');
         }])->withCount(['breakTimes as break_count' => function ($breakQ) {
-            return $breakQ->break($this->year, $this->month, $this->date);
+            return $breakQ->breakFilter($this->year, $this->month, $this->date);
         }])->paginate($request->per_page ?? 20);
 
         $employees->getCollection()->transform(function ($employee) {
@@ -245,7 +244,7 @@ class AttendanceController extends Controller
         $this->date = $validated['date'] ?? $this->date;
 
         $user = User::findOrFail(Auth::id());
-        $queries = BreakTime::with('employee')->break($this->year, $this->month, $this->date);
+        $queries = BreakTime::with('employee')->breakFilter($this->year, $this->month, $this->date);
 
         if ($user->hasRole('admin')) {
             $queries->when($request->has('employee_id'), function ($employeeQ) use ($request) {

@@ -50,7 +50,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    
+
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id')->withTimestamps();;
@@ -88,11 +88,10 @@ class User extends Authenticatable
         return $this->hasOne(Attendance::class, 'employee_id')->whereDate('check_in', Carbon::now());
     }
 
-    public function scopeDelays($query, $year, $month, $delay_time)
+    public function scopeDelaysCount($query, $year, $month)
     {
-        return $query->withCount(['attendances AS delay_count' => function ($attendance) use ($year, $month, $delay_time) {
-            return $attendance->whereTime('attendances.check_in', '>', $delay_time)
-                ->whereYear('check_in', '=',  $year)->whereMonth('check_in', '=', $month);
+        return $query->withCount(['attendances AS delay_count' => function ($attendance) use ($year, $month) {
+            return $attendance->whereYear('check_in', '=',  $year)->whereMonth('check_in', '=', $month)->delay();
         }]);
     }
 

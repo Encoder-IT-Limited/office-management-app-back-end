@@ -45,19 +45,14 @@ class Attendance extends Model
 
     public function scopeDelay($query)
     {
-        return $query->whereHas('employee', function ($employeeQ) {
-            $employeeQ->whereRaw('attendances.check_in > users.delay_time');
-        });
+        return $query->whereTime('attendances.check_in', '>', 'attendances.delay_time');
     }
 
     public function getIsDelayAttribute()
     {
-        if ($this->employee) {
-            $this->checkedIn = $this->delay_time;
-        }
+        $this->checkedIn = $this->delay_time ?? $this->checkedIn;
         return $this->check_in > Carbon::parse($this->checkedIn);
     }
-
 
     public function getBreakTimeAttribute()
     {

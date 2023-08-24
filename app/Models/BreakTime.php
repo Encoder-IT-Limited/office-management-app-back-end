@@ -5,7 +5,6 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 class BreakTime extends Model
 {
@@ -32,7 +31,7 @@ class BreakTime extends Model
         return gmdate("H:i",  Carbon::parse($this->start_time)->diffInSeconds($breakEnd));
     }
 
-    public function scopeBreak($query, $year, $month, $date)
+    public function scopeBreakFilter($query, $year, $month, $date)
     {
         return $query->whereYear('start_time', '=', $year)
             ->whereMonth('start_time', '=', $month)
