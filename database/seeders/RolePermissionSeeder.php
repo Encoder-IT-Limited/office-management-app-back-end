@@ -5,7 +5,10 @@ namespace Database\Seeders;
 use App\Models\Permission;
 use App\Models\ProjectStatus;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -16,7 +19,7 @@ class RolePermissionSeeder extends Seeder
      */
     public function run()
     {
-        $permission = [
+        $permissions = [
             'read-user',
             'store-user',
             'show-user',
@@ -71,25 +74,37 @@ class RolePermissionSeeder extends Seeder
             'read-calendar',
             'see-month',
             'see-project-budget'
-
         ];
-        // $role = Role::findOrFail(1);
-        // foreach ($permission as $p) {
-        //     // foreach($permission[$role->slug] as $permission){
-        //     //     Permission::where('slug', $permission)->first()->attach($role->id);
-        //     // }
+        foreach ($permissions as $slug) {
+            Permission::updateOrCreate(['slug' => $slug], [
+                'name' => Str::replace('-', ' ', Str::ucfirst($slug))
+            ]);
+        }
 
-        //     $permission_ids = Permission::where('slug', $p)->pluck('id');
-        //     $role->permissions()->attach($permission_ids);
-        // }
+        Role::updateOrCreate(['slug' => 'admin'], [
+            'name' => 'Admin'
+        ]);
+        User::updateOrCreate(['email' => 'admin@test.com'], [
+            'name' => 'Admin',
+            'phone' => '123456789',
+            'password' => Hash::make('12345678'),
+            'designation' => 'Admin',
+            'status' => 'active',
+        ]);
+
+        $role = Role::where('slug', 'admin')->first();
+
+        $role->users()->sync(1);
+
+        $role->permissions()->attach(Permission::all()->pluck('id')->toArray());
 
         $status = [
-            ['message' => "lead"],
-            ['message' => "pending"],
-            ['message' => "on-going"],
-            ['message' => "accepted"],
-            ['message' => "rejected"],
-            ['message' => "Completed"],
+            ['status' => "lead"],
+            ['status' => "pending"],
+            ['status' => "on-going"],
+            ['status' => "accepted"],
+            ['status' => "rejected"],
+            ['status' => "Completed"],
         ];
 
         foreach ($status as $p) {

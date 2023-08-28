@@ -17,16 +17,13 @@ class AuthController extends Controller
                 'email' => 'required|email',
                 'password' => 'required|min:6',
             ]);
+
             if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 500);
+                return response()->json(['error' => $validator->errors()], 422);
             }
 
             if (Auth::attempt($request->only(['email', 'password']))) {
                 $user = User::find(Auth::id());
-
-                // if ($user->hasRole('developer')) {
-                //     (new AttendanceController)->checkIn(new Request($request->all()));
-                // }
 
                 return response()->json([
                     'message' => true,
