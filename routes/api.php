@@ -78,7 +78,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('projects')->group(function () {
-        Route::get('index', [ProjectControler::class, 'index'])->middleware('permission:read-project');
+        Route::get('/', [ProjectControler::class, 'index'])->middleware('permission:read-project');
         Route::post('store', [ProjectControler::class, 'store'])->middleware('permission:store-project');
         Route::get('show/{id}', [ProjectControler::class, 'show'])->middleware('permission:show-project');
         Route::patch('update', [ProjectControler::class, 'update'])->middleware('permission:update-project');
@@ -88,7 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('reminders')->group(function () {
-        Route::get('index', [ReminderController::class, 'index'])->middleware('permission:read-reminder');
+        Route::get('/', [ReminderController::class, 'index'])->middleware('permission:read-reminder');
         Route::post('store', [ReminderController::class, 'store'])->middleware('permission:store-reminder');
         Route::get('show/{id}', [ReminderController::class, 'show'])->middleware('permission:show-reminder');
         Route::patch('update', [ReminderController::class, 'update'])->middleware('permission:update-reminder');
