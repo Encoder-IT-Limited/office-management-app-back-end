@@ -92,7 +92,7 @@ class RoleController extends Controller
 
     public function allPermissions(Request $request)
     {
-        $permissions = Permission::latest()->paginate($request->per_page ?? 25);
+        $permissions = Permission::orderBy('slug', 'ASC')->get();
 
         return response()->json([
             'message'   => 'Successfully get',
