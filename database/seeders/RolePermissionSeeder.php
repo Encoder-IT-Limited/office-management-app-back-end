@@ -65,6 +65,12 @@ class RolePermissionSeeder extends Seeder
             'update-reminder',
             'delete-reminder',
 
+            'read-break',
+            'store-break',
+            'show-break',
+            'update-break',
+            'delete-break',
+
             'read-attendance',
             'update-attendance',
             'checkin-attendance',

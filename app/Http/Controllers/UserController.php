@@ -111,7 +111,7 @@ class UserController extends Controller
             'password'    => 'sometimes|required|confirmed'
         ]);
 
-        $updatableData = $validated()->except('user_id');
+        $updatableData = $request->except('user_id');
 
         if ($request->has('password')) {
             $updatableData['password'] = Hash::make($request->get('password'));
