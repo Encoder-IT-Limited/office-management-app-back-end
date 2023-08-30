@@ -87,6 +87,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('status', [ProjectControler::class, 'getStatus']);
     });
 
+    Route::prefix('task')->group(function () {
+        Route::get('/', [TaskController::class, 'index'])->middleware('permission:read-task');
+        Route::post('store', [TaskController::class, 'store'])->middleware('permission:store-task');
+        Route::get('show/{id}', [TaskController::class, 'show'])->middleware('permission:show-task');
+        Route::patch('update', [TaskController::class, 'update'])->middleware('permission:update-task');
+        Route::delete('delete/{id}', [TaskController::class, 'destroy'])->middleware('permission:delete-task');
+    });
+
     Route::prefix('reminders')->group(function () {
         Route::get('/', [ReminderController::class, 'index'])->middleware('permission:read-reminder');
         Route::post('store', [ReminderController::class, 'store'])->middleware('permission:store-reminder');
