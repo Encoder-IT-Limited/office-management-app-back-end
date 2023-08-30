@@ -46,9 +46,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('store', [UserController::class, 'store'])->middleware('permission:store-user');
         Route::get('show/{id}', [UserController::class, 'show'])->middleware('permission:show-user');
         Route::post('update', [UserController::class, 'update'])->middleware('permission:update-user');
-        Route::delete('delete/{id}', [UserController::class, 'destroy'])->middleware('permission:block-user');
-        Route::delete('force-delete/{id}', [UserController::class, 'forceDestroy'])->middleware('permission:delete-user');
-        Route::post('restore', [UserController::class, 'restore'])->middleware('permission:unblock-user');
+        Route::delete('delete/{id}', [UserController::class, 'destroy'])->middleware('permission:delete-user');
+        Route::post('restore', [UserController::class, 'restore'])->middleware('permission:delete-user');
+        Route::post('status-update', [UserController::class, 'updateUserStatus'])->middleware('permission:block-user');
         Route::get('details', [UserController::class, 'details']);
     });
 
@@ -115,10 +115,10 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('attendances')->group(function () {
-        Route::get('/', [AttendanceController::class, 'getEmployeeAttendances']);//->middleware('permission:read-attendance');
+        Route::get('/', [AttendanceController::class, 'getEmployeeAttendances']); //->middleware('permission:read-attendance');
         Route::get('check-in', [AttendanceController::class, 'checkIn']); //->middleware('permission:checkin-attendance');
-        Route::get('check-out', [AttendanceController::class, 'checkOut']);//->middleware('permission:checkout-attendance');
-        Route::get('delays', [AttendanceController::class, 'getEmployeeDelays']);//->middleware('permission:read-delays');
-        Route::post('create', [AttendanceController::class, 'createAttendance']);//->middleware('permission:update-attendance');
+        Route::get('check-out', [AttendanceController::class, 'checkOut']); //->middleware('permission:checkout-attendance');
+        Route::get('delays', [AttendanceController::class, 'getEmployeeDelays']); //->middleware('permission:read-delays');
+        Route::post('create', [AttendanceController::class, 'createAttendance']); //->middleware('permission:update-attendance');
     });
 });

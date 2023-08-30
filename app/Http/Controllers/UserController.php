@@ -159,12 +159,18 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function forceDestroy($id)
+    public function updateUserStatus(Request $request)
     {
-        User::withTrashed()->find($id)->forceDelete();
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'status'      => 'required|in:active,inactive'
+        ]);
+
+        $user = User::whereId($request->user_id)->update(['status' => $request->status]);
 
         return response()->json([
-            'message' => 'Deleted Successfully',
+            'user' => $user,
+            'message' => 'Status updated successfully'
         ], 200);
     }
 
