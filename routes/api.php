@@ -115,7 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('breaks')->group(function () {
         Route::get('/', [AttendanceController::class, 'getEmployeeBreaks']);
-        Route::get('details', [AttendanceController::class, 'getEmployeeBreakDetails'])->middleware('permission:read-breaks');
+        Route::get('details', [AttendanceController::class, 'getEmployeeBreakDetails'])->middleware('permission:read-break');
         Route::post('start', [AttendanceController::class, 'startingBreak']);
         Route::get('end', [AttendanceController::class, 'endingBreak']);
 
