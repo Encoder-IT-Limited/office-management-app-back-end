@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BreaktimeController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EmployeeNoteController;
 use App\Http\Controllers\LeaveController;
@@ -46,9 +47,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('store', [UserController::class, 'store'])->middleware('permission:store-user');
         Route::get('show/{id}', [UserController::class, 'show'])->middleware('permission:show-user');
         Route::post('update', [UserController::class, 'update'])->middleware('permission:update-user');
+        Route::post('status-update', [UserController::class, 'updateUserStatus'])->middleware('permission:update-user');
         Route::delete('delete/{id}', [UserController::class, 'destroy'])->middleware('permission:delete-user');
         Route::post('restore', [UserController::class, 'restore'])->middleware('permission:delete-user');
-        Route::post('status-update', [UserController::class, 'updateUserStatus'])->middleware('permission:block-user');
         Route::get('details', [UserController::class, 'details']);
     });
 
@@ -114,12 +115,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('breaks')->group(function () {
-        Route::get('/', [AttendanceController::class, 'getEmployeeBreaks']);
-        Route::get('details', [AttendanceController::class, 'getEmployeeBreakDetails'])->middleware('permission:read-break');
-        Route::post('start', [AttendanceController::class, 'startingBreak']);
-        Route::get('end', [AttendanceController::class, 'endingBreak']);
+        Route::get('/', [BreaktimeController::class, 'getEmployeeBreaks']);
+        Route::get('details', [BreaktimeController::class, 'getEmployeeBreakDetails'])->middleware('permission:read-break');
+        Route::post('start', [BreaktimeController::class, 'startingBreak']);
+        Route::get('end', [BreaktimeController::class, 'endingBreak']);
+        Route::delete('{id}', [BreaktimeController::class, 'deleteBreakTime']);
 
-        Route::post('create', [AttendanceController::class, 'createBreak'])->middleware('permission:update-break');
+        Route::post('create', [BreaktimeController::class, 'createBreak'])->middleware('permission:update-break');
     });
 
     Route::prefix('attendances')->group(function () {
@@ -128,5 +130,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('check-out', [AttendanceController::class, 'checkOut']); //->middleware('permission:checkout-attendance');
         Route::get('delays', [AttendanceController::class, 'getEmployeeDelays']); //->middleware('permission:read-delays');
         Route::post('create', [AttendanceController::class, 'createAttendance']); //->middleware('permission:update-attendance');
+        Route::delete('{id}', [AttendanceController::class, 'deleteAttendances']);
     });
 });
