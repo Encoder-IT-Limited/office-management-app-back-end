@@ -97,14 +97,9 @@ class DefaultDataSeeder extends Seeder
         ]);
         $user = User::where('email', 'admin@admin.com')->first();
 
-        $userIds = User::pluck('id')->toArray();
-        if (!in_array($user->id, $userIds)) array_push($userIds, $user->id);
-
         $roleAttachedIds = $role->users()->pluck('users.id')->toArray();
 
-        $newIds = array_diff($userIds, $roleAttachedIds);
-
-        $role->users()->attach($newIds);
+        if (!in_array($user->id, $roleAttachedIds)) $role->users()->attach($user->id);
 
         foreach ($permissions as $slug) {
             Permission::updateOrCreate(['slug' => $slug], [
