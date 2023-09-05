@@ -46,12 +46,6 @@ class DefaultDataSeeder extends Seeder
             'update-project',
             'delete-project',
 
-            'read-task',
-            'store-task',
-            'show-task',
-            'update-task',
-            'delete-task',
-
             'read-leave',
             'store-leave',
             'update-leave',
