@@ -2,15 +2,17 @@
 
 namespace Database\Seeders;
 
+use App\Models\Attendance;
 use App\Models\Permission;
 use App\Models\ProjectStatus;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-class RolePermissionSeeder extends Seeder
+class DefaultDataSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -24,8 +26,6 @@ class RolePermissionSeeder extends Seeder
             'store-user',
             'show-user',
             'update-user',
-            'block-user',
-            'unblock-user',
             'delete-user',
 
             'read-skill',
@@ -81,34 +81,54 @@ class RolePermissionSeeder extends Seeder
             'update-attendance',
             'checkin-attendance',
             'checkout-attendance',
+            'delete-attendance',
             'read-delays',
 
             'read-calendar',
             'see-month',
             'see-project-budget'
         ];
+
+        Role::updateOrCreate(['slug' => 'admin'], [
+            'name' => 'Admin'
+        ]);
+        $role = Role::where('slug', 'admin')->first();
+
+        User::updateOrCreate(['email' => 'admin@admin.com'], [
+            'name' => 'Admin',
+            'phone' => '12345678',
+            'password' => Hash::make('12345678'),
+            'designation' => 'Admin',
+            'status' => 'active',
+        ]);
+        $user = User::where('email', 'admin@admin.com')->first();
+
+        $userIds = User::pluck('id')->toArray();
+        if (!in_array($user->id, $userIds)) array_push($userIds, $user->id);
+
+        $roleAttachedIds = $role->users()->pluck('id')->toArray();
+
+        $newIds = array_diff($userIds, $roleAttachedIds);
+
+        $role->users()->attach($newIds);
+
         foreach ($permissions as $slug) {
             Permission::updateOrCreate(['slug' => $slug], [
                 'name' => Str::replace('-', ' ', Str::ucfirst($slug))
             ]);
         }
 
-        Role::updateOrCreate(['slug' => 'admin'], [
-            'name' => 'Admin'
-        ]);
-        User::updateOrCreate(['email' => 'admin@test.com'], [
-            'name' => 'Admin',
-            'phone' => '123456789',
-            'password' => Hash::make('12345678'),
-            'designation' => 'Admin',
-            'status' => 'active',
-        ]);
-
-        $role = Role::where('slug', 'admin')->first();
-
-        $role->users()->sync(1);
-
         $role->permissions()->attach(Permission::all()->pluck('id')->toArray());
+
+
+        foreach (Attendance::all() as $attendance) {
+            if(!$attendance->delay_time){
+                $time = $attendance->employee->delay_time;
+                $date = Carbon::parse($attendance->check_in)->toDateString();
+                $default_delay_time = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $time, config('app.timezone'));
+                $attendance->update(['delay_time' => $default_delay_time]);
+            }
+        }
 
         $status = [
             ['status' => "lead"],

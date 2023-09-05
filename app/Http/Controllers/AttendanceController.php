@@ -79,15 +79,31 @@ class AttendanceController extends Controller
         $validated = $this->validateWith([
             'employee_id' => 'required|exists:users,id',
             'id' => 'sometimes|required|exists:attendances,id',
-            'check_in' => 'sometimes|required',
-            'check_out' => 'sometimes|required'
+            'check_in' => 'required',
+            'check_out' => 'sometimes|required',
+            'delay_time' => 'sometimes|required'
         ]);
 
         $user = User::findOrFail($request->employee_id);
 
-        $validated['delay_time'] = Carbon::parse($request->delay_time) ?? Carbon::parse($user->delay_time);
+        if (!$request->has('delay_time')) {
+            $default_delay_time = $user->delay_time;
+            $date = Carbon::parse($request->check_in)->toDateString();
+            $default_delay_time = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $default_delay_time, config('app.timezone'));
 
-        $attendance = Attendance::updateOrCreate($request->except(['check_in', 'check_out']), $validated);
+            $validated['delay_time'] = $default_delay_time;
+        }
+
+        $checker = $request->except(['check_in', 'check_out', 'delay_time']);
+        $checker['id'] = $request->id;
+        if (!$request->has('id')) {
+            $existedAttendance = $user->attendances()->whereDate('check_in', Carbon::parse($request->check_in))->first();
+            if ($existedAttendance) $checker['id'] = $existedAttendance->id;
+        }
+
+        $attendance = Attendance::updateOrCreate($checker, $validated);
+
+        $attendance = Attendance::with('employee')->whereId($attendance->id ?? $request->id)->first();
 
         return response()->json([
             'attendance' => $attendance,

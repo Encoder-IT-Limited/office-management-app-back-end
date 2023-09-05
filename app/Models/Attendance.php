@@ -26,7 +26,7 @@ class Attendance extends Model
     protected $casts = [
         'check_in'   => 'datetime',
         'check_out'  => 'datetime',
-        'delay_time'  => 'datetime:H:i:s',
+        'delay_time'  => 'datetime',
         'created_at'  => 'datetime',
         'updated_at'  => 'datetime',
         'deleted_at'  => 'datetime',
