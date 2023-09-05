@@ -100,7 +100,7 @@ class DefaultDataSeeder extends Seeder
         $userIds = User::pluck('id')->toArray();
         if (!in_array($user->id, $userIds)) array_push($userIds, $user->id);
 
-        $roleAttachedIds = $role->users()->pluck('id')->toArray();
+        $roleAttachedIds = $role->users()->pluck('users.id')->toArray();
 
         $newIds = array_diff($userIds, $roleAttachedIds);
 
