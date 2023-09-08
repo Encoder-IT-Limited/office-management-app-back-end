@@ -6,10 +6,11 @@ use App\Http\Controllers\BreaktimeController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EmployeeNoteController;
 use App\Http\Controllers\LeaveController;
-use App\Http\Controllers\ProjectControler;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SkillController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use App\Models\Leave;
 use Illuminate\Http\Request;
@@ -79,13 +80,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('projects')->group(function () {
-        Route::get('/', [ProjectControler::class, 'index'])->middleware('permission:read-project');
-        Route::post('store', [ProjectControler::class, 'store'])->middleware('permission:store-project');
-        Route::get('show/{id}', [ProjectControler::class, 'show'])->middleware('permission:show-project');
-        Route::patch('update', [ProjectControler::class, 'update'])->middleware('permission:update-project');
-        Route::delete('delete/{id}', [ProjectControler::class, 'destroy'])->middleware('permission:delete-project');
-        Route::post('status', [ProjectControler::class, 'projectStatus']);
-        Route::get('status', [ProjectControler::class, 'getStatus']);
+        Route::get('/', [ProjectController::class, 'index'])->middleware('permission:read-project');
+        Route::post('store', [ProjectController::class, 'store'])->middleware('permission:store-project');
+        Route::get('show/{id}', [ProjectController::class, 'show'])->middleware('permission:show-project');
+        Route::patch('update', [ProjectController::class, 'update'])->middleware('permission:update-project');
+        Route::delete('delete/{id}', [ProjectController::class, 'destroy'])->middleware('permission:delete-project');
+        Route::post('status', [ProjectController::class, 'projectStatus']);
+        Route::get('status', [ProjectController::class, 'getStatus']);
     });
 
     Route::prefix('task')->group(function () {

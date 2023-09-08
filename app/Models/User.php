@@ -65,7 +65,7 @@ class User extends Authenticatable
 
     public function employeeNotes()
     {
-        return $this->hasMany(EmploteeNote::class, 'user_id');
+        return $this->hasMany(EmployeeNote::class, 'user_id');
     }
 
     public function projectTask()

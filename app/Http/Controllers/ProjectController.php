@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class ProjectControler extends Controller
+class ProjectController extends Controller
 {
 
     public function index(Request $request)
@@ -29,7 +29,7 @@ class ProjectControler extends Controller
 
         return response()->json([
             'message'   => 'Success',
-            'porjects' => $projects
+            'projects' => $projects
         ], 200);
     }
 
@@ -71,12 +71,19 @@ class ProjectControler extends Controller
 
     public function show($id)
     {
-        $project = Project::findOrFail($id);
+        $project = Project
+            ::with([
+                'status',
+                'clients',
+                'projectTasks' => function ($data) {
+                    $data->with('developer');
+                },
+            ])
+            ->find($id);
 
         return response()->json([
-            'message'  => 'Success',
             'project' => $project
-        ], 200);
+        ], !$project ? 404 : 200);
     }
 
     public function update(Request $request)
