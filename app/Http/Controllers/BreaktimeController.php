@@ -60,7 +60,9 @@ class BreaktimeController extends Controller
             'reason' => 'required'
         ]);
 
-        $break = BreakTime::updateOrCreate($request->except(['start_time', 'end_time', 'reason']), $validated);
+        $break = BreakTime::updateOrCreate([
+            'id' => $request->id,
+        ], $validated);
 
         return response()->json([
             'break' => $break,
