@@ -90,7 +90,7 @@ class BreaktimeController extends Controller
                 ->groupBy('employee_id');
         }])->withCount(['breakTimes as break_count' => function ($breakQ) {
             return $breakQ->breakFilter($this->year, $this->month, $this->date);
-        }])->paginate($request->per_page ?? 20);
+        }])->onlyDeveloper()->paginate($request->per_page ?? 20);
 
         $employees->getCollection()->transform(function ($employee) {
             $employee = $employee->toArray();
@@ -128,9 +128,7 @@ class BreaktimeController extends Controller
             $queries->when($request->has('employee_id'), function ($employeeQ) use ($request) {
                 $employeeQ->where('employee_id', $request->employee_id);
             });
-        }
-
-        if ($user->hasRole('developer')) $queries->where('employee_id', $user->id);
+        } else if ($user->hasRole('developer')) $queries->where('employee_id', $user->id);
 
         $breaks = $queries->orderByDesc('start_time')->paginate($request->per_page ?? 25);
 

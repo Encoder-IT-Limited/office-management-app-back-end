@@ -95,6 +95,27 @@ class User extends Authenticatable
         }]);
     }
 
+    public function scopeFilterByRoles($query, ...$roles)
+    {
+        return $query->whereHas('roles', function ($roleQ) use($roles){
+            return $roleQ->whereIn('slug', $roles);
+        });
+    }
+    public function scopeOnlyAdmin($query)
+    {
+        return $query->filterByRoles('admin');
+    }
+
+    public function scopeOnlyDeveloper($query)
+    {
+        return $query->filterByRoles('developer');
+    }
+
+    public function scopeOnlyClient($query)
+    {
+        return $query->filterByRoles('client');
+    }
+
     public function getUserRoleAttribute()
     {
         return $this->roles;

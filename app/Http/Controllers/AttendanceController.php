@@ -132,9 +132,7 @@ class AttendanceController extends Controller
             })->when($request->has('date'), function ($dateQ) use ($request) {
                 $dateQ->whereDay('check_in', '=', $request->date);
             });
-        }
-
-        if ($user->hasRole('developer')) $queries->where('employee_id', $user->id);
+        } else if ($user->hasRole('developer')) $queries->where('employee_id', $user->id);
 
         $attendances = $queries->orderByDesc('check_in')->paginate($request->per_page ?? 31);
 
@@ -161,7 +159,7 @@ class AttendanceController extends Controller
         $this->year = $validated['year'] ?? $this->year;
         $this->month = $validated['month'] ?? $this->month;
 
-        $employees = User::delaysCount($this->year, $this->month)->paginate($request->per_page ?? 20);
+        $employees = User::delaysCount($this->year, $this->month)->onlyDeveloper()->paginate($request->per_page ?? 20);
 
         return response()->json([
             'employees' => $employees ?? []

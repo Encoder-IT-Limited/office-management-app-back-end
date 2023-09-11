@@ -125,11 +125,11 @@ class DefaultDataSeeder extends Seeder
             ['status' => "on-going"],
             ['status' => "accepted"],
             ['status' => "rejected"],
-            ['status' => "Completed"],
+            ['status' => "completed"],
         ];
 
         foreach ($status as $p) {
-            ProjectStatus::create($p);
+            ProjectStatus::updateOrCreate($p);
         }
     }
 }
