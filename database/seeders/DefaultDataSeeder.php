@@ -111,7 +111,7 @@ class DefaultDataSeeder extends Seeder
 
 
         foreach (Attendance::all() as $attendance) {
-            if(!$attendance->delay_time){
+            if (!$attendance->delay_time) {
                 $time = $attendance->employee->delay_time;
                 $date = Carbon::parse($attendance->check_in)->toDateString();
                 $default_delay_time = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $time, config('app.timezone'));
@@ -120,12 +120,12 @@ class DefaultDataSeeder extends Seeder
         }
 
         $status = [
-            ['status' => "lead"],
-            ['status' => "pending"],
-            ['status' => "on-going"],
-            ['status' => "accepted"],
-            ['status' => "rejected"],
-            ['status' => "completed"],
+            ['title' => "lead", 'color' => 'green'],
+            ['title' => "pending", 'color' => 'green'],
+            ['title' => "on-going", 'color' => 'green'],
+            ['title' => "accepted", 'color' => 'green'],
+            ['title' => "rejected", 'color' => 'green'],
+            ['title' => "completed", 'color' => 'green'],
         ];
 
         foreach ($status as $p) {

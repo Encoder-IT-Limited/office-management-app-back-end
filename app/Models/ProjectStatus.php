@@ -9,5 +9,7 @@ class ProjectStatus extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['status'];
+    protected $fillable = ['status', 'color'];
+
+    
 }

@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BreaktimeController;
@@ -12,9 +14,6 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
-use App\Models\Leave;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,7 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('status', [ProjectController::class, 'getStatus']);
     });
 
-    Route::prefix('task')->group(function () {
+    Route::prefix('tasks')->group(function () {
         Route::get('/', [TaskController::class, 'index'])->middleware('permission:read-task');
         Route::post('store', [TaskController::class, 'store'])->middleware('permission:store-task');
         Route::get('show/{id}', [TaskController::class, 'show'])->middleware('permission:show-task');

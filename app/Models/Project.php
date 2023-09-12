@@ -47,4 +47,9 @@ class Project extends Model
     {
         return $this->belongsTo(ProjectStatus::class, 'status_id');
     }
+
+    public function labels()
+    {
+        return $this->morphToMany(LabelStatus::class, 'statusable');
+    }
 }
