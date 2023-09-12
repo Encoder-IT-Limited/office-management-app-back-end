@@ -157,6 +157,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name'        => 'sometimes|required|string',
             'email'       => 'sometimes|required|email|unique:users,email,' . $user->id,
+            'username'       => 'sometimes|required|unique:users,username,' . $user->id,
             'phone'       => 'sometimes|required|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
             'password' => [
                 'sometimes',
@@ -181,7 +182,7 @@ class UserController extends Controller
             ], 422);
         }
 
-        $basic_fields = ['name', 'email', 'phone'];
+        $basic_fields = ['name', 'email', 'phone', 'username'];
         foreach ($basic_fields as $field) {
             $value = $request->get($field);
             if (isset($value)) {
@@ -248,7 +249,7 @@ class UserController extends Controller
                 }
             }
         }
-        $user = User::with(['roles' => function ($role) {
+        $user = User::with(['apiKeys', 'roles' => function ($role) {
             $role->with('permissions');
         }, 'todayAttendance', 'breakTimes' => function ($breakQ) {
             $breakQ->whereDate('start_time', Carbon::today());

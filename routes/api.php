@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\ApiKeyController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BreaktimeController;
@@ -52,6 +52,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('restore', [UserController::class, 'restore'])->middleware('permission:delete-user');
         Route::get('/details', [UserController::class, 'details']);
         Route::patch('/details', [UserController::class, 'updateOwnProfile']);
+    });
+
+    Route::prefix('api-keys')->group(function () {
+        Route::get('/', [ApiKeyController::class, 'index']);
+        Route::post('/', [ApiKeyController::class, 'store']);
     });
 
     Route::prefix('skills')->group(function () {

@@ -63,6 +63,11 @@ class User extends Authenticatable
         ]);
     }
 
+    public function apiKeys()
+    {
+        return $this->hasMany(ApiKey::class);
+    }
+
     public function employeeNotes()
     {
         return $this->hasMany(EmployeeNote::class, 'user_id');
@@ -97,7 +102,7 @@ class User extends Authenticatable
 
     public function scopeFilterByRoles($query, ...$roles)
     {
-        return $query->whereHas('roles', function ($roleQ) use($roles){
+        return $query->whereHas('roles', function ($roleQ) use ($roles) {
             return $roleQ->whereIn('slug', $roles);
         });
     }
