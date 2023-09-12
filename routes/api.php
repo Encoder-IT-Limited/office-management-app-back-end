@@ -51,7 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('status-update', [UserController::class, 'updateUserStatus'])->middleware('permission:update-user');
         Route::delete('delete/{id}', [UserController::class, 'destroy'])->middleware('permission:delete-user');
         Route::post('restore', [UserController::class, 'restore'])->middleware('permission:delete-user');
-        Route::get('details', [UserController::class, 'details']);
+        Route::get('/details', [UserController::class, 'details']);
+        Route::patch('/details', [UserController::class, 'updateOwnProfile']);
     });
 
     Route::prefix('skills')->group(function () {

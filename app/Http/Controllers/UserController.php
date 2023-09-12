@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -150,6 +151,57 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function updateOwnProfile(Request $request)
+    {
+        $user = Auth::user();
+        $validator = Validator::make($request->all(), [
+            'name'        => 'sometimes|required|string',
+            'email'       => 'sometimes|required|email|unique:users,email,' . $user->id,
+            'phone'       => 'sometimes|required|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
+            'password' => [
+                'sometimes',
+                'required_with:current_password',
+                'different:current_password',
+                'confirmed',
+            ],
+            'current_password' => [
+                'sometimes',
+                'required',
+                function ($_, $value, $fail) use ($user) {
+                    if (!Hash::check($value, $user->password)) {
+                        return $fail(__('The current password is incorrect.'));
+                    }
+                }
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $basic_fields = ['name', 'email', 'phone'];
+        foreach ($basic_fields as $field) {
+            $value = $request->get($field);
+            if (isset($value)) {
+                $user->{$field} = $value;
+            }
+        }
+
+        if (isset($request->password)) {
+            $user->password =  Hash::make(
+                $request->password
+            );
+        }
+
+        $user->save();
+
+        return response()->json([
+            'user' => $user
+        ], 200);
+    }
+
     public function destroy($id)
     {
         User::destroy($id);
@@ -185,12 +237,12 @@ class UserController extends Controller
 
     public function details()
     {
-        foreach(User::all() as $tUser){
+        foreach (User::all() as $tUser) {
             foreach ($tUser->attendances as $attendance) {
                 if (!$attendance->delay_time) {
                     $time = $tUser->delay_time;
                     $date = Carbon::parse($attendance->check_in)->format('Y-m-d');
-                    $delay_time = Carbon::createFromFormat('Y-m-d H:i:s', $date.' '.$time);
+                    $delay_time = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $time);
                     $attendance->delay_time = $delay_time;
                     $attendance->save();
                 }
