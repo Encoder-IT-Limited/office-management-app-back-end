@@ -15,7 +15,7 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $query = Project::with(['clients', 'projectTasks' => function ($data) {
+        $query = Project::with(['clients', 'tasks' => function ($data) {
             $data->with('developer');
         }, 'status']);
         if ($user->hasRole('developer')) {
@@ -35,7 +35,7 @@ class ProjectController extends Controller
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated =$this->validateWith([
             'name'           => 'required|string|unique:projects',
             'budget'         => 'required',
             'start_date'     => 'required|date',
@@ -44,9 +44,8 @@ class ProjectController extends Controller
             'developer_task' => 'sometimes|required|array',
             'status_id' => 'required|exists:project_statuses,id'
         ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 500);
-        }
+
+        dd($validated);
 
         $data = $validator->validated();
         $project = Project::create($data);

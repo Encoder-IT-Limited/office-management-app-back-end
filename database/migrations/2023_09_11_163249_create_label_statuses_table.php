@@ -18,16 +18,18 @@ class CreateLabelStatusesTable extends Migration
     {
         Schema::create('label_statuses', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(Project::class, 'project_id')->nullable();
             $table->string('title');
             $table->string('color');
             $table->enum('type', ['label', 'status']);
+            $table->enum('franchise', ['task', 'project']);
             $table->timestamps();
         });
 
         Schema::create('statusables', function (Blueprint $table) {
             $table->id();
-            $table->string('color');
             $table->foreignIdFor(LabelStatus::class, 'label_status_id');
+            $table->string('color');
             $table->morphs('statusable');
             $table->timestamps();
         });

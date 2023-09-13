@@ -23,7 +23,7 @@ class CreateTasksTable extends Migration
             $table->foreignIdFor(User::class, 'assignee_id')->nullable();
             $table->string('title');
             $table->longText('description');
-            $table->string('reference');
+            $table->string('reference')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->softDeletes();

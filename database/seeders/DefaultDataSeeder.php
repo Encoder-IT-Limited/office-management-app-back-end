@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Attendance;
+use App\Models\LabelStatus;
 use App\Models\Permission;
 use App\Models\ProjectStatus;
 use App\Models\Role;
@@ -80,7 +81,13 @@ class DefaultDataSeeder extends Seeder
 
             'read-calendar',
             'see-month',
-            'see-project-budget'
+            'see-project-budget',
+
+            'read-task',
+            'store-task',
+            'show-task',
+            'update-task',
+            'delete-task',
         ];
 
         Role::updateOrCreate(['slug' => 'admin'], [
@@ -106,9 +113,7 @@ class DefaultDataSeeder extends Seeder
                 'name' => Str::replace('-', ' ', Str::ucfirst($slug))
             ]);
         }
-
-        $role->permissions()->attach(Permission::all()->pluck('id')->toArray());
-
+        $role->permissions()->syncWithoutDetaching(Permission::all()->pluck('id')->toArray());
 
         foreach (Attendance::all() as $attendance) {
             if (!$attendance->delay_time) {
@@ -120,16 +125,24 @@ class DefaultDataSeeder extends Seeder
         }
 
         $status = [
-            ['title' => "lead", 'color' => 'green'],
-            ['title' => "pending", 'color' => 'green'],
-            ['title' => "on-going", 'color' => 'green'],
-            ['title' => "accepted", 'color' => 'green'],
-            ['title' => "rejected", 'color' => 'green'],
-            ['title' => "completed", 'color' => 'green'],
+            ['title' => "lead", 'color' => 'green', 'type' => 'status', 'franchise' => 'project'],
+            ['title' => "pending", 'color' => 'green', 'type' => 'status', 'franchise' => 'project'],
+            ['title' => "on-going", 'color' => 'green', 'type' => 'status', 'franchise' => 'project'],
+            ['title' => "accepted", 'color' => 'green', 'type' => 'status', 'franchise' => 'project'],
+            ['title' => "rejected", 'color' => 'green', 'type' => 'status', 'franchise' => 'project'],
+            ['title' => "completed", 'color' => 'green', 'type' => 'status', 'franchise' => 'project'],
         ];
 
+        // Added Project Default Status
         foreach ($status as $p) {
-            ProjectStatus::updateOrCreate($p);
+            LabelStatus::updateOrCreate($p);
         }
+
+        // Added Task Default Status
+        LabelStatus::updateOrCreate([
+            'title' => 'Initialize',
+            'color' => 'green',
+            'type'  => 'status'
+        ]);
     }
 }

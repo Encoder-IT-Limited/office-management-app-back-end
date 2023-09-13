@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BreaktimeController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EmployeeNoteController;
+use App\Http\Controllers\LabelStatusController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ReminderController;
@@ -96,9 +97,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('tasks')->group(function () {
         Route::get('/', [TaskController::class, 'index'])->middleware('permission:read-task');
-        Route::post('store', [TaskController::class, 'store'])->middleware('permission:store-task');
+        Route::post('/', [TaskController::class, 'store'])->middleware('permission:store-task');
         Route::get('show/{id}', [TaskController::class, 'show'])->middleware('permission:show-task');
-        Route::patch('update', [TaskController::class, 'update'])->middleware('permission:update-task');
+        Route::patch('/', [TaskController::class, 'update'])->middleware('permission:update-task');
         Route::delete('delete/{id}', [TaskController::class, 'destroy'])->middleware('permission:delete-task');
     });
 
@@ -137,5 +138,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('delays', [AttendanceController::class, 'getEmployeeDelays']); //->middleware('permission:read-delays');
         Route::post('create', [AttendanceController::class, 'createAttendance']); //->middleware('permission:update-attendance');
         Route::delete('{id}', [AttendanceController::class, 'deleteAttendances']);
+    });
+
+    Route::prefix('label-status')->group(function(){
+        Route::get('/', [LabelStatusController::class, 'getLabelStatus']);
+
     });
 });

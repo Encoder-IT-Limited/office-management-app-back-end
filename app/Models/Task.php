@@ -48,11 +48,11 @@ class Task extends Model
 
     public function labels()
     {
-        return $this->morphToMany(LabelStatus::class, 'statusable');
+        return $this->morphToMany(LabelStatus::class, 'statusable')->where('label_statuses.type', 'label')->withPivot(['color', 'label_status_id']);
     }
 
     public function status(): MorphToOne
     {
-        return $this->morphToOne(LabelStatus::class, 'statusable')->where('label_statuses.type', 'status');
+        return $this->morphToOne(LabelStatus::class, 'statusable')->where('label_statuses.type', 'status')->withPivot(['color', 'label_status_id']);
     }
 }

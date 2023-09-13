@@ -238,17 +238,6 @@ class UserController extends Controller
 
     public function details()
     {
-        foreach (User::all() as $tUser) {
-            foreach ($tUser->attendances as $attendance) {
-                if (!$attendance->delay_time) {
-                    $time = $tUser->delay_time;
-                    $date = Carbon::parse($attendance->check_in)->format('Y-m-d');
-                    $delay_time = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $time);
-                    $attendance->delay_time = $delay_time;
-                    $attendance->save();
-                }
-            }
-        }
         $user = User::with(['apiKeys', 'roles' => function ($role) {
             $role->with('permissions');
         }, 'todayAttendance', 'breakTimes' => function ($breakQ) {
