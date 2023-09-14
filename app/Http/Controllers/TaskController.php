@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\LabelStatus;
 use App\Models\Task;
+use App\Traits\ProjectTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use JetBrains\PhpStorm\Deprecated;
 
 class TaskController extends Controller
 {
-    public $taskWith = ['author', 'assignee', 'project', 'status', 'labels'];
+    use ProjectTrait;
 
     public function index(Request $request)
     {
@@ -36,7 +38,9 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $this->validateWith([
+        $this->validateWith([
+            'id'          => 'sometimes|required|exists:tasks,id',
+
             'title'       => 'required|string',
             'description' => 'required|string',
             'reference'   => 'sometimes|required|string',
@@ -46,14 +50,21 @@ class TaskController extends Controller
             'end_date'    => 'required|date_format:Y-m-d H:i:s',
 
         ]);
-        $validated['author_id'] = Auth::id();
 
-        $task = Task::create($validated);
+        $taskData = $request->except('id');
+        $taskData['author_id'] = Auth::id();
+        $task = Task::updateOrCreate(['id' => $request->id ?? null], $taskData);
 
-        $initialStatus = LabelStatus::getTaskDefaultStatus();
-        $task->status()->sync([$initialStatus->id => [
-            'color' => $initialStatus->color,
-        ]]);
+        $this->setTaskStatus($task, $task->status->title ?? null);
+
+        if ($request->has('labels')) {
+            $labelsArray = gettype($request->labels) == 'array' ? $request->labels : [$request->labels];
+            foreach ($labelsArray as $reqLabel) {
+                $this->setTaskLabel($task, $reqLabel);
+            }
+        }
+
+        $task = Task::with($this->taskWith)->find($request->id ?? $task->id);
 
         return response()->json([
             'message' => 'Successfully Added',
@@ -72,6 +83,7 @@ class TaskController extends Controller
 
     public function update(Request $request)
     {
+        return 'Deprecated';
         $validated = $this->validateWith([
             'id'          => 'required|exists:tasks,id',
             'title'       => 'required|string',
@@ -89,22 +101,24 @@ class TaskController extends Controller
             $task = Task::with($this->taskWith)->find($validated['id']);
 
             if ($request->has('status')) {
-                $reqStatus = $request->status;
+                $this->setTaskStatus($task, $request->status);
 
-                $default = LabelStatus::getTaskDefaultStatus();
-
-                $status = LabelStatus::updateOrCreate([
-                    'project_id' => $task->project_id,
-                    'title' => $reqStatus,
-                ], [
-                    'color' => $default->color,
-                    'franchise' => 'task',
-                    'type' => 'status',
-                ]);
-
-                $task->status()->sync([$status->id => [
-                    'color' => $status->color,
-                ]]);
+                //                 $reqStatus = $request->status;
+                //
+                //                 $default = LabelStatus::getTaskDefaultStatus();
+                //
+                //                 $status = LabelStatus::updateOrCreate([
+                //                     'project_id' => $task->project_id,
+                //                     'title' => $reqStatus,
+                //                 ], [
+                //                     'color' => $default->color,
+                //                     'franchise' => 'task',
+                //                     'type' => 'status',
+                //                 ]);
+                //
+                //                 $task->status()->sync([$status->id => [
+                //                     'color' => $status->color,
+                //                 ]]);
             }
 
             if ($request->has('labels')) {
@@ -128,7 +142,7 @@ class TaskController extends Controller
                     ]]);
                 }
             }
-
+            $task = Task::with($this->taskWith)->findOrFail($task->id);
             return response()->json([
                 'message'  => 'Successfully Updated',
                 'task' => $task->refresh()
