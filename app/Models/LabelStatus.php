@@ -23,6 +23,11 @@ class LabelStatus extends Model
         return $this->morphedByMany(Project::class, 'statusable');
     }
 
+    public function scopeGetProjectDefaultStatus($query)
+    {
+        return $query->projectOnly()->statusOnly()->where('title', 'lead')->first();
+    }
+
     public function scopeGetTaskDefaultStatus($query)
     {
         return $query->taskOnly()->statusOnly()->where('title', 'Initialize')->first();
@@ -61,5 +66,15 @@ class LabelStatus extends Model
     public function scopeByTitle($query, $title)
     {
         return $query->where('title', $title);
+    }
+
+    public function scopeFilter($queries, $request){
+        return $queries->when($request->has('type'), function ($query) use ($request) {
+            $query->where('type', $request->type);
+        })->when($request->has('project_id'), function ($query) use ($request) {
+            $query->where('project_id', $request->project_id);
+        })->when($request->has('franchise'), function ($query) use ($request) {
+            $query->where('franchise', $request->franchise);
+        });
     }
 }

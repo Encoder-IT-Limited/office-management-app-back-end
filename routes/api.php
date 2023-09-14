@@ -87,9 +87,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('projects')->group(function () {
         Route::get('/', [ProjectController::class, 'index'])->middleware('permission:read-project');
-        Route::post('store', [ProjectController::class, 'store'])->middleware('permission:store-project');
+        Route::post('/', [ProjectController::class, 'updateOrCreateProject'])->middleware('permission:store-project,update-project');
         Route::get('show/{id}', [ProjectController::class, 'show'])->middleware('permission:show-project');
-        Route::patch('update', [ProjectController::class, 'update'])->middleware('permission:update-project');
+        // Route::patch('update', [ProjectController::class, 'update'])->middleware('permission:update-project');
         Route::delete('delete/{id}', [ProjectController::class, 'destroy'])->middleware('permission:delete-project');
         Route::post('status', [ProjectController::class, 'projectStatus']);
         Route::get('status', [ProjectController::class, 'getStatus']);
@@ -100,7 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [TaskController::class, 'store'])->middleware('permission:store-task');
         Route::get('show/{id}', [TaskController::class, 'show'])->middleware('permission:show-task');
         Route::patch('/', [TaskController::class, 'update'])->middleware('permission:update-task');
-        Route::delete('delete/{id}', [TaskController::class, 'destroy'])->middleware('permission:delete-task');
+        Route::delete('{id}', [TaskController::class, 'destroy'])->middleware('permission:delete-task');
     });
 
     Route::prefix('reminders')->group(function () {
@@ -140,8 +140,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('{id}', [AttendanceController::class, 'deleteAttendances']);
     });
 
-    Route::prefix('label-status')->group(function(){
+    Route::prefix('label-status')->group(function () {
         Route::get('/', [LabelStatusController::class, 'getLabelStatus']);
-
+        Route::post('/', [LabelStatusController::class, 'setLabelStatus']);
+        Route::delete('{id}', [LabelStatusController::class, 'deleteLabelStatus']);
     });
 });

@@ -29,11 +29,13 @@ trait HasPermissionsTrait
     //     return (bool) $this->permissions->where('slug', $permission)->count();
     // }
 
-    public function hasPermission($permission)
+    public function hasPermission(...$permissions)
     {
         foreach ($this->roles as $role) {
-            if ($role->permissions->contains('slug', $permission)) {
-                return true;
+            foreach ($permissions as $permission) {
+                if ($role->permissions->contains('slug', $permission)) {
+                    return true;
+                }
             }
         }
         return false;

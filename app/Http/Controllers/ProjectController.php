@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LabelStatus;
 use App\Models\Project;
 use App\Models\ProjectStatus;
 use App\Models\ProjectTask;
+use App\Models\Task;
+use App\Models\Team;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -12,77 +15,175 @@ use Illuminate\Support\Facades\Validator;
 class ProjectController extends Controller
 {
 
+    private $withProject;
+    public function __construct()
+    {
+        $this->withProject = [
+            'client',
+            'tasks' => function ($data) {
+                $data->filterAccessable()->with('assignee', 'status', 'labels');
+            },
+            'teams' => function ($data) {
+                $data->with('users');
+            },
+            'status'
+        ];
+    }
+
     public function index(Request $request)
     {
-        $user = Auth::user();
-        $query = Project::with(['clients', 'tasks' => function ($data) {
-            $data->with('developer');
-        }, 'status']);
-        if ($user->hasRole('developer')) {
-            $query->whereHas('projectTasks', function ($q) use ($user) {
-                $q->where('developer_id', $user->id);
-            });
-        } elseif ($user->hasRole('client')) {
-            $query->where('client', $user->id);
-        }
-        $projects = $query->latest()->paginate($request->per_page ?? 25);
+        $queries = Project::with($this->withProject)->filterByRole();
+
+        $projects = $queries->latest()->paginate($request->per_page ?? 25);
 
         return response()->json([
-            'message'   => 'Success',
             'projects' => $projects
         ], 200);
     }
 
-    public function store(Request $request)
+    public function updateOrCreateProject(Request $request)
     {
-        $validated =$this->validateWith([
-            'name'           => 'required|string|unique:projects',
-            'budget'         => 'required',
-            'start_date'     => 'required|date',
-            'end_date'       => 'required|date',
-            'client_id'      => 'required|exists:users,id',
-            'developer_task' => 'sometimes|required|array',
-            'status_id' => 'required|exists:project_statuses,id'
+        $this->validateWith([
+            'id'         => 'sometimes|required|exists:projects,id',
+            'name'       => 'required|string|unique:projects,name,' . $request->id,
+            'budget'     => 'required',
+            'start_date' => 'required|date',
+            'end_date'   => 'required|date',
+            'client_id'  => 'required|exists:users,id',
+            'status_id'  => 'required|exists:label_statuses,id',
+
+            'teams'            => 'sometimes|required|array',
+            'teams.*.id'       => 'sometimes|required|exists:teams,id',
+            'teams.*.title'    => 'sometimes|required',
+            'teams.*.user_ids' => 'sometimes|required|array',
+
+            'tasks'               => 'sometimes|required|array',
+            'tasks.*.id'          => 'sometimes|required|exists:tasks,id',
+            'tasks.*.title'       => 'required|string',
+            'tasks.*.description' => 'required|string',
+            'tasks.*.reference'   => 'sometimes|required|string',
+            'tasks.*.assignee_id' => 'sometimes|required|exists:users,id',
+            'tasks.*.start_date'  => 'required|date_format:Y-m-d H:i:s',
+            'tasks.*.end_date'    => 'required|date_format:Y-m-d H:i:s',
+
+            'tasks.*.labels'      => 'sometimes|required|array',
         ]);
 
-        dd($validated);
+        $project = Project::updateOrCreate(
+            [
+                'id' => $request->id ?? null,
+                'client_id' => $request->client_id
+            ],
+            [
+                'name' => $request->name,
+                'budget' => $request->budget,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'client_id' => $request->client_id
+            ]
+        );
+        $project = Project::findOrFail($request->id ?? $project->id);
 
-        $data = $validator->validated();
-        $project = Project::create($data);
+        if ($request->has("teams")) {
+            foreach ($request->teams as $reqTeam) {
+                $team = Team::updateOrCreate([
+                    'id' => $reqTeam['id'] ?? null,
+                    'project_id' => $project->id
+                ], [
+                    'title' => $reqTeam['title']
+                ]);
 
-        if ($project && $request->has("developer_task")) {
-            foreach ($request->developer_task as $developerTask) {
-                $projectTask               = new ProjectTask();
-                $projectTask->task         = $developerTask['task'];
-                $projectTask->project_id   = $project->id;
-                $projectTask->developer_id = $developerTask['developer_id'];
-                $projectTask->start_date   = $developerTask['start_date'];
-                $projectTask->end_date     = $developerTask['end_date'];
-                $projectTask->save();
+                $team->teamUsers()->syncWithoutDetaching($reqTeam['user_ids']);
             }
         }
 
+        if ($request->has("tasks")) {
+            foreach ($request->tasks as $reqTask) {
+                $taskData = [
+                    'title'       => $reqTask['title'],
+                    'description' => $reqTask['description'],
+                    'reference'   => $reqTask['reference'] ?? null,
+                    'author_id'   => $reqTask['author_id'] ?? Auth::id(),
+                    'assignee_id' => $reqTask['assignee_id'],
+                    'start_date'  => $reqTask['start_date'],
+                    'end_date'    => $reqTask['end_date'],
+                ];
+                $taskId = isset($reqTask['id']) ? $reqTask['id'] : null;
+
+                $task = Task::updateOrCreate([
+                    'id' => $taskId,
+                    'project_id'  => $project->id,
+                ], $taskData);
+                $task = Task::findOrFail($taskId ?? $task->id);
+
+                if (!$task->status || !isset($reqTask['status'])) {
+                    $initialStatus = LabelStatus::getTaskDefaultStatus();
+                    $task->status()->sync([$initialStatus->id => [
+                        'color' => $initialStatus->color,
+                    ]]);
+                } else {
+                    $reqStatus = $reqTask['status'];
+
+                    $default = LabelStatus::getTaskDefaultStatus();
+
+                    $status = LabelStatus::updateOrCreate([
+                        'project_id' => $project->id,
+                        'title' => $reqStatus,
+                    ], [
+                        'color' => $default->color,
+                        'franchise' => 'task',
+                        'type' => 'status',
+                    ]);
+
+                    $task->status()->sync([$status->id => [
+                        'color' => $status->color,
+                    ]]);
+                }
+
+                if (isset($reqTask['labels'])) {
+                    foreach ($reqTask['labels'] as $reqLabel) {
+                        $default = LabelStatus::getTaskDefaultStatus();
+
+                        $label = LabelStatus::updateOrCreate([
+                            'project_id' => $project->id,
+                            'title' => $reqLabel,
+                        ], [
+                            'color' => $default->color,
+                            'franchise' => 'task',
+                            'type' => 'label',
+                        ]);
+
+                        $label = LabelStatus::taskOnly()->labelOnly()->byProject($project->id)->byTitle($reqLabel)->first();
+
+                        if ($label)
+                            $task->labels()->syncWithoutDetaching([$label->id => [
+                                'color' => $label->color,
+                            ]]);
+                    }
+                }
+            }
+        }
+
+        $status = LabelStatus::findOrFail($request->status_id);
+        if (!$status) $status =  LabelStatus::getProjectDefaultStatus();
+        $project->status()->sync([$status->id => [
+            'color' => $status->color,
+        ]]);
+
+        $project = Project::with($this->withProject)->find($project->id);
+
         return response()->json([
-            'message'  => 'Success Added',
             'project' => $project
-        ], 201);
+        ], 200);
     }
 
     public function show($id)
     {
-        $project = Project
-            ::with([
-                'status',
-                'clients',
-                'projectTasks' => function ($data) {
-                    $data->with('developer');
-                },
-            ])
-            ->find($id);
+        $project = Project::with($this->withProject)->findOrFail($id);
 
         return response()->json([
             'project' => $project
-        ], !$project ? 404 : 200);
+        ], 200);
     }
 
     public function update(Request $request)

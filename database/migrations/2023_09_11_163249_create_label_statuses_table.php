@@ -20,7 +20,7 @@ class CreateLabelStatusesTable extends Migration
             $table->id();
             $table->foreignIdFor(Project::class, 'project_id')->nullable();
             $table->string('title');
-            $table->string('color');
+            $table->string('color')->nullable();
             $table->enum('type', ['label', 'status']);
             $table->enum('franchise', ['task', 'project']);
             $table->timestamps();

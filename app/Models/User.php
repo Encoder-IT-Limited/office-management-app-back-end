@@ -93,6 +93,11 @@ class User extends Authenticatable
         return $this->hasOne(Attendance::class, 'employee_id')->whereDate('check_in', Carbon::now());
     }
 
+    public function userTeams()
+    {
+        return $this->belongsToMany(User::class, 'team_user', 'team_id', 'user_id');
+    }
+
     public function scopeDelaysCount($query, $year, $month)
     {
         return $query->withCount(['attendances AS delay_count' => function ($attendance) use ($year, $month) {

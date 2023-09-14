@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Fidum\EloquentMorphToOne\MorphToOne;
 use Fidum\EloquentMorphToOne\HasMorphToOne;
+use Illuminate\Support\Facades\Auth;
 
 class Task extends Model
 {
     use HasFactory, HasMorphToOne, SoftDeletes;
+
 
     protected $table = 'tasks';
 
@@ -53,6 +55,33 @@ class Task extends Model
 
     public function status(): MorphToOne
     {
-        return $this->morphToOne(LabelStatus::class, 'statusable')->where('label_statuses.type', 'status')->withPivot(['color', 'label_status_id']);
+        return $this->morphToOne(LabelStatus::class, 'statusable')->where(['label_statuses.franchise' => 'task', 'label_statuses.type' => 'status'])->withPivot(['color', 'label_status_id']);
+    }
+
+    private $userId;
+    public function scopeFilterAccessable($queries)
+    {
+        $this->userId = Auth::id();
+        $user = User::findOrFail($this->userId);
+
+        if ($user->hasPermission('read-task')) {
+            if ($user->hasRole('client')) {
+                $queries->whereHas('project', function ($projectQ) {
+                    $projectQ->where('client_id', $this->userId);
+                });
+            }
+        } else if ($user->hasPermission('show-task')) {
+            $queries->whereHas('project', function ($projectQ) {
+                return $projectQ->whereHas('teams', function ($teamQ) {
+                    return $teamQ->whereHas('teamUsers', function ($userQ) {
+                        return $userQ->where('id', $this->userId);
+                    });
+                });
+            })->orWhere(function ($query) {
+                return $query->wehre('author_id', $this->userId)->orWhere('assignee_id', $this->userId);
+            });
+        }
+
+        return $queries;
     }
 }
