@@ -8,27 +8,14 @@ use App\Models\ProjectStatus;
 use App\Models\ProjectTask;
 use App\Models\Task;
 use App\Models\Team;
+use App\Traits\ProjectTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class ProjectController extends Controller
 {
-
-    private $withProject;
-    public function __construct()
-    {
-        $this->withProject = [
-            'client',
-            'tasks' => function ($data) {
-                $data->filterAccessable()->with('assignee', 'status', 'labels');
-            },
-            'teams' => function ($data) {
-                $data->with('users');
-            },
-            'status'
-        ];
-    }
+    use ProjectTrait;
 
     public function index(Request $request)
     {
@@ -116,49 +103,15 @@ class ProjectController extends Controller
                 ], $taskData);
                 $task = Task::findOrFail($taskId ?? $task->id);
 
-                if (!$task->status || !isset($reqTask['status'])) {
-                    $initialStatus = LabelStatus::getTaskDefaultStatus();
-                    $task->status()->sync([$initialStatus->id => [
-                        'color' => $initialStatus->color,
-                    ]]);
+                if (isset($reqTask['status'])) {
+                    $this->setTaskStatus($task, $reqTask['status']);
                 } else {
-                    $reqStatus = $reqTask['status'];
-
-                    $default = LabelStatus::getTaskDefaultStatus();
-
-                    $status = LabelStatus::updateOrCreate([
-                        'project_id' => $project->id,
-                        'title' => $reqStatus,
-                    ], [
-                        'color' => $default->color,
-                        'franchise' => 'task',
-                        'type' => 'status',
-                    ]);
-
-                    $task->status()->sync([$status->id => [
-                        'color' => $status->color,
-                    ]]);
+                    $this->setTaskStatus($task);
                 }
 
                 if (isset($reqTask['labels'])) {
                     foreach ($reqTask['labels'] as $reqLabel) {
-                        $default = LabelStatus::getTaskDefaultStatus();
-
-                        $label = LabelStatus::updateOrCreate([
-                            'project_id' => $project->id,
-                            'title' => $reqLabel,
-                        ], [
-                            'color' => $default->color,
-                            'franchise' => 'task',
-                            'type' => 'label',
-                        ]);
-
-                        $label = LabelStatus::taskOnly()->labelOnly()->byProject($project->id)->byTitle($reqLabel)->first();
-
-                        if ($label)
-                            $task->labels()->syncWithoutDetaching([$label->id => [
-                                'color' => $label->color,
-                            ]]);
+                        $this->setTaskLabel($task, $reqLabel);
                     }
                 }
             }
@@ -169,6 +122,12 @@ class ProjectController extends Controller
         $project->status()->sync([$status->id => [
             'color' => $status->color,
         ]]);
+
+        if ($request->has('labels')) {
+            foreach ($request->labels as $reqLabel) {
+                $project = $this->setProjectLabel($project, $reqLabel);
+            }
+        }
 
         $project = Project::with($this->withProject)->find($project->id);
 
@@ -188,6 +147,8 @@ class ProjectController extends Controller
 
     public function update(Request $request)
     {
+        return 'Deprecated';
+
         $validator = Validator::make($request->all(), [
             'name'       => 'required|string',
             'budget'     => 'required',
@@ -204,19 +165,6 @@ class ProjectController extends Controller
 
         $project = Project::findOrFail($request->project_id);
         $project->update($validator->validated());
-
-        if (isset($request->developer_task)) {
-            $project->projectTasks()->delete();
-            foreach ($request->developer_task as $developerTask) {
-                $projectTask               = new ProjectTask();
-                $projectTask->task         = $developerTask['task'];
-                $projectTask->project_id   = $request->project_id;
-                $projectTask->developer_id = $developerTask['developer_id'];
-                $projectTask->start_date   = $developerTask['start_date'];
-                $projectTask->end_date     = $developerTask['end_date'];
-                $projectTask->save();
-            }
-        }
 
         return response()->json([
             'message'  => 'Success Updated',

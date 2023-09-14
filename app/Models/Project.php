@@ -54,7 +54,7 @@ class Project extends Model
 
     public function labels()
     {
-        return $this->morphToMany(LabelStatus::class, 'statusable');
+        return $this->morphToMany(LabelStatus::class, 'statusable')->where('label_statuses.type', 'label')->withPivot(['color', 'label_status_id']);
     }
 
     public function scopeFilterByRole($queries)
