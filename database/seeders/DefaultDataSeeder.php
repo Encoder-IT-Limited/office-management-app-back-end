@@ -142,7 +142,8 @@ class DefaultDataSeeder extends Seeder
         LabelStatus::updateOrCreate([
             'title' => 'Initialize',
             'color' => 'green',
-            'type'  => 'status'
+            'type'  => 'status',
+            'franchise' => 'task'
         ]);
     }
 }

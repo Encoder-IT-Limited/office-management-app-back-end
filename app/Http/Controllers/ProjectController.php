@@ -129,6 +129,12 @@ class ProjectController extends Controller
             }
         }
 
+        if ($request->has('labels')) {
+            foreach ($request->labels as $reqLabel) {
+                $project = $this->setProjectLabel($project, $reqLabel);
+            }
+        }
+
         $project = Project::with($this->withProject)->find($project->id);
 
         return response()->json([
@@ -147,6 +153,8 @@ class ProjectController extends Controller
 
     public function update(Request $request)
     {
+        return 'Deprecated';
+
         $validator = Validator::make($request->all(), [
             'name'       => 'required|string',
             'budget'     => 'required',
@@ -163,19 +171,6 @@ class ProjectController extends Controller
 
         $project = Project::findOrFail($request->project_id);
         $project->update($validator->validated());
-
-        if (isset($request->developer_task)) {
-            $project->projectTasks()->delete();
-            foreach ($request->developer_task as $developerTask) {
-                $projectTask               = new ProjectTask();
-                $projectTask->task         = $developerTask['task'];
-                $projectTask->project_id   = $request->project_id;
-                $projectTask->developer_id = $developerTask['developer_id'];
-                $projectTask->start_date   = $developerTask['start_date'];
-                $projectTask->end_date     = $developerTask['end_date'];
-                $projectTask->save();
-            }
-        }
 
         return response()->json([
             'message'  => 'Success Updated',
