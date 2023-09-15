@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 trait ProjectTrait
 {
     use TaskTrait;
-    
+
     private $withProject;
     public function __construct()
     {
@@ -23,6 +23,17 @@ trait ProjectTrait
             'labels',
             'status'
         ];
+    }
+
+    public function setProjectStatus($project, $status_id = null)
+    {
+        $status = LabelStatus::find($status_id);
+        if (!$status) $status =  LabelStatus::getProjectDefaultStatus();
+
+        $project->status()->sync([$status->id => [
+            'color' => $status->color,
+        ]]);
+        return $project;
     }
 
     public function setProjectLabel($project, $reqLabel)
@@ -42,7 +53,7 @@ trait ProjectTrait
 
         $label = LabelStatus::projectOnly()->labelOnly()->byProject($project->id)->byTitle($reqLabel)->first();
 
-        if ($project)
+        if ($label)
             $project->labels()->syncWithoutDetaching([$label->id => [
                 'color' => $label->color,
             ]]);

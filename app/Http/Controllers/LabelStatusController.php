@@ -38,30 +38,11 @@ class LabelStatusController extends Controller
         ]);
 
         $labelStatus = LabelStatus::updateOrCreate([
-            'id' => $request->id,
+            'id' => $request->id ?? null,
             'project_id' => $request->project_id
         ], $request->except('id', 'project_id'));
 
         $labelStatus = LabelStatus::findOrFail($request->id ?? $labelStatus->id);
-
-        return response()->json([
-            'label_status' => $labelStatus
-        ], 200);
-    }
-
-    public function updateLabelStatus(Request $request)
-    {
-        $validated = $this->validateWith([
-            'title'      => 'required|string',
-            'color'      => 'sometimes|required',
-            'type'       => 'required|in:label,status',
-            'franchise'  => 'required|in:project,task',
-            'project_id' => 'required|exists:projects,id'
-        ]);
-
-        LabelStatus::updateOrCreate(['id' => $request->id], $validated);
-
-        $labelStatus = LabelStatus::filter($request)->latest()->first();
 
         return response()->json([
             'label_status' => $labelStatus

@@ -10,21 +10,21 @@ class TeamController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-    }
+        $this->validateWith([
+            'title' => 'sometimes|required|string',
+            'project_id' => 'sometimes|required|exists:projects,id'
+        ]);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $teams = Team::filter($request)->latest()->paginate($request->per_page ?? 25);
+
+        return response()->json([
+            'teams' => $teams,
+        ], 200);
     }
 
     /**
@@ -33,9 +33,35 @@ class TeamController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function updateOrCreateTeam(Request $request)
     {
-        //
+        $this->validateWith([
+            'id'         => 'sometimes|required|exists:teams,id',
+            'project_id' => 'required|exists:projects,id',
+            'title'      => 'sometimes|required',
+            'status'      => 'sometimes|required|in:active,inactive',
+            'user_ids'   => 'sometimes|required|array',
+        ]);
+
+        $updatable = [];
+        if ($request->has('title')) $updatable['title'] = $request->title;
+
+        if ($request->has('status')) $updatable['status'] = $request->status;
+
+        if (!empty($updatable)) {
+            $team = Team::updateOrCreate([
+                'id' => $request->id ?? null,
+                'project_id' => $request->project_id
+            ], $updatable);
+        }
+
+        if ($request->has('user_ids')) {
+            $team->teamUsers()->sync($request->user_ids);
+        }
+
+        return response()->json([
+            'team' => $team,
+        ], 200);
     }
 
     /**
@@ -44,32 +70,13 @@ class TeamController extends Controller
      * @param  \App\Models\Team  $team
      * @return \Illuminate\Http\Response
      */
-    public function show(Team $team)
+    public function show($team_id)
     {
-        //
-    }
+        $team = Team::findOrFail($team_id);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Team  $team
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Team $team)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Team  $team
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Team $team)
-    {
-        //
+        return response()->json([
+            'team' => $team,
+        ], 200);
     }
 
     /**
@@ -78,8 +85,12 @@ class TeamController extends Controller
      * @param  \App\Models\Team  $team
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Team $team)
+    public function destroy($team_id)
     {
-        //
+        Team::destroy($team_id);
+
+        return response()->json([
+            'message' => 'Deleted Success',
+        ], 200);
     }
 }

@@ -46,8 +46,8 @@ class TaskController extends Controller
             'reference'   => 'sometimes|required|string',
             'project_id'  => 'required|exists:projects,id',
             'assignee_id' => 'sometimes|required|exists:users,id',
-            'start_date'  => 'required|date_format:Y-m-d H:i:s',
-            'end_date'    => 'required|date_format:Y-m-d H:i:s',
+            'start_date'  => 'required',
+            'end_date'    => 'required',
 
         ]);
 
@@ -67,7 +67,6 @@ class TaskController extends Controller
         $task = Task::with($this->taskWith)->find($request->id ?? $task->id);
 
         return response()->json([
-            'message' => 'Successfully Added',
             'task'    => $task
         ], 201);
     }
@@ -102,23 +101,6 @@ class TaskController extends Controller
 
             if ($request->has('status')) {
                 $this->setTaskStatus($task, $request->status);
-
-                //                 $reqStatus = $request->status;
-                //
-                //                 $default = LabelStatus::getTaskDefaultStatus();
-                //
-                //                 $status = LabelStatus::updateOrCreate([
-                //                     'project_id' => $task->project_id,
-                //                     'title' => $reqStatus,
-                //                 ], [
-                //                     'color' => $default->color,
-                //                     'franchise' => 'task',
-                //                     'type' => 'status',
-                //                 ]);
-                //
-                //                 $task->status()->sync([$status->id => [
-                //                     'color' => $status->color,
-                //                 ]]);
             }
 
             if ($request->has('labels')) {

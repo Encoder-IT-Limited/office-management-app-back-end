@@ -14,6 +14,7 @@ use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -91,8 +92,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('show/{id}', [ProjectController::class, 'show'])->middleware('permission:show-project');
         // Route::patch('update', [ProjectController::class, 'update'])->middleware('permission:update-project');
         Route::delete('delete/{id}', [ProjectController::class, 'destroy'])->middleware('permission:delete-project');
-        Route::post('status', [ProjectController::class, 'projectStatus']);
-        Route::get('status', [ProjectController::class, 'getStatus']);
+        Route::post('status-update', [ProjectController::class, 'updateProjectStatus']);
+    });
+
+    Route::prefix('teams')->group(function () {
+        Route::get('/', [TeamController::class, 'index'])->middleware('permission:read-project,read-my-project,read-client-project');
+        Route::get('show/{id}', [TeamController::class, 'show'])->middleware('permission:read-project,read-my-project,read-client-project');
+        Route::post('/', [TeamController::class, 'updateOrCreateTeam'])->middleware('permission:read-project,read-my-project,read-client-project');
+        Route::delete('/', [TeamController::class, 'destroy'])->middleware('permission:read-project,read-my-project,read-client-project');
     });
 
     Route::prefix('tasks')->group(function () {

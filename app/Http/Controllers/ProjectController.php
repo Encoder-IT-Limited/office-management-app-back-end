@@ -50,8 +50,8 @@ class ProjectController extends Controller
             'tasks.*.description' => 'required|string',
             'tasks.*.reference'   => 'sometimes|required|string',
             'tasks.*.assignee_id' => 'sometimes|required|exists:users,id',
-            'tasks.*.start_date'  => 'required|date_format:Y-m-d H:i:s',
-            'tasks.*.end_date'    => 'required|date_format:Y-m-d H:i:s',
+            'tasks.*.start_date'  => 'required',
+            'tasks.*.end_date'    => 'required',
 
             'tasks.*.labels'      => 'sometimes|required|array',
         ]);
@@ -80,7 +80,7 @@ class ProjectController extends Controller
                     'title' => $reqTeam['title']
                 ]);
 
-                $team->teamUsers()->syncWithoutDetaching($reqTeam['user_ids']);
+                $team->teamUsers()->sync($reqTeam['user_ids']);
             }
         }
 
@@ -117,12 +117,8 @@ class ProjectController extends Controller
             }
         }
 
-        $status = LabelStatus::findOrFail($request->status_id);
-        if (!$status) $status =  LabelStatus::getProjectDefaultStatus();
-        $project->status()->sync([$status->id => [
-            'color' => $status->color,
-        ]]);
-        
+        $this->setProjectStatus($project, $request->status_id ?? null);
+
         if ($request->has('labels')) {
             foreach ($request->labels as $reqLabel) {
                 $project = $this->setProjectLabel($project, $reqLabel);
@@ -145,6 +141,21 @@ class ProjectController extends Controller
     public function show($id)
     {
         $project = Project::with($this->withProject)->findOrFail($id);
+
+        return response()->json([
+            'project' => $project
+        ], 200);
+    }
+
+    public function updateProjectStatus(Request $request)
+    {
+        $this->validateWith([
+            'project_id' => 'required|exists:projects,id',
+            'status_id' => 'required|exists:label_statuses,id'
+        ]);
+
+        $project = Project::findOrFail($request->project_id);
+        $project = $this->setProjectStatus($project, $request->status_id ?? null);
 
         return response()->json([
             'project' => $project
@@ -187,33 +198,5 @@ class ProjectController extends Controller
         return response()->json([
             'message' => 'Deleted Success',
         ], 200);
-    }
-
-    public function projectstatus(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'project_id' => 'required|exists:projects,id',
-            'message' => 'required|status'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 500);
-        }
-
-        $project = Project::findOrFail($request->project_id);
-        $project->update(['message' => $request->status]);
-
-        return response()->json([
-            'message'  => 'Success Updated',
-            'project' => $project
-        ], 201);
-    }
-
-    public function getStatus()
-    {
-        $status = ProjectStatus::all();
-        return response()->json([
-            'status' => $status
-        ]);
     }
 }

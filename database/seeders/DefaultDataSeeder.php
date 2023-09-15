@@ -24,6 +24,8 @@ class DefaultDataSeeder extends Seeder
     {
         $permissions = [
             'read-user',
+            'read-my-user',
+            'read-client-user',
             'store-user',
             'show-user',
             'update-user',
@@ -42,12 +44,16 @@ class DefaultDataSeeder extends Seeder
             'delete-role',
 
             'read-project',
+            'read-my-project',
+            'read-client-project',
             'store-project',
             'show-project',
             'update-project',
             'delete-project',
 
             'read-leave',
+            'read-my-leave',
+            'read-client-leave',
             'store-leave',
             'update-leave',
             'show-leave',
@@ -55,24 +61,32 @@ class DefaultDataSeeder extends Seeder
             'status-update-leave',
 
             'read-note',
+            'read-my-note',
+            'read-client-note',
             'store-note',
             'show-note',
             'update-note',
             'delete-note',
 
             'read-reminder',
+            'read-my-reminder',
+            'read-client-reminder',
             'store-reminder',
             'show-reminder',
             'update-reminder',
             'delete-reminder',
 
             'read-break',
+            'read-my-break',
+            'read-client-break',
             'store-break',
             'show-break',
             'update-break',
             'delete-break',
 
             'read-attendance',
+            'read-my-attendance',
+            'read-client-attendance',
             'update-attendance',
             'checkin-attendance',
             'checkout-attendance',
@@ -84,6 +98,8 @@ class DefaultDataSeeder extends Seeder
             'see-project-budget',
 
             'read-task',
+            'read-my-task',
+            'read-client-task',
             'store-task',
             'show-task',
             'update-task',
