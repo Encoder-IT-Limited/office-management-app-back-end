@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\LabelStatus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
 class LabelStatusController extends Controller
@@ -44,6 +45,12 @@ class LabelStatusController extends Controller
 
         $labelStatus = LabelStatus::findOrFail($request->id ?? $labelStatus->id);
 
+        if (!$request->has('id')) {
+            $maxOrder = LabelStatus::where('project_id', $request->project_id)->max('list_order');
+            $labelStatus->list_order = $maxOrder + 1;
+            $labelStatus->save();
+        }
+
         return response()->json([
             'label_status' => $labelStatus
         ], 200);
@@ -55,6 +62,38 @@ class LabelStatusController extends Controller
 
         return response()->json([
             'message' => 'Deleted Successfully',
+        ], 200);
+    }
+
+    public function reorderLabelStatus(Request $request)
+    {
+        $labelStatus = LabelStatus::findOrFail($request->id);
+
+        $newOrder = $request->new_order;
+        $oldOrder = $labelStatus->list_order;
+
+        if ($oldOrder != $newOrder) {
+            if ($oldOrder < $newOrder) {
+                LabelStatus::where('list_order', '<=', $newOrder)
+                    ->where('list_order', '>', $oldOrder)
+                    ->where('project_id', $labelStatus->project_id)
+                    ->update(
+                        ['list_order' => DB::raw('list_order - 1')]
+                    );
+            } else {
+                $data = LabelStatus::where('list_order', '>=', $newOrder)
+                    ->where('list_order', '<', $oldOrder)
+                    ->where('project_id', $labelStatus->project_id)
+                    ->update(
+                        ['list_order' => DB::raw('list_order + 1')]
+                    );
+            }
+            $labelStatus->list_order = $newOrder;
+            $labelStatus->save();
+        }
+
+        return response()->json([
+            'status' => $labelStatus->refresh()
         ], 200);
     }
 }

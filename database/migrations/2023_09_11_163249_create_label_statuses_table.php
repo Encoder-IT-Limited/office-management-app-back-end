@@ -21,6 +21,7 @@ class CreateLabelStatusesTable extends Migration
             $table->foreignIdFor(Project::class, 'project_id')->nullable();
             $table->string('title');
             $table->string('color')->nullable();
+            $table->integer('list_order')->default(1);
             $table->enum('type', ['label', 'status']);
             $table->enum('franchise', ['task', 'project']);
             $table->timestamps();
@@ -30,6 +31,7 @@ class CreateLabelStatusesTable extends Migration
             $table->id();
             $table->foreignIdFor(LabelStatus::class, 'label_status_id');
             $table->string('color');
+            $table->integer('list_order')->default(1);
             $table->morphs('statusable');
             $table->timestamps();
         });

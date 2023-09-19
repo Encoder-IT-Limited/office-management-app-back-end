@@ -45,7 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('users')->group(function () {
-        Route::get('/', [UserController::class, 'index'])->middleware('permission:read-user');
+        Route::get('/', [UserController::class, 'index'])->middleware('permission:read-user,read-my-user,read-client-user');
         Route::post('store', [UserController::class, 'store'])->middleware('permission:store-user');
         Route::get('show/{id}', [UserController::class, 'show'])->middleware('permission:show-user');
         Route::post('update', [UserController::class, 'update'])->middleware('permission:update-user');
@@ -87,7 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('projects')->group(function () {
-        Route::get('/', [ProjectController::class, 'index'])->middleware('permission:read-project');
+        Route::get('/', [ProjectController::class, 'index'])->middleware('permission:read-project,read-client-project,read-my-project');
         Route::post('/', [ProjectController::class, 'updateOrCreateProject'])->middleware('permission:store-project,update-project');
         Route::get('show/{id}', [ProjectController::class, 'show'])->middleware('permission:show-project');
         // Route::patch('update', [ProjectController::class, 'update'])->middleware('permission:update-project');
@@ -103,10 +103,10 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('tasks')->group(function () {
-        Route::get('/', [TaskController::class, 'index'])->middleware('permission:read-task');
+        Route::get('/', [TaskController::class, 'index'])->middleware('permission:read-task,read-my-task,read-client-task');
         Route::post('/', [TaskController::class, 'store'])->middleware('permission:store-task');
         Route::get('show/{id}', [TaskController::class, 'show'])->middleware('permission:show-task');
-        Route::patch('/', [TaskController::class, 'update'])->middleware('permission:update-task');
+        Route::post('reorder', [TaskController::class, 'reorderTask']);
         Route::delete('{id}', [TaskController::class, 'destroy'])->middleware('permission:delete-task');
     });
 
@@ -151,5 +151,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [LabelStatusController::class, 'getLabelStatus']);
         Route::post('/', [LabelStatusController::class, 'setLabelStatus']);
         Route::delete('{id}', [LabelStatusController::class, 'deleteLabelStatus']);
+        Route::post('reorder', [LabelStatusController::class, 'reorderLabelStatus']);
     });
 });

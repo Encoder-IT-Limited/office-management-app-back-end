@@ -10,6 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasPermissionsTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -73,9 +74,14 @@ class User extends Authenticatable
         return $this->hasMany(EmployeeNote::class, 'user_id');
     }
 
-    public function projectTask()
+    public function projects()
     {
-        return $this->hasMany(ProjectTask::class, 'developer_id');
+        return $this->hasMany(Project::class, 'client_id');
+    }
+
+    public function userTeams()
+    {
+        return $this->belongsToMany(Team::class, 'team_user', 'user_id', 'team_id');
     }
 
     public function uploads()
@@ -93,11 +99,6 @@ class User extends Authenticatable
         return $this->hasOne(Attendance::class, 'employee_id')->whereDate('check_in', Carbon::now());
     }
 
-    public function userTeams()
-    {
-        return $this->belongsToMany(User::class, 'team_user', 'team_id', 'user_id');
-    }
-
     public function scopeDelaysCount($query, $year, $month)
     {
         return $query->withCount(['attendances AS delay_count' => function ($attendance) use ($year, $month) {
@@ -111,6 +112,7 @@ class User extends Authenticatable
             return $roleQ->whereIn('slug', $roles);
         });
     }
+
     public function scopeOnlyAdmin($query)
     {
         return $query->filterByRoles('admin');
@@ -141,5 +143,30 @@ class User extends Authenticatable
         return $this->breakTimes->reduce(function ($total, $break) {
             return $total + Carbon::parse($break->start_time)->diffInSeconds($break->end_time);
         }, 0);
+    }
+
+    public function scopeWithData($queries)
+    {
+        return $queries->with('roles', 'skills', 'todayAttendance', 'uploads');
+    }
+
+    public function scopeFilterdByPermissions($queries)
+    {
+        $user = User::findOrFail(Auth::id());
+
+        if ($user->hasPermission('read-client-user')) {
+            $queries->whereHas('userTeams', function ($teamQ) use ($user) {
+                $teamQ->whereHas('project', function ($projectQ) use ($user) {
+                    $projectQ->where('projects.client_id', $user->id);
+                });
+            });
+        } else if ($user->hasPermission('read-my-user')) {
+            $queries->whereHas('userTeams', function ($teamQ) use ($user) {
+                return $teamQ->whereHas('teamUsers', function ($userQ) use ($user) {
+                    return $userQ->where('users.id', $user->id);
+                });
+            });
+        }
+        return $queries;
     }
 }

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\LabelStatus;
+use App\Models\Project;
 use App\Models\Task;
 use App\Traits\ProjectTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use JetBrains\PhpStorm\Deprecated;
 
 class TaskController extends Controller
@@ -46,8 +48,8 @@ class TaskController extends Controller
             'reference'   => 'sometimes|required|string',
             'project_id'  => 'required|exists:projects,id',
             'assignee_id' => 'sometimes|required|exists:users,id',
-            'start_date'  => 'required',
-            'end_date'    => 'required',
+            'start_date'  => 'sometimes|required',
+            'end_date'    => 'sometimes|required',
 
         ]);
 
@@ -55,7 +57,11 @@ class TaskController extends Controller
         $taskData['author_id'] = Auth::id();
         $task = Task::updateOrCreate(['id' => $request->id ?? null], $taskData);
 
-        $this->setTaskStatus($task, $task->status->title ?? null);
+        if ($request->has('status')) {
+            $this->setTaskStatus($task, $request->status);
+        } else {
+            $this->setTaskStatus($task, $task->status->title ?? null);
+        }
 
         if ($request->has('labels')) {
             $labelsArray = gettype($request->labels) == 'array' ? $request->labels : [$request->labels];
@@ -77,6 +83,37 @@ class TaskController extends Controller
 
         return response()->json([
             'task' => $task
+        ], 200);
+    }
+
+    public function reorderTask(Request $request)
+    {
+        $task = Task::findOrFail($request->id);
+        $newOrder = $request->new_order;
+        $oldOrder = $task->status->pivot->list_order;
+        if ($oldOrder != $newOrder) {
+            if ($oldOrder < $newOrder) {
+                DB::table('statusables')
+                    ->where('list_order', '<=', $newOrder)
+                    ->where('list_order', '>', $oldOrder)
+                    ->where('label_status_id', $task->status->id)
+                    ->update(
+                        ['list_order' => DB::raw('list_order - 1')]
+                    );
+            } else {
+                DB::table('statusables')
+                    ->where('list_order', '>=', $newOrder)
+                    ->where('list_order', '<', $oldOrder)
+                    ->where('label_status_id', $task->status->id)
+                    ->update(
+                        ['list_order' => DB::raw('list_order + 1')]
+                    );
+            }
+            $task->status()->updateExistingPivot($task->status->id, ['list_order' => $newOrder]);
+        }
+
+        return response()->json([
+            'task' => $task->refresh()
         ], 200);
     }
 

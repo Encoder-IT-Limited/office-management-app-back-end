@@ -122,7 +122,9 @@ class AttendanceController extends Controller
         $this->year = $validated['year'] ?? $this->year;
         $this->month = $validated['month'] ?? $this->month;
 
-        $queries = Attendance::with('employee')->whereYear('check_in', '=', $this->year)
+        $queries = Attendance::with('employee')->whereHas('employee', function ($employeeQ) {
+            $employeeQ->filterdByPermissions();
+        })->whereYear('check_in', '=', $this->year)
             ->whereMonth('check_in', '=', $this->month);
 
         $user = User::findOrFail(Auth::id());
@@ -159,7 +161,7 @@ class AttendanceController extends Controller
         $this->year = $validated['year'] ?? $this->year;
         $this->month = $validated['month'] ?? $this->month;
 
-        $employees = User::delaysCount($this->year, $this->month)->onlyDeveloper()->paginate($request->per_page ?? 20);
+        $employees = User::filterdByPermissions()->delaysCount($this->year, $this->month)->onlyDeveloper()->paginate($request->per_page ?? 20);
 
         return response()->json([
             'employees' => $employees ?? []

@@ -25,13 +25,14 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $queries = User::with('roles', 'skills', 'todayAttendance', 'uploads')->where('status', 'active')->withTrashed();
+        $queries = User::filterdByPermissions()->withData()->where('status', 'active')->withTrashed();
 
         $queries->when($request->has('user_type'), function ($query) use ($request) {
             $request->validate([
                 'user_type' => 'required|array',
                 'user_type.*' => 'required|in:client,developer,manager,admin',
             ]);
+
             return $query->whereHas('roles', function ($role) use ($request) {
                 return $role->whereIn('slug', $request->user_type);
             });
@@ -39,6 +40,8 @@ class UserController extends Controller
 
         $users = $queries->latest()->paginate($request->per_page ?? 25);
         return response()->json([
+            'user'   => Auth::user(),
+            'projects'   => Auth::user()->projects,
             'users'   => $users
         ], 200);
     }

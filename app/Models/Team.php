@@ -22,7 +22,7 @@ class Team extends Model
 
     public function teamUsers()
     {
-        return $this->belongsToMany(User::class, 'team_user', 'user_id', 'team_id');
+        return $this->belongsToMany(User::class, 'team_user', 'team_id', 'user_id');
     }
 
     public function scopeFilter($queries, $request)
@@ -34,20 +34,25 @@ class Team extends Model
         });
     }
 
+    public function scopeWithData($queries)
+    {
+        return $queries->with('project', 'teamUsers');
+    }
+
     protected static function boot()
     {
         parent::boot();
 
         static::addGlobalScope('FilterdByPermissions', function ($queries) {
             $user = User::findOrFail(Auth::id());
-            $queries->with('project', 'teamUsers');
+
             if ($user->hasPermission('read-client-project')) {
                 return $queries->whereHas('project', function ($projectQ) use ($user) {
                     $projectQ->where('client_id', $user->id);
                 });
             } else if ($user->hasPermission('read-my-project')) {
                 return $queries->whereHas('teamUsers', function ($userQ) use ($user) {
-                    return $userQ->where('id', $user->id);
+                    return $userQ->where('users.id', $user->id);
                 });
             }
         });

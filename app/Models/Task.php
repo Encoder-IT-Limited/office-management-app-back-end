@@ -50,12 +50,12 @@ class Task extends Model
 
     public function labels()
     {
-        return $this->morphToMany(LabelStatus::class, 'statusable')->where('label_statuses.type', 'label')->withPivot(['color', 'label_status_id']);
+        return $this->morphToMany(LabelStatus::class, 'statusable')->where('label_statuses.type', 'label')->withPivot(['color', 'label_status_id', 'list_order'])->withTimestamps();
     }
 
     public function status(): MorphToOne
     {
-        return $this->morphToOne(LabelStatus::class, 'statusable')->where(['label_statuses.franchise' => 'task', 'label_statuses.type' => 'status'])->withPivot(['color', 'label_status_id']);
+        return $this->morphToOne(LabelStatus::class, 'statusable')->where(['label_statuses.franchise' => 'task', 'label_statuses.type' => 'status'])->withPivot(['color', 'list_order', 'label_status_id'])->withTimestamps();
     }
 
     private $userId;

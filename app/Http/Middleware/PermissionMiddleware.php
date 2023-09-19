@@ -16,16 +16,18 @@ class PermissionMiddleware
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next, $permission)
+    public function handle(Request $request, Closure $next, ...$permissions)
     {
         if (Auth::check()) {
             $user = User::findOrFail(Auth::id());
-            if (!$user->hasPermission($permission)) {
-                return response()->json([
-                    'error' => "User with this 'Permission' is not Authorized"
-                ], 401);
+            foreach ($permissions as $permission) {
+                if ($user->hasPermission($permission)) {
+                    return $next($request);
+                }
             }
         }
-        return $next($request);
+        return response()->json([
+            'error' => "User with this 'Permission' is not Authorized"
+        ], 401);
     }
 }

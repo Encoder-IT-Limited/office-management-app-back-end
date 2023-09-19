@@ -52,23 +52,37 @@ class Project extends Model
         return $this->morphToOne(LabelStatus::class, 'statusable')->where(['label_statuses.franchise' => 'project', 'label_statuses.type' => 'status'])->withPivot(['color', 'label_status_id']);
     }
 
+    public function taskStatuses()
+    {
+        return $this->hasMany(LabelStatus::class, 'project_id');
+    }
+
     public function labels()
     {
         return $this->morphToMany(LabelStatus::class, 'statusable')->where('label_statuses.type', 'label')->withPivot(['color', 'label_status_id']);
     }
 
-    public function scopeFilterByRole($queries)
+    public function scopeWithData($queries, ...$data)
+    {
+        if (count($data) > 0) return $queries->with($data);
+        return $queries->with([
+            'client', 'labels', 'status', 'tasks' => function ($data) {
+                $data->filterAccessable()->with('assignee', 'status', 'labels');
+            }, 'teams' => function ($data) {
+                $data->with('teamUsers');
+            },
+        ]);
+    }
+
+    public function scopeFilterdByPermissions($queries)
     {
         $user = User::findOrFail(Auth::id());
-
-        if ($user->hasPermission('read-project')) {
-            if ($user->hasRole('client')) {
-                $queries->where('client_id', $user->id);
-            }
-        } else if ($user->hasPermission('show-project')) {
-            return $queries->whereHas('teams', function ($teamQ){
-                return $teamQ->whereHas('teamUsers', function ($userQ) {
-                    return $userQ->where('id', Auth::id());
+        if ($user->hasPermission('read-client-project')) {
+            $queries->where('client_id', $user->id);
+        } else if ($user->hasPermission('read-my-project')) {
+            $queries->whereHas('teams', function ($teamQ) {
+                $teamQ->whereHas('teamUsers', function ($userQ) {
+                    $userQ->where('users.id', Auth::id());
                 });
             });
         }

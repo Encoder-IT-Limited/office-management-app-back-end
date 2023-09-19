@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LabelStatus;
-use App\Models\Project;
-use App\Models\ProjectStatus;
-use App\Models\ProjectTask;
 use App\Models\Task;
 use App\Models\Team;
+use App\Models\Project;
 use App\Traits\ProjectTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +16,7 @@ class ProjectController extends Controller
 
     public function index(Request $request)
     {
-        $queries = Project::with($this->withProject)->filterByRole();
+        $queries = Project::withData()->filterdByPermissions();
 
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
 
