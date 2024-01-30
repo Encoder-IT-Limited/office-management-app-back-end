@@ -7,14 +7,15 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class LeaveController extends Controller
 {
     public function __construct()
-	{
-		$this->middleware(['auth:sanctum'])->except('store');
-}
-        public function index(Request $request)
+    {
+        $this->middleware(['auth:sanctum'])->except('store');
+    }
+    public function index(Request $request)
     {
         $user = User::findOrFail(Auth::id());
 
@@ -39,8 +40,8 @@ class LeaveController extends Controller
             'end_date'    => 'required|date',
             'user_id'     => 'required|exists:users,id',
             'reason'     => 'required|string',
-            'accepted_start_date'=> 'nullable|date',
-            'accepted_end_date'=> 'nullable|date',
+            'accepted_start_date' => 'nullable|date',
+            'accepted_end_date' => 'nullable|date',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 500);
@@ -107,9 +108,9 @@ class LeaveController extends Controller
 
     public function leaveStatus(Request $request)
     {
-                $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'leave_id'            => 'required|exists:leaves,id',
-           'reason'              => 'sometimes|required|string',
+            'reason'              => 'sometimes|required|string',
             'accepted_start_date' => 'sometimes|required|date',
             'accepted_end_date'   => 'sometimes|required|date'
         ]);
@@ -119,12 +120,26 @@ class LeaveController extends Controller
         }
 
         $leave = Leave::findOrFail($request->leave_id);
-        $leave->status=$request->status;
+        $leave->status = $request->status;
         $leave->update($validator->validated());
 
         return response()->json([
             'message'   => 'Successfully Added',
             'leave'   => $leave
         ], 201);
+    }
+    public function getFilter(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id', // Assuming leaves are associated with users
+        ]);
+        $currentDate = Carbon::now();
+        $firstDayOfMonth = Carbon::now()->startOfMonth();
+        $endDate = Carbon::now()->endOfMonth();
+        $userId = $request->user_id;
+        $filteredLeaves = Leave::where('user_id', $userId)
+            ->whereBetween('created_at', [$firstDayOfMonth, $endDate])
+            ->get();
+        return response()->json($filteredLeaves);
     }
 }
