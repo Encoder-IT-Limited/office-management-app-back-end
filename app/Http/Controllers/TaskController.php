@@ -92,24 +92,75 @@ class TaskController extends Controller
         $task = Task::findOrFail($request->id);
 
         if ($request->has('status')) {
-            $this->setTaskStatus($task, $request->status);
+            // DB::table('statusables')
+            //     ->where('list_order', '>', $task->status->pivot->list_order)
+            //     ->where('statusable_type', Task::class)
+            //     ->where('statusable_id', '!=', $task->id)
+            //     ->where('label_status_id', $task->status->id)
+            //     ->update(
+            //         ['list_order' => DB::raw('list_order - 1')]
+            //     );
+
+            $task = $this->setTaskStatus($task, $request->status);
         }
 
-        $newOrder = $request->new_order;
-        $oldOrder = $task->status->pivot->list_order;
-        if ($oldOrder != $newOrder) {
-            if ($oldOrder < $newOrder) {
-                DB::table('statusables')
-                    ->where('list_order', '<=', $newOrder)
-                    ->where('list_order', '>', $oldOrder)
-                    ->where('label_status_id', $task->status->id)
-                    ->update(
-                        ['list_order' => DB::raw('list_order - 1')]
-                    );
+        if ($request->has('column_list_order') && !$request->has('task_new_list_order')) {
+            $newColumnOrder = $request->column_list_order;
+            $oldColumnOrder = $task->status->list_order;
+
+            if ($oldColumnOrder != $newColumnOrder) {
+                if ($oldColumnOrder < $newColumnOrder) {
+                    LabelStatus::where('list_order', '<=', $newColumnOrder)
+                        ->where('list_order', '>', $oldColumnOrder)
+                        ->where('project_id', $task->status->project_id)
+                        ->update(
+                            ['list_order' => DB::raw('list_order - 1')]
+                        );
+                } else {
+                    LabelStatus::where('list_order', '>=', $newColumnOrder)
+                        ->where('list_order', '<', $oldColumnOrder)
+                        ->where('project_id', $task->status->project_id)
+                        ->update(
+                            ['list_order' => DB::raw('list_order + 1')]
+                        );
+                }
+                $task->status->list_order = $newColumnOrder;
+                $task->status->save();
+                $task->status->refresh();
+            }
+        }
+
+        if ($request->has('task_new_list_order')) {
+            $newOrder = $request->task_new_list_order;
+            $oldOrder = $task->status->pivot->list_order;
+
+            if ($oldOrder != $newOrder) {
+                if ($oldOrder < $newOrder) {
+                    DB::table('statusables')
+                        ->where('list_order', '<=', $newOrder)
+                        ->where('list_order', '>', $oldOrder)
+                        ->where('statusable_type', Task::class)
+                        ->where('statusable_id', '!=', $task->id)
+                        ->where('label_status_id', $task->status->id)
+                        ->update(
+                            ['list_order' => DB::raw('list_order - 1')]
+                        );
+                } else {
+                    DB::table('statusables')
+                        ->where('list_order', '>=', $newOrder)
+                        ->where('list_order', '<', $oldOrder)
+                        ->where('statusable_type', Task::class)
+                        ->where('statusable_id', '!=', $task->id)
+                        ->where('label_status_id', $task->status->id)
+                        ->update(
+                            ['list_order' => DB::raw('list_order + 1')]
+                        );
+                }
             } else {
                 DB::table('statusables')
                     ->where('list_order', '>=', $newOrder)
-                    ->where('list_order', '<', $oldOrder)
+                    ->where('statusable_type', Task::class)
+                    ->where('statusable_id', '!=', $task->id)
                     ->where('label_status_id', $task->status->id)
                     ->update(
                         ['list_order' => DB::raw('list_order + 1')]

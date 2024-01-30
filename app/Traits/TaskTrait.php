@@ -28,7 +28,10 @@ trait TaskTrait
 
         $task->status()->sync([$status->id => [
             'color' => $status->color,
+            'list_order' => $task->status->pivot->list_order,
         ]]);
+
+        return $task->refresh();
     }
 
     public function setTaskLabel($task, $reqLabel)
