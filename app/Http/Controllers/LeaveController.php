@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class LeaveController extends Controller
 {
-    public function index(Request $request)
+        public function index(Request $request)
     {
         $user = User::findOrFail(Auth::id());
 
@@ -34,15 +34,18 @@ class LeaveController extends Controller
             'start_date'  => 'required|date',
             'end_date'    => 'required|date',
             'user_id'     => 'required|exists:users,id',
+            'reason'     => 'required|string',
+            'accepted_start_date'=> 'nullable|date',
+            'accepted_end_date'=> 'nullable|date',
         ]);
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 500);
         }
 
         $data           = $validator->validated();
-        $data['message'] = "new";
+        $data['status'] = "new";
         $leaveData      = Leave::create($data);
-
+        // dd($leaveData);
         return response()->json([
             'message'   => 'Successfully Added',
             'leave_data'   => $leaveData
