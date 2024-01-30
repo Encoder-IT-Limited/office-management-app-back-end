@@ -34,11 +34,11 @@ class LeaveController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'user_id'     => 'exists:users,id',
             'title'       => 'required|string',
             'description' => 'required',
             'start_date'  => 'required|date',
             'end_date'    => 'required|date',
-            'user_id'     => 'required|exists:users,id',
             'reason'     => 'required|string',
             'accepted_start_date' => 'nullable|date',
             'accepted_end_date' => 'nullable|date',
@@ -109,7 +109,7 @@ class LeaveController extends Controller
     public function leaveStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'leave_id'            => 'required|exists:leaves,id',
+            'user_id'            => 'exists:leaves,id',
             'reason'              => 'sometimes|required|string',
             'accepted_start_date' => 'sometimes|required|date',
             'accepted_end_date'   => 'sometimes|required|date'
@@ -130,15 +130,14 @@ class LeaveController extends Controller
     }
     public function getFilter(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id', // Assuming leaves are associated with users
-        ]);
-        $currentDate = Carbon::now();
-        $firstDayOfMonth = Carbon::now()->startOfMonth();
-        $endDate = Carbon::now()->endOfMonth();
         $userId = $request->user_id;
+        $month = $request->month;
+        $year = $request->year;
+
+        // Query the database using Eloquent and filter by user_id, year, and month
         $filteredLeaves = Leave::where('user_id', $userId)
-            ->whereBetween('created_at', [$firstDayOfMonth, $endDate])
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
             ->get();
         return response()->json($filteredLeaves);
     }
