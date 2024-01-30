@@ -9,6 +9,7 @@ use App\Traits\ProjectTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use JetBrains\PhpStorm\Deprecated;
 
 class TaskController extends Controller
@@ -89,6 +90,11 @@ class TaskController extends Controller
     public function reorderTask(Request $request)
     {
         $task = Task::findOrFail($request->id);
+
+        if ($request->has('status')) {
+            $this->setTaskStatus($task, $request->status);
+        }
+
         $newOrder = $request->new_order;
         $oldOrder = $task->status->pivot->list_order;
         if ($oldOrder != $newOrder) {
@@ -174,9 +180,26 @@ class TaskController extends Controller
     public function destroy($id)
     {
         Task::destroy($id);
-
         return response()->json([
             'message' => 'Deleted Successfully',
         ], 200);
+    }
+
+    public function destroyByStatus($id)
+    {
+        try {
+            $data = Task
+                ::whereHas('status', function ($q) use ($id) {
+                    $q->where('label_status_id', $id);
+                })
+                ->delete();
+            return response()->json([
+                '$data' =>  $data,
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                '$th' =>  $th->getMessage(),
+            ], 200);
+        }
     }
 }

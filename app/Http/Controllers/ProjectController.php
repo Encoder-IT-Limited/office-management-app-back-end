@@ -189,8 +189,13 @@ class ProjectController extends Controller
     public function destroy($id)
     {
         $project = Project::findOrFail($id);
-        $project->projectTasks()->delete();
         $project->delete();
+
+        try {
+            $project->projectTasks()->delete();
+        } catch (\Throwable $th) {
+            //
+        }
 
         return response()->json([
             'message' => 'Deleted Success',

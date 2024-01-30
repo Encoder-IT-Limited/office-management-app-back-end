@@ -108,6 +108,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('show/{id}', [TaskController::class, 'show'])->middleware('permission:show-task');
         Route::post('reorder', [TaskController::class, 'reorderTask']);
         Route::delete('{id}', [TaskController::class, 'destroy'])->middleware('permission:delete-task');
+        Route::delete('/status/{id}', [TaskController::class, 'destroyByStatus']);
     });
 
     Route::prefix('reminders')->group(function () {
