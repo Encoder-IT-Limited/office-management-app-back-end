@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Validator;
 
 class LeaveController extends Controller
 {
+    public function __construct()
+	{
+		$this->middleware(['auth:sanctum'])->except('store');
+}
         public function index(Request $request)
     {
         $user = User::findOrFail(Auth::id());
@@ -44,6 +48,7 @@ class LeaveController extends Controller
 
         $data           = $validator->validated();
         $data['status'] = "new";
+        $data['user_id'] = Auth::user()->id;
         $leaveData      = Leave::create($data);
         // dd($leaveData);
         return response()->json([
@@ -102,10 +107,9 @@ class LeaveController extends Controller
 
     public function leaveStatus(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+                $validator = Validator::make($request->all(), [
             'leave_id'            => 'required|exists:leaves,id',
-            'message'              => 'required|in:accepted,rejected',
-            'reason'              => 'sometimes|required|string',
+           'reason'              => 'sometimes|required|string',
             'accepted_start_date' => 'sometimes|required|date',
             'accepted_end_date'   => 'sometimes|required|date'
         ]);
@@ -115,6 +119,7 @@ class LeaveController extends Controller
         }
 
         $leave = Leave::findOrFail($request->leave_id);
+        $leave->status=$request->status;
         $leave->update($validator->validated());
 
         return response()->json([

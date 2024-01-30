@@ -16,11 +16,13 @@ class Leave extends Model
         'description',
         'start_date',
         'end_date',
-        'message',
         'reason',
         'accepted_start_date',
+        'start_date',
+        'end_date',
         'accepted_end_date',
-        'user_id'
+        'user_id',
+        'status'
     ];
 
     public function user()
