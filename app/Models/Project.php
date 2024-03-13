@@ -62,6 +62,11 @@ class Project extends Model
         return $this->morphToMany(LabelStatus::class, 'statusable')->where('label_statuses.type', 'label')->withPivot(['color', 'label_status_id']);
     }
 
+    public function notes()
+    {
+        return $this->hasMany(ProjectNote::class, 'project_id');
+    }
+
     public function scopeWithData($queries, ...$data)
     {
         if (count($data) > 0) return $queries->with($data);
@@ -89,4 +94,5 @@ class Project extends Model
 
         return $queries;
     }
+
 }
