@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ProjectNoteController;
+use App\Http\Controllers\UserNoteController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiKeyController;
 use App\Http\Controllers\AttendanceController;
@@ -154,4 +156,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('{id}', [LabelStatusController::class, 'deleteLabelStatus']);
         Route::post('reorder', [LabelStatusController::class, 'reorderLabelStatus']);
     });
+
+    // User Notes ...
+    Route::apiResource('user-note', UserNoteController::class);
+    Route::get('trash/user-note', [UserNoteController::class, 'trash']);
+    Route::get('restore/user-note/{userNote}', [UserNoteController::class, 'restore'])->withTrashed();
+    Route::delete('force-delete/user-note/{userNote}', [UserNoteController::class, 'forceDelete'])->withTrashed();
+
+    // Project Notes
+    Route::apiResource('project-note', ProjectNoteController::class);
+    Route::get('trash/project-note', [ProjectNoteController::class, 'trash']);
+    Route::get('restore/project-note/{projectNote}', [ProjectNoteController::class, 'restore'])->withTrashed();
+    Route::delete('force-delete/project-note/{projectNote}', [ProjectNoteController::class, 'forceDelete'])->withTrashed();
 });
