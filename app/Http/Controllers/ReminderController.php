@@ -19,7 +19,7 @@ class ReminderController extends Controller
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $reminder = Reminder::with('users', 'projects')
-            ->where('id', auth()->id())
+            ->where('user_id', auth()->id())
             ->get();
         return $this->success('Success', ReminderResource::collection($reminder));
     }
@@ -34,7 +34,7 @@ class ReminderController extends Controller
 
     public function show(Reminder $reminder): \Illuminate\Http\JsonResponse
     {
-        return $this->success('Success', new ReminderResource($reminder));
+        return $this->success('Success', new ReminderResource($reminder->load('users', 'projects')));
     }
 
     public function update(ReminderUpdateRequest $request, Reminder $reminder): \Illuminate\Http\JsonResponse

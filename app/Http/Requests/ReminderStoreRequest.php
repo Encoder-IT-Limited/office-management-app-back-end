@@ -24,7 +24,7 @@ class ReminderStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'sometimes|nullable|exists:users,id',
             'project_id' => 'required|exists:projects,id',
             'title' => 'required|string',
             'description' => 'required|string',

@@ -16,14 +16,13 @@ class ReminderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'client_id' => $this->client_id,
-            'project_id' => $this->project_id,
-            'date' => $this->date,
-            'time' => $this->time,
-            'reminder_at' => $this->reminder_at,
+            'title' => $this->title,
             'description' => $this->description,
+            'user' => $this->whenLoaded('users'),
+            'project' => $this->whenLoaded('projects'),
+            'remind_at' => $this->remind_at,
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'user_id' => $this->user_id,
         ];
     }
 }
