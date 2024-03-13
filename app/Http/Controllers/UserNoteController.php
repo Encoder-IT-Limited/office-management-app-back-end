@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreUserNoteRequest;
-use App\Http\Requests\UpdateUserNoteRequest;
+use App\Http\Requests\UserNoteStoreRequest;
+use App\Http\Requests\UserNoteUpdateRequest;
 use App\Http\Resources\UserNoteResource;
 use App\Models\UserNote;
 use App\Traits\ApiResponseTrait;
@@ -18,7 +18,7 @@ class UserNoteController extends Controller
      *
      * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $notes = UserNote::where('user_id', auth()->id())->get();
         return $this->success('Success', UserNoteResource::collection($notes));
@@ -27,13 +27,13 @@ class UserNoteController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param StoreUserNoteRequest $request
+     * @param UserNoteStoreRequest $request
      * @return JsonResponse
      */
-    public function store(StoreUserNoteRequest $request)
+    public function store(UserNoteStoreRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $data['user_id'] = auth()->id();
+        $data['user_id'] = $data['user_id'] ?? auth()->id();
         $note = UserNote::create($data);
         return $this->success('Note created successfully', new UserNoteResource($note));
     }
@@ -44,7 +44,7 @@ class UserNoteController extends Controller
      * @param UserNote $userNote
      * @return JsonResponse
      */
-    public function show(UserNote $userNote)
+    public function show(UserNote $userNote): JsonResponse
     {
         return $this->success('Success', new UserNoteResource($userNote));
     }
@@ -52,11 +52,11 @@ class UserNoteController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param UpdateUserNoteRequest $request
+     * @param UserNoteUpdateRequest $request
      * @param UserNote $userNote
      * @return JsonResponse
      */
-    public function update(UpdateUserNoteRequest $request, UserNote $userNote)
+    public function update(UserNoteUpdateRequest $request, UserNote $userNote): JsonResponse
     {
         $userNote->update($request->validated());
         return $this->success('Note updated successfully', new UserNoteResource($userNote));
@@ -68,27 +68,27 @@ class UserNoteController extends Controller
      * @param UserNote $userNote
      * @return JsonResponse
      */
-    public function destroy(UserNote $userNote)
+    public function destroy(UserNote $userNote): JsonResponse
     {
         $userNote->delete();
-        return $this->success('Note deleted successfully');
+        return $this->success('Note deleted successfully', new UserNoteResource($userNote));
     }
 
-    public function trash()
+    public function trash(): JsonResponse
     {
         $notes = UserNote::onlyTrashed()->where('user_id', auth()->id())->get();
         return $this->success('Success', UserNoteResource::collection($notes));
     }
 
-    public function restore(UserNote $userNote)
+    public function restore(UserNote $userNote): JsonResponse
     {
         $userNote->restore();
-        return $this->success('Note restored successfully');
+        return $this->success('Note restored successfully', new UserNoteResource($userNote));
     }
 
-    public function forceDelete(UserNote $userNote)
+    public function forceDelete(UserNote $userNote): JsonResponse
     {
         $userNote->forceDelete();
-        return $this->success('Note permanently deleted');
+        return $this->success('Note permanently deleted', new UserNoteResource($userNote));
     }
 }
