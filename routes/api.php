@@ -158,14 +158,28 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // User Notes ...
-    Route::apiResource('user-note', UserNoteController::class);
-    Route::get('trash/user-note', [UserNoteController::class, 'trash']);
-    Route::get('restore/user-note/{userNote}', [UserNoteController::class, 'restore'])->withTrashed();
-    Route::delete('force-delete/user-note/{userNote}', [UserNoteController::class, 'forceDelete'])->withTrashed();
+    // Route::apiResource('user-note', UserNoteController::class);
+    Route::prefix('user-note')->group(function () {
+        Route::get('/', [UserNoteController::class, 'index'])->middleware('permission:read-user-note');
+        Route::get('{userNote}', [UserNoteController::class, 'show'])->middleware('permission:read-user-note');
+        Route::post('', [UserNoteController::class, 'store'])->middleware('permission:store-user-note');
+        Route::patch('{userNote}', [UserNoteController::class, 'update'])->middleware('permission:update-user-note');
+        Route::delete('{userNote}', [UserNoteController::class, 'destroy'])->middleware('permission:delete-user-note');
+    });
+    Route::get('trash/user-note', [UserNoteController::class, 'trash'])->middleware('permission:read-trashed-user-note');
+    Route::get('restore/user-note/{userNote}', [UserNoteController::class, 'restore'])->withTrashed()->middleware('permission:restore-user-note');
+    Route::delete('force-delete/user-note/{userNote}', [UserNoteController::class, 'forceDelete'])->withTrashed()->middleware('permission:force-delete-user-note');
 
     // Project Notes
-    Route::apiResource('project-note', ProjectNoteController::class);
-    Route::get('trash/project-note', [ProjectNoteController::class, 'trash']);
-    Route::get('restore/project-note/{projectNote}', [ProjectNoteController::class, 'restore'])->withTrashed();
-    Route::delete('force-delete/project-note/{projectNote}', [ProjectNoteController::class, 'forceDelete'])->withTrashed();
+    // Route::apiResource('project-note', ProjectNoteController::class);
+    Route::prefix('project-note')->group(function () {
+        Route::get('/', [ProjectNoteController::class, 'index'])->middleware('permission:read-project-note');
+        Route::get('{projectNote}', [ProjectNoteController::class, 'show'])->middleware('permission:read-project-note');
+        Route::post('', [ProjectNoteController::class, 'store'])->middleware('permission:store-project-note');
+        Route::patch('{projectNote}', [ProjectNoteController::class, 'update'])->middleware('permission:update-project-note');
+        Route::delete('{projectNote}', [ProjectNoteController::class, 'destroy'])->middleware('permission:delete-project-note');
+    });
+    Route::get('trash/project-note', [ProjectNoteController::class, 'trash'])->middleware('permission:read-trashed-project-note');
+    Route::get('restore/project-note/{projectNote}', [ProjectNoteController::class, 'restore'])->withTrashed()->middleware('permission:restore-project-note');
+    Route::delete('force-delete/project-note/{projectNote}', [ProjectNoteController::class, 'forceDelete'])->withTrashed()->middleware('permission:force-delete-project-note');
 });

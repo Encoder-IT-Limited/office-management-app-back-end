@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -101,21 +102,27 @@ class PermissionSeeder extends Seeder
 
             'read-user-note',
             'store-user-note',
-            'show-user-note',
             'update-user-note',
             'delete-user-note',
+            'read-trashed-user-note',
+            'restore-user-note',
+            'force-delete-user-note',
 
             'read-project-note',
             'store-project-note',
-            'show-project-note',
             'update-project-note',
             'delete-project-note',
+            'read-trashed-project-note',
+            'restore-project-note',
+            'force-delete-project-note',
 
             'read-user-reminder',
             'store-user-reminder',
-            'show-user-reminder',
             'update-user-reminder',
             'delete-user-reminder',
+            'read-trashed-user-reminder',
+            'restore-user-reminder',
+            'force-delete-user-reminder',
         ];
 
         Role::updateOrCreate(['slug' => 'admin'], [
@@ -127,5 +134,16 @@ class PermissionSeeder extends Seeder
                 'name' => Str::replace('-', ' ', Str::ucfirst($slug))
             ]);
         }
+
+
+        $role = Role::where('slug', 'admin')->first();
+        $user = User::where('email', 'admin@admin.com')->first();
+        if ($user) {
+//            $role->permissions()->detach(Permission::all()->pluck('id')->toArray());
+
+            $roleAttachedIds = $role->users()->pluck('users.id')->toArray();
+            if (!in_array($user->id, $roleAttachedIds)) $role->users()->attach($user->id);
+        }
+        $role->permissions()->syncWithoutDetaching(Permission::all()->pluck('id')->toArray());
     }
 }
