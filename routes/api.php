@@ -113,12 +113,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/status/{id}', [TaskController::class, 'destroyByStatus']);
     });
 
+    // Reminder ...
     Route::prefix('reminders')->group(function () {
         Route::get('/', [ReminderController::class, 'index'])->middleware('permission:read-reminder');
-        Route::post('store', [ReminderController::class, 'store'])->middleware('permission:store-reminder');
-        Route::get('show/{id}', [ReminderController::class, 'show'])->middleware('permission:show-reminder');
-        Route::patch('update', [ReminderController::class, 'update'])->middleware('permission:update-reminder');
-        Route::delete('delete/{id}', [ReminderController::class, 'destroy'])->middleware('permission:delete-reminder');
+        Route::post('/', [ReminderController::class, 'store'])->middleware('permission:store-reminder');
+        Route::get('{reminder}', [ReminderController::class, 'show'])->middleware('permission:show-reminder');
+        Route::patch('{reminder}', [ReminderController::class, 'update'])->middleware('permission:update-reminder');
+        Route::delete('{reminder}', [ReminderController::class, 'destroy'])->middleware('permission:delete-reminder');
     });
 
     Route::prefix('calendar')->group(function () {
@@ -157,12 +158,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('reorder', [LabelStatusController::class, 'reorderLabelStatus']);
     });
 
+
     // User Notes ...
     // Route::apiResource('user-note', UserNoteController::class);
     Route::prefix('user-note')->group(function () {
         Route::get('/', [UserNoteController::class, 'index'])->middleware('permission:read-user-note');
+        Route::post('/', [UserNoteController::class, 'store'])->middleware('permission:store-user-note');
         Route::get('{userNote}', [UserNoteController::class, 'show'])->middleware('permission:read-user-note');
-        Route::post('', [UserNoteController::class, 'store'])->middleware('permission:store-user-note');
         Route::patch('{userNote}', [UserNoteController::class, 'update'])->middleware('permission:update-user-note');
         Route::delete('{userNote}', [UserNoteController::class, 'destroy'])->middleware('permission:delete-user-note');
     });
@@ -170,12 +172,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('restore/user-note/{userNote}', [UserNoteController::class, 'restore'])->withTrashed()->middleware('permission:restore-user-note');
     Route::delete('force-delete/user-note/{userNote}', [UserNoteController::class, 'forceDelete'])->withTrashed()->middleware('permission:force-delete-user-note');
 
+
     // Project Notes
     // Route::apiResource('project-note', ProjectNoteController::class);
     Route::prefix('project-note')->group(function () {
         Route::get('/', [ProjectNoteController::class, 'index'])->middleware('permission:read-project-note');
+        Route::post('/', [ProjectNoteController::class, 'store'])->middleware('permission:store-project-note');
         Route::get('{projectNote}', [ProjectNoteController::class, 'show'])->middleware('permission:read-project-note');
-        Route::post('', [ProjectNoteController::class, 'store'])->middleware('permission:store-project-note');
         Route::patch('{projectNote}', [ProjectNoteController::class, 'update'])->middleware('permission:update-project-note');
         Route::delete('{projectNote}', [ProjectNoteController::class, 'destroy'])->middleware('permission:delete-project-note');
     });

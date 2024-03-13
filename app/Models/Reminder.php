@@ -14,19 +14,16 @@ class Reminder extends Model
     protected $table = 'reminders';
 
     protected $fillable = [
-        'project_id',
         'user_id',
-        'client_id',
-        'date',
-        'time',
-        'reminder_at',
+        'project_id',
+        'title',
         'description',
-        'message'
+        'remind_at',
+        'message',
     ];
 
     protected $cast = [
-        'time' => 'time',
-        'date' => 'date:d/m/Y',
+        'remind_at' => 'date:d/m/Y time:H:i:s',
         'message' => 'boolean'
     ];
 

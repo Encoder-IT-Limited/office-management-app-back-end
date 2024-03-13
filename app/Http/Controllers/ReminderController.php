@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReminderStoreRequest;
+use App\Http\Requests\ReminderUpdateRequest;
+use App\Http\Resources\ReminderResource;
 use App\Models\Reminder;
+use App\Traits\ApiResponseTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,82 +14,39 @@ use Illuminate\Support\Facades\Validator;
 
 class ReminderController extends Controller
 {
-    public function index(Request $request)
-    {
-        $reminder = Reminder::with('users', 'clients', 'projects')->where('id', Auth::user()->id)->get();
+    use ApiResponseTrait;
 
-        return response()->json([
-            'message'   => 'Success',
-            'reminders' => $reminder
-        ], 200);
+    public function index(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $reminder = Reminder::with('users', 'projects')
+            ->where('id', auth()->id())
+            ->get();
+        return $this->success('Success', ReminderResource::collection($reminder));
     }
 
-    public function store(Request $request)
+    public function store(ReminderStoreRequest $request): \Illuminate\Http\JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'client_id'   => 'required|exists:users,id',
-            'project_id'  => 'sometimes|required|exists:projects,id',
-            'date'        => 'required',
-            'time'        => 'required',
-            'reminder_at' => 'required',
-            'description' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 500);
-        }
-
-        $data = $validator->validated();
-        $data['user_id'] =  Auth::user()->id;
+        $data = $request->validated();
+        $data['user_id'] = $data['user_id'] ?? auth()->id();
         $reminder = Reminder::create($data);
-
-        return response()->json([
-            'message'  => 'Successfully Added',
-            'reminder' => $reminder
-        ], 201);
+        return $this->success('Successfully Created', new ReminderResource($reminder));
     }
 
-    public function show($id)
+    public function show(Reminder $reminder): \Illuminate\Http\JsonResponse
     {
-        $reminder = Reminder::findOrFail($id);
-
-        return response()->json([
-            'message'  => 'Success',
-            'reminder' => $reminder
-        ], 200);
+        return $this->success('Success', new ReminderResource($reminder));
     }
 
-    public function update(Request $request)
+    public function update(ReminderUpdateRequest $request, Reminder $reminder): \Illuminate\Http\JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'client_id'   => 'required|exists:users,id',
-            'project_id'  => 'sometimes|required|exists:projects,id',
-            'date'        => 'required',
-            'time'        => 'required',
-            'reminder_at' => 'required',
-            'description' => 'required|string',
-            'reminder_id' => 'required|exists:reminders,id',
-            'user_id'     => 'required|exists:users,id'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 500);
-        }
-
-        $reminder = Reminder::findOrFail($request->reminder_id);
-        $reminder->update($validator->validated());
-
-        return response()->json([
-            'message'  => 'Success Updated',
-            'reminder' => $reminder
-        ], 201);
+        $data = $request->validated();
+        $reminder->update($data);
+        return $this->success('Successfully Updated', new ReminderResource($reminder));
     }
 
-    public function destroy($id)
+    public function destroy(Reminder $reminder): \Illuminate\Http\JsonResponse
     {
-        Reminder::destroy($id);
-
-        return response()->json([
-            'message' => 'Deleted Successfully',
-        ], 200);
+        $reminder->delete();
+        return $this->success('Successfully Deleted');
     }
 }
