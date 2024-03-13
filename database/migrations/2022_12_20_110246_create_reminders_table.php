@@ -13,15 +13,15 @@ class CreateRemindersTable extends Migration
      */
     public function up()
     {
+        Schema::dropIfExists('reminders');
         Schema::create('reminders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('id')->on('users')->onDelete('cascade');
-            $table->foreignId('project_id')->nullable()->constrained('id')->on('projects')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('id')->on('users')->onDelete('cascade');
-            $table->date('date');
-            $table->time('time');
-            $table->time('reminder_at');
-            $table->text('description', 500);
+            $table->foreignId('project_id')->nullable()->constrained('id')->on('projects')->onDelete('cascade');
+//            $table->foreignId('client_id')->constrained('id')->on('users')->onDelete('cascade');
+            $table->string('title', 100)->nullable();
+            $table->text('description', 500)->nullable();
+            $table->dateTime('remind_at');
             $table->boolean('message')->default(1);
             $table->softDeletes();
             $table->timestamps();
