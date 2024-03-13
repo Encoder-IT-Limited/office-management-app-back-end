@@ -1,0 +1,131 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Permission;
+use App\Models\Role;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
+
+class PermissionSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        $permissions = [
+            'read-user',
+            'read-my-user',
+            'read-client-user',
+            'store-user',
+            'show-user',
+            'update-user',
+            'delete-user',
+
+            'read-skill',
+            'store-skill',
+            'update-skill',
+            'show-skill',
+            'delete-skill',
+
+            'read-role',
+            'store-role',
+            'show-role',
+            'update-role',
+            'delete-role',
+
+            'read-project',
+            'read-my-project',
+            'read-client-project',
+            'store-project',
+            'show-project',
+            'update-project',
+            'delete-project',
+
+            'read-leave',
+            'read-my-leave',
+            'read-client-leave',
+            'store-leave',
+            'update-leave',
+            'show-leave',
+            'delete-leave',
+            'status-update-leave',
+
+            'read-note',
+            'read-my-note',
+            'read-client-note',
+            'store-note',
+            'show-note',
+            'update-note',
+            'delete-note',
+
+            'read-reminder',
+            'read-my-reminder',
+            'read-client-reminder',
+            'store-reminder',
+            'show-reminder',
+            'update-reminder',
+            'delete-reminder',
+
+            'read-break',
+            'read-my-break',
+            'read-client-break',
+            'store-break',
+            'show-break',
+            'update-break',
+            'delete-break',
+
+            'read-attendance',
+            'read-my-attendance',
+            'read-client-attendance',
+            'update-attendance',
+            'checkin-attendance',
+            'checkout-attendance',
+            'delete-attendance',
+            'read-delays',
+
+            'read-calendar',
+            'see-month',
+            'see-project-budget',
+
+            'read-task',
+            'read-my-task',
+            'read-client-task',
+            'store-task',
+            'show-task',
+            'update-task',
+            'delete-task',
+
+            'read-user-note',
+            'store-user-note',
+            'show-user-note',
+            'update-user-note',
+            'delete-user-note',
+
+            'read-project-note',
+            'store-project-note',
+            'show-project-note',
+            'update-project-note',
+            'delete-project-note',
+
+            'read-user-reminder',
+            'store-user-reminder',
+            'show-user-reminder',
+            'update-user-reminder',
+            'delete-user-reminder',
+        ];
+
+        Role::updateOrCreate(['slug' => 'admin'], [
+            'name' => 'Admin'
+        ]);
+
+        foreach ($permissions as $slug) {
+            Permission::updateOrCreate(['slug' => $slug], [
+                'name' => Str::replace('-', ' ', Str::ucfirst($slug))
+            ]);
+        }
+    }
+}
