@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ReminderResource extends JsonResource
+class ProjectListResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,11 +16,11 @@ class ReminderResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
-            'description' => $this->description,
-            'remind_at' => $this->remind_at,
-            'user' => new UserListResource($this->whenLoaded('users')),
-            'project' => new ProjectListResource($this->whenLoaded('projects')),
+            'name' => $this->name,
+            'budget' => $this->budget,
+            'start_date' => $this->start_date,
+            'end_date' => $this->end_date,
+            'client_id' => $this->client_id,
             'created_at' => $this->created_at,
         ];
     }
