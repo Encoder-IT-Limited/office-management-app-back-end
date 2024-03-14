@@ -64,7 +64,7 @@ class UserController extends Controller
             if ($user) {
                 $user->roles()->attach($request->role_id);
                 $user->skills()->attach($request->skills);
-                $user->children()->attach($request->users);
+                $user->children()->sync($request->users);
 
                 if ($request->has('document')) {
                     $file = $request->file('document');
@@ -96,7 +96,7 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function update(UserUpdateRequest $request)
+    public function update(UserUpdateRequest $request): \Illuminate\Http\JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -107,12 +107,11 @@ class UserController extends Controller
             }
 
             $user = User::findOrFail($request->user_id);
-
             $user->update($updatableData);
 
             if (isset($request->role_id)) $user->roles()->sync($request->role_id);
             if (isset($request->skills)) $user->skills()->sync($request->skills);
-            if (isset($request->users)) $user->children()->attach($request->users);
+            $user->children()->sync($request->users);
 
             if ($request->has('document')) {
                 if ($user->uploads && Storage::disk('public')->exists($user->uploads[0]->path)) {
