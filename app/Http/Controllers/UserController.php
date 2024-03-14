@@ -31,6 +31,29 @@ class UserController extends Controller
         $this->date = Carbon::today()->format('d');
     }
 
+    public function indexOld(Request $request)
+    {
+        $queries = User::filteredByPermissions()->withData()->where('status', 'active')->withTrashed();
+
+        $queries->when($request->has('user_type'), function ($query) use ($request) {
+            $request->validate([
+                'user_type' => 'required|array',
+                'user_type.*' => 'required|in:client,developer,manager,admin',
+            ]);
+
+            return $query->whereHas('roles', function ($role) use ($request) {
+                return $role->whereIn('slug', $request->user_type);
+            });
+        });
+
+        $users = $queries->latest()->paginate($request->per_page ?? 25);
+        return response()->json([
+            'user' => Auth::user(),
+            'projects' => Auth::user()->projects,
+            'users' => $users
+        ], 200);
+    }
+
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -47,14 +70,18 @@ class UserController extends Controller
                 });
             });
         } else {
-            $users = User::filteredByPermissions()->withData()->where('status', 'active')->withTrashed();
+            $queries = User::filteredByPermissions()
+                ->withData()
+                ->where('status', 'active')
+                ->withTrashed();
+            $users = $queries;
         }
 
         $users = $users->withTrashed()->latest()->paginate($request->per_page ?? 25);
         return response()->json([
-            'message' => 'Success',
-            'users' => UserListResource::collection($users),
-            ''
+            'users' => $users,
+            'user' => Auth::user(),
+            'projects' => Auth::user()->projects,
         ], 200);
     }
 

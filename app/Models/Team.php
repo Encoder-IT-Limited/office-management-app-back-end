@@ -43,7 +43,7 @@ class Team extends Model
     {
         parent::boot();
 
-        static::addGlobalScope('FilterdByPermissions', function ($queries) {
+        static::addGlobalScope('FilteredByPermissions', function ($queries) {
             $user = User::findOrFail(Auth::id());
 
             if ($user->hasPermission('read-client-project')) {

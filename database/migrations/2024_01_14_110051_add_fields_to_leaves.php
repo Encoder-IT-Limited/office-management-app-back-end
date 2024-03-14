@@ -26,8 +26,9 @@ class AddFieldsToLeaves extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('username');
+        Schema::table('leaves', function (Blueprint $table) {
+            $table->dropColumn('accepted_by');
+            $table->dropColumn('last_updated_by');
         });
     }
 }

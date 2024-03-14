@@ -79,7 +79,7 @@ class Project extends Model
         ]);
     }
 
-    public function scopeFilterdByPermissions($queries)
+    public function scopeFilteredByPermissions($queries)
     {
         $user = User::findOrFail(Auth::id());
         if ($user->hasPermission('read-client-project')) {

@@ -16,7 +16,7 @@ class ProjectController extends Controller
 
     public function index(Request $request)
     {
-        $queries = Project::withData()->filterdByPermissions();
+        $queries = Project::withData()->filteredByPermissions();
 
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
 

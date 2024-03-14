@@ -82,7 +82,7 @@ class BreaktimeController extends Controller
         $this->month = $validated['month'] ?? $this->month;
         $this->date = $validated['date'] ?? $this->date;
 
-        $employees = User::filterdByPermissions()->with(['breakTimes' => function ($breakQ) {
+        $employees = User::filteredByPermissions()->with(['breakTimes' => function ($breakQ) {
             $breakQ
                 ->breakFilter($this->year, $this->month, $this->date)
                 ->select('employee_id')
