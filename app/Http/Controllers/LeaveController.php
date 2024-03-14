@@ -21,11 +21,26 @@ class LeaveController extends Controller
         $this->middleware(['auth:sanctum'])->except('store');
     }
 
+    public function myLeave(): \Illuminate\Http\JsonResponse
+    {
+        $user = User::with('children')->findOrFail(auth()->id());
+        abort_unless($user->hasPermission('read-my-leave'), 403, 'Permission Denied');
+
+        $leaveData = Leave::with('user')
+            ->where('user_id', auth()->id())
+            ->orderBy('start_date', 'desc');
+        return $this->success('Success', $leaveData->latest()->paginate(25));
+    }
+
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
-        $leaveData = Leave::with('user');
         $user = User::with('children')->findOrFail(auth()->id());
+        $leaveData = [];
 
+        if ($user->hasPermission('read-leave')) {
+            $leaveData[] = Leave::with('user')
+                ->orderBy('start_date', 'desc');
+        }
 
         if ($user->hasrole(['manager', 'developer'])) {
             $children_ids = $user->chindren->pluck('id')->toArray();

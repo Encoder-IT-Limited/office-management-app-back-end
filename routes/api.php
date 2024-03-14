@@ -75,6 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('leave')->group(function () {
         Route::get('/', [LeaveController::class, 'index'])->middleware('permission:read-leave');
+        Route::get('/my-leave', [LeaveController::class, 'myLeave'])->middleware('permission:read-my-leave');
         Route::post('store', [LeaveController::class, 'store'])->middleware('permission:store-leave');
         Route::get('show/{leave}', [LeaveController::class, 'show'])->middleware('permission:show-leave');
         Route::patch('update', [LeaveController::class, 'update'])->middleware('permission:update-leave');
