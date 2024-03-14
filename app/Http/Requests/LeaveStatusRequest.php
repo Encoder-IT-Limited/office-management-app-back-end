@@ -13,7 +13,7 @@ class LeaveStatusRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,10 +24,12 @@ class LeaveStatusRequest extends FormRequest
     public function rules()
     {
         return [
-            'user_id' => 'exists:leaves,id',
-            'reason' => 'sometimes|required|string',
-            'accepted_start_date' => 'sometimes|required|date',
-            'accepted_end_date' => 'sometimes|required|date'
+            'reason' => 'sometimes|nullable|string',
+            'accepted_start_date' => 'sometimes|nullable|date',
+            'accepted_end_date' => 'sometimes|nullable|date',
+            'message' => 'required|in:accepted,rejected',
+            'accepted_by' => 'sometimes|nullable|exists:users,id',
+            'last_updated_by' => 'sometimes|nullable|exists:users,id',
         ];
     }
 }

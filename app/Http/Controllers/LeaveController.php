@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\LeaveRequest;
 use App\Http\Requests\LeaveStatusRequest;
+use App\Http\Requests\LeaveStoreRequest;
+use App\Http\Requests\LeaveUpdateRequest;
 use App\Models\Leave;
 use App\Models\User;
 use App\Traits\ApiResponseTrait;
@@ -35,28 +36,23 @@ class LeaveController extends Controller
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = User::with('children')->findOrFail(auth()->id());
-        $leaveData = [];
+        abort_unless($user->hasPermission('read-leave'), 403, 'Permission Denied');
 
-        if ($user->hasPermission('read-leave')) {
-            $leaveData[] = Leave::with('user')
+        if ($user->hasRole('admin')) {
+            $leaveData = Leave::with('user')
+                ->orderBy('start_date', 'desc');
+        } else {
+            $children_ids = $user->chindren->pluck('id')->toArray();
+            $leaveData = Leave::with('user')
+                ->whereIn('user_id', $children_ids)
                 ->orderBy('start_date', 'desc');
         }
+        $data = $leaveData->latest()->paginate($request->per_page ?? 25);
 
-        if ($user->hasrole(['manager', 'developer'])) {
-            $children_ids = $user->chindren->pluck('id')->toArray();
-            $children_ids[] = $user->id;
-            $leaveData->whereIn('user_id', $children_ids);
-        }
-
-        $query = $leaveData->latest()->paginate($request->per_page ?? 25);
-
-        return response()->json([
-            'message' => 'Success',
-            'leave_data' => $query
-        ], 200);
+        return $this->success('Success', $data);
     }
 
-    public function store(LeaveRequest $request): \Illuminate\Http\JsonResponse
+    public function store(LeaveStoreRequest $request): \Illuminate\Http\JsonResponse
     {
         $data = $request->validated();
 //        $data['status'] = "new";
@@ -71,43 +67,36 @@ class LeaveController extends Controller
         return $this->success('Success', $leave);
     }
 
-    public function update(Request $request)
+    public function update(LeaveUpdateRequest $request, Leave $leave): \Illuminate\Http\JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string',
-            'description' => 'required',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
-            'leave_id' => 'required|exists:leaves,id'
-        ]);
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 500);
-        }
-
-        $leaveData = Leave::findOrFail($request->leave_id);
-        $leaveData->title = $request->title;
-        $leaveData->description = $request->description;
-        $leaveData->start_date = $request->start_date;
-        $leaveData->end_date = $request->end_date;
-        $leaveData->save();
-
-        return response()->json([
-            'message' => 'Successfully Updated',
-            'leaveData' => $leaveData
-        ], 201);
+        abort_if(in_array($leave->message, ['accepted', 'rejected']), 403, 'Cannot Update Accepted Or Rejected Leave');
+        $leave->update($request->validated());
+        return $this->success('Successfully Updated', $leave);
     }
 
     public function destroy(Leave $leave): \Illuminate\Http\JsonResponse
     {
+        if (!auth()->user->hasRole('admin')) {
+            abort_if(in_array($leave->message, ['accepted', 'rejected']), 403, 'Cannot Update Accepted Or Rejected Leave');
+        }
         $leave->delete();
         return $this->success('Successfully Deleted', $leave);
     }
 
-    public function leaveStatus(LeaveStatusRequest $request): \Illuminate\Http\JsonResponse
+    public function leaveStatus(LeaveStatusRequest $request, Leave $leave): \Illuminate\Http\JsonResponse
     {
         $data = $request->validated();
-        $leave = Leave::findOrFail($data['leave_id']);
-        $leave->update($request->validated());
+        if ($data['message'] == 'accepted') {
+            $data['accepted_by'] = auth()->id();
+        }
+        $data['last_updated_by'] = auth()->id();
+        if (!$data['accepted_start_date']) {
+            $data['accepted_start_date'] = $leave->start_date;
+        }
+        if (!$data['accepted_end_date']) {
+            $data['accepted_end_date'] = $leave->end_date;
+        }
+        $leave->update($data);
 
         return $this->success('Successfully Updated', $leave);
     }

@@ -23,7 +23,7 @@ class Leave extends Model
         'accepted_start_date',
         'accepted_end_date',
         'user_id',
-        'status',
+        'message',
         'accepted_by',
         'last_updated_by',
     ];

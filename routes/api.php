@@ -78,9 +78,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/my-leave', [LeaveController::class, 'myLeave'])->middleware('permission:read-my-leave');
         Route::post('store', [LeaveController::class, 'store'])->middleware('permission:store-leave');
         Route::get('show/{leave}', [LeaveController::class, 'show'])->middleware('permission:show-leave');
-        Route::patch('update', [LeaveController::class, 'update'])->middleware('permission:update-leave');
+        Route::put('update/{leave}', [LeaveController::class, 'update'])->middleware('permission:update-leave');
         Route::delete('delete/{leave}', [LeaveController::class, 'destroy'])->middleware('permission:delete-leave');
-        Route::post('status', [LeaveController::class, 'leaveStatus'])->middleware('permission:status-update-leave');
+        Route::put('update-status/{leave}', [LeaveController::class, 'leaveStatus'])->middleware('permission:status-update-leave');
     });
 
     Route::prefix('employee-notes')->group(function () {
