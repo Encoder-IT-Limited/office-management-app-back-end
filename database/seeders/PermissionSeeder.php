@@ -128,6 +128,12 @@ class PermissionSeeder extends Seeder
         Role::updateOrCreate(['slug' => 'admin'], [
             'name' => 'Admin'
         ]);
+        Role::updateOrCreate(['slug' => 'developer'], [
+            'name' => 'Developer'
+        ]);
+        Role::updateOrCreate(['slug' => 'client'], [
+            'name' => 'Client'
+        ]);
 
         foreach ($permissions as $slug) {
             Permission::updateOrCreate(['slug' => $slug], [

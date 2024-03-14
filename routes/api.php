@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProjectNoteController;
 use App\Http\Controllers\UserNoteController;
+use App\Http\Resources\UserDetailsResource;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiKeyController;
 use App\Http\Controllers\AttendanceController;
@@ -185,4 +187,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('trash/project-note', [ProjectNoteController::class, 'trash'])->middleware('permission:read-trashed-project-note');
     Route::get('restore/project-note/{projectNote}', [ProjectNoteController::class, 'restore'])->withTrashed()->middleware('permission:restore-project-note');
     Route::delete('force-delete/project-note/{projectNote}', [ProjectNoteController::class, 'forceDelete'])->withTrashed()->middleware('permission:force-delete-project-note');
+
+
+
 });

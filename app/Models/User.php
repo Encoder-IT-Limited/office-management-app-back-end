@@ -99,9 +99,18 @@ class User extends Authenticatable
         return $this->hasOne(Attendance::class, 'employee_id')->whereDate('check_in', Carbon::now());
     }
 
-    public function notes()
+    public function notes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(UserNote::class, 'user_id');
+    }
+
+    public function children()
+    {
+        return $this->belongsToMany(User::class, 'user_users', 'parent_user_id');
+    }
+    public function parents()
+    {
+        return $this->belongsToMany(User::class, 'user_users', 'user_id');
     }
 
     public function scopeDelaysCount($query, $year, $month)
