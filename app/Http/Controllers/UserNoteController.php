@@ -33,7 +33,7 @@ class UserNoteController extends Controller
     public function store(UserNoteStoreRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $data['user_id'] = $data['user_id'] ?? auth()->id();
+        $data['user_id'] = (int)($data['user_id'] ?? auth()->id());
         $note = UserNote::create($data);
         return $this->success('Note created successfully', new UserNoteResource($note));
     }

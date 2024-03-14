@@ -27,7 +27,15 @@ class UserDetailsResource extends JsonResource
                 return $this->roles->pluck('name');
             }),
             'skills' => $this->whenLoaded('skills', function () {
-                return $this->skills->pluck('name');
+                $skills = $this->skills;
+
+                return $skills->map(function ($skill) {
+                    return [
+                        'id' => $skill->id,
+                        'name' => $skill->name,
+                        'experience' => $skill->pivot->experience,
+                    ];
+                });
             }),
             'projects' => $this->whenLoaded('projects', function () {
                 return $this->projects;

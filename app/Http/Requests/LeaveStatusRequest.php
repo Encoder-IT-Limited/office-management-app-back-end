@@ -4,16 +4,16 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserNoteStoreRequest extends FormRequest
+class LeaveStatusRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize(): bool
+    public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -21,11 +21,13 @@ class UserNoteStoreRequest extends FormRequest
      *
      * @return array
      */
-    public function rules(): array
+    public function rules()
     {
         return [
-            'note' => 'required|string|max:255',
-            'user_id' => 'sometimes|nullable|exists:users,id'
+            'user_id' => 'exists:leaves,id',
+            'reason' => 'sometimes|required|string',
+            'accepted_start_date' => 'sometimes|required|date',
+            'accepted_end_date' => 'sometimes|required|date'
         ];
     }
 }

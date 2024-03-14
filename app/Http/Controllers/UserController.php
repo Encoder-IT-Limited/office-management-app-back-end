@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Requests\UserUpdateRequest;
 use App\Http\Resources\UserDetailsResource;
+use App\Http\Resources\UserListResource;
 use App\Models\Upload;
 use App\Models\User;
 use App\Traits\ApiResponseTrait;
@@ -32,25 +33,25 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $queries = User::filterdByPermissions()->withData()->where('status', 'active')->withTrashed();
+        $user = auth()->user();
+        if ($user->hasRole('admin')) {
+            $users = User::with('roles', 'skills', 'uploads');
+            $users->when($request->has('user_type'), function ($query) use ($request) {
+                $request->validate([
+                    'user_type' => 'required|array',
+                    'user_type.*' => 'required|in:client,developer,manager,admin',
+                ]);
 
-        $queries->when($request->has('user_type'), function ($query) use ($request) {
-            $request->validate([
-                'user_type' => 'required|array',
-                'user_type.*' => 'required|in:client,developer,manager,admin',
-            ]);
-
-            return $query->whereHas('roles', function ($role) use ($request) {
-                return $role->whereIn('slug', $request->user_type);
+                return $query->whereHas('roles', function ($role) use ($request) {
+                    return $role->whereIn('slug', $request->user_type);
+                });
             });
-        });
+        } else {
+            $users = User::filteredByPermissions()->withData()->where('status', 'active')->withTrashed();
+        }
 
-        $users = $queries->latest()->paginate($request->per_page ?? 25);
-        return response()->json([
-            'user' => Auth::user(),
-            'projects' => Auth::user()->projects,
-            'users' => $users
-        ], 200);
+        $users = $users->withTrashed()->latest()->paginate($request->per_page ?? 25);
+        return $this->success('Success', UserDetailsResource::collection($users));
     }
 
     public function store(UserStoreRequest $request): \Illuminate\Http\JsonResponse
@@ -89,10 +90,10 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::findOrFail($id);
-
+        $user->load('parents', 'children');
         return response()->json([
             'message' => 'Success',
-            'user' => $user
+            'user' => new UserDetailsResource($user)
         ], 200);
     }
 

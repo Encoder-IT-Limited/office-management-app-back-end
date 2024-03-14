@@ -164,7 +164,7 @@ class User extends Authenticatable
         return $queries->with('roles', 'skills', 'todayAttendance', 'uploads');
     }
 
-    public function scopeFilterdByPermissions($queries)
+    public function scopeFilteredByPermissions($queries)
     {
         $user = User::findOrFail(Auth::id());
 

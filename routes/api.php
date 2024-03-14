@@ -76,9 +76,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('leave')->group(function () {
         Route::get('/', [LeaveController::class, 'index'])->middleware('permission:read-leave');
         Route::post('store', [LeaveController::class, 'store'])->middleware('permission:store-leave');
-        Route::get('show/{id}', [LeaveController::class, 'show'])->middleware('permission:show-leave');
+        Route::get('show/{leave}', [LeaveController::class, 'show'])->middleware('permission:show-leave');
         Route::patch('update', [LeaveController::class, 'update'])->middleware('permission:update-leave');
-        Route::delete('delete/{id}', [LeaveController::class, 'destroy'])->middleware('permission:delete-leave');
+        Route::delete('delete/{leave}', [LeaveController::class, 'destroy'])->middleware('permission:delete-leave');
         Route::post('status', [LeaveController::class, 'leaveStatus'])->middleware('permission:status-update-leave');
     });
 
@@ -167,7 +167,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [UserNoteController::class, 'index'])->middleware('permission:read-user-note');
         Route::post('/', [UserNoteController::class, 'store'])->middleware('permission:store-user-note');
         Route::get('{userNote}', [UserNoteController::class, 'show'])->middleware('permission:read-user-note');
-        Route::patch('{userNote}', [UserNoteController::class, 'update'])->middleware('permission:update-user-note');
+        Route::put('{userNote}', [UserNoteController::class, 'update'])->middleware('permission:update-user-note');
         Route::delete('{userNote}', [UserNoteController::class, 'destroy'])->middleware('permission:delete-user-note');
     });
     Route::get('trash/user-note', [UserNoteController::class, 'trash'])->middleware('permission:read-trashed-user-note');
@@ -181,7 +181,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [ProjectNoteController::class, 'index'])->middleware('permission:read-project-note');
         Route::post('/', [ProjectNoteController::class, 'store'])->middleware('permission:store-project-note');
         Route::get('{projectNote}', [ProjectNoteController::class, 'show'])->middleware('permission:read-project-note');
-        Route::patch('{projectNote}', [ProjectNoteController::class, 'update'])->middleware('permission:update-project-note');
+        Route::put('{projectNote}', [ProjectNoteController::class, 'update'])->middleware('permission:update-project-note');
         Route::delete('{projectNote}', [ProjectNoteController::class, 'destroy'])->middleware('permission:delete-project-note');
     });
     Route::get('trash/project-note', [ProjectNoteController::class, 'trash'])->middleware('permission:read-trashed-project-note');

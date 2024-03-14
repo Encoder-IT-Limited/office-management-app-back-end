@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Leave extends Model
 {
     use HasFactory, SoftDeletes;
+
     protected $table = 'leaves';
 
     protected $fillable = [
@@ -22,7 +23,9 @@ class Leave extends Model
         'end_date',
         'accepted_end_date',
         'user_id',
-        'status'
+        'status',
+        'accepted_by',
+        'last_updated_by',
     ];
 
     public function user()
