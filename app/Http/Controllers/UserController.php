@@ -51,7 +51,11 @@ class UserController extends Controller
         }
 
         $users = $users->withTrashed()->latest()->paginate($request->per_page ?? 25);
-        return $this->success('Success', UserDetailsResource::collection($users));
+        return response()->json([
+            'message' => 'Success',
+            'users' => UserListResource::collection($users),
+            ''
+        ], 200);
     }
 
     public function store(UserStoreRequest $request): \Illuminate\Http\JsonResponse
