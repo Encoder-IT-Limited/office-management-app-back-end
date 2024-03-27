@@ -106,10 +106,18 @@ class UserController extends Controller
                         'path' => $stored_path
                     ]);
                 }
+
+                if ($request->has('notes')) {
+                    foreach ($request->notes as $note) {
+                        $user->notes()->create([
+                            'note' => $note
+                        ]);
+                    }
+                }
             }
 
             DB::commit();
-            $user->load('parents', 'children');
+            $user->load('parents', 'children', 'notes');
             return $this->success('User created successfully', new UserDetailsResource($user));
         } catch (\Exception $e) {
             DB::rollBack();
@@ -156,6 +164,14 @@ class UserController extends Controller
                 $user->uploads()->create([
                     'path' => $stored_path
                 ]);
+            }
+
+            if ($request->has('notes')) {
+                foreach ($request->notes as $note) {
+                    $user->notes()->create([
+                        'note' => $note
+                    ]);
+                }
             }
 
             DB::commit();

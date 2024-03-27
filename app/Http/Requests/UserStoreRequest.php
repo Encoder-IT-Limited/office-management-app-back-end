@@ -35,6 +35,9 @@ class UserStoreRequest extends FormRequest
             'users[]' => 'sometimes|nullable|array',
             'users.*' => 'sometimes|nullable|exists:users,id',
             'document' => 'sometimes|nullable|mimes:doc,pdf,docx,zip,jpeg,png,jpg,gif,svg,webp,avif|max:20480',
+
+            'notes' => 'sometimes|required|array',
+            'notes.*' => 'required|string'
         ];
     }
 }
