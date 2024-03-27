@@ -49,7 +49,15 @@ class ProjectStoreUpdateRequest extends FormRequest
             'tasks.*.labels' => 'sometimes|required|array',
 
             'notes' => 'sometimes|required|array',
-            'notes.*' => 'required|string'
+            'notes.*' => 'required|string',
+
+            'reminders' => 'sometimes|required|array',
+            'reminders.*.user_id' => 'sometimes|required|exists:users,id',
+            'reminders.*.title' => 'sometimes|required|string',
+            'reminders.*.description' => 'sometimes|required|string',
+            'reminders.*.remind_at' => 'sometimes|required|date:Y/m/d H:i:s|after:now',
+            'reminders.*.message' => 'sometimes|required|string',
+
         ];
     }
 }
