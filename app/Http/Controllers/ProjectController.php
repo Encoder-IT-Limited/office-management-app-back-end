@@ -119,6 +119,16 @@ class ProjectController extends Controller
             }
 
             $project = Project::with($this->withProject)->with('notes')->find($project->id);
+
+            if (!$request->has('id')) {
+                $project->reminders()->create([
+                    'user_id' => Auth::id(),
+                    'title' => $project->name . ' Initiated',
+                    'description' => 'New Project ' . $project->name . ' has been initiated.',
+                    'remind_at' => $project->getRawOriginal('start_date'),
+                    'message' => 1
+                ]);
+            }
             DB::commit();
 
             return $this->success('Project Successfully Updated Or Created', $project);

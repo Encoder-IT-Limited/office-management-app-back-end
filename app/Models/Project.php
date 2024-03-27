@@ -67,6 +67,11 @@ class Project extends Model
         return $this->hasMany(ProjectNote::class, 'project_id');
     }
 
+    public function reminders()
+    {
+        return $this->hasMany(Reminder::class, 'project_id');
+    }
+
     public function scopeWithData($queries, ...$data)
     {
         if (count($data) > 0) return $queries->with($data);
