@@ -18,7 +18,10 @@ class LabelStatusController extends Controller
             'project_id' => 'sometimes|required|exists:projects,id'
         ]);
 
-        $queries = LabelStatus::filter($request);
+        $queries = LabelStatus::query();
+        if ($request->has('type')) $queries = $queries->where('type', $request->type);
+        if ($request->has('franchise')) $queries = $queries->where('franchise', $request->franchise);
+        if ($request->has('project_id')) $queries = $queries->where('project_id', $request->project_id);
 
         $labelStatus = $queries->latest()->paginate($request->per_page ?? 25);
 
@@ -30,11 +33,11 @@ class LabelStatusController extends Controller
     public function setLabelStatus(Request $request)
     {
         $this->validateWith([
-            'id'      => 'sometimes|required|exists:label_statuses,id',
-            'title'      => 'required|string',
-            'color'      => 'sometimes|required',
-            'type'       => 'required|in:label,status',
-            'franchise'  => 'required|in:project,task',
+            'id' => 'sometimes|required|exists:label_statuses,id',
+            'title' => 'required|string',
+            'color' => 'sometimes|required',
+            'type' => 'required|in:label,status',
+            'franchise' => 'required|in:project,task',
             'project_id' => 'required|exists:projects,id'
         ]);
 

@@ -24,7 +24,7 @@ class LeaveStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'sometimes|nullable|exists:users,id',
             'title' => 'required|string',
             'description' => 'required|string',
             'start_date' => 'required|date|before:end_date|after_or_equal:today',
