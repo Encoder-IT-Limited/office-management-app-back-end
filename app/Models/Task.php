@@ -26,6 +26,11 @@ class Task extends Model
         'assignee_id',
         'start_date',
         'end_date',
+        'priority',
+        'site',
+        'estimated_time',
+        'status',
+        'given_time',
     ];
 
     protected $casts = [
@@ -43,12 +48,12 @@ class Task extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
-    public function assignee()
+    public function assignee(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'assignee_id');
     }
 
-    public function labels()
+    public function labels(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(LabelStatus::class, 'statusable')->where('label_statuses.type', 'label')->withPivot(['color', 'label_status_id', 'list_order'])->withTimestamps();
     }
@@ -58,7 +63,13 @@ class Task extends Model
         return $this->morphToOne(LabelStatus::class, 'statusable')->where(['label_statuses.franchise' => 'task', 'label_statuses.type' => 'status'])->withPivot(['color', 'list_order', 'label_status_id'])->withTimestamps();
     }
 
+    public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TaskComment::class);
+    }
+
     private $userId;
+
     public function scopeFilterAccessable($queries)
     {
         $this->userId = Auth::id();

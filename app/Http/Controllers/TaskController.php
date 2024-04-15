@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TaskStoreRequest;
 use App\Models\LabelStatus;
 use App\Models\Project;
 use App\Models\Task;
+use App\Traits\ApiResponseTrait;
 use App\Traits\ProjectTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +16,7 @@ use JetBrains\PhpStorm\Deprecated;
 
 class TaskController extends Controller
 {
-    use ProjectTrait;
+    use ProjectTrait, ApiResponseTrait;
 
     public function index(Request $request)
     {
@@ -39,22 +41,11 @@ class TaskController extends Controller
         ], 200);
     }
 
-    public function store(Request $request)
+    public function store(TaskStoreRequest $request): \Illuminate\Http\JsonResponse
     {
-        $this->validateWith([
-            'id'          => 'sometimes|required|exists:tasks,id',
 
-            'title'       => 'required|string',
-            'description' => 'required|string',
-            'reference'   => 'sometimes|required|string',
-            'project_id'  => 'required|exists:projects,id',
-            'assignee_id' => 'sometimes|required|exists:users,id',
-            'start_date'  => 'sometimes|required',
-            'end_date'    => 'sometimes|required',
-
-        ]);
-
-        $taskData = $request->except('id');
+        $taskData = $request->validated();
+        unset($taskData['id'], $taskData['status'], $taskData['labels']);
         $taskData['author_id'] = Auth::id();
         $task = Task::updateOrCreate(['id' => $request->id ?? null], $taskData);
 
@@ -74,7 +65,7 @@ class TaskController extends Controller
         $task = Task::with($this->taskWith)->find($request->id ?? $task->id);
 
         return response()->json([
-            'task'    => $task
+            'task' => $task
         ], 201);
     }
 
@@ -178,14 +169,14 @@ class TaskController extends Controller
     {
         return 'Deprecated';
         $validated = $this->validateWith([
-            'id'          => 'required|exists:tasks,id',
-            'title'       => 'required|string',
+            'id' => 'required|exists:tasks,id',
+            'title' => 'required|string',
             'description' => 'required|string',
-            'reference'   => 'sometimes|required|string',
-            'project_id'  => 'required|exists:projects,id',
+            'reference' => 'sometimes|required|string',
+            'project_id' => 'required|exists:projects,id',
             'assignee_id' => 'sometimes|required|exists:users,id',
-            'start_date'  => 'required|date_format:Y-m-d H:i:s',
-            'end_date'    => 'required|date_format:Y-m-d H:i:s',
+            'start_date' => 'required|date_format:Y-m-d H:i:s',
+            'end_date' => 'required|date_format:Y-m-d H:i:s',
         ]);
 
         try {
@@ -220,7 +211,7 @@ class TaskController extends Controller
             }
             $task = Task::with($this->taskWith)->findOrFail($task->id);
             return response()->json([
-                'message'  => 'Successfully Updated',
+                'message' => 'Successfully Updated',
                 'task' => $task->refresh()
             ], 200);
         } catch (\Throwable $th) {
@@ -245,12 +236,46 @@ class TaskController extends Controller
                 })
                 ->delete();
             return response()->json([
-                '$data' =>  $data,
+                '$data' => $data,
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
-                '$th' =>  $th->getMessage(),
+                '$th' => $th->getMessage(),
             ], 200);
         }
     }
+
+    public function updateTaskStatus(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'task_id' => 'required|exists:tasks,id',
+            'status' => 'required|string|in:New,In Progress,On Hold,Completed,Testing,Issue,Canceled',
+        ]);
+
+        $task = Task::findOrFail($request->task_id);
+
+        $task->update(['status' => $request->status]);
+
+        return $this->success('Task status updated successfully', $task);
+    }
+
+    public function updateTaskPriority(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'task_id' => 'required|exists:tasks,id',
+            'priority' => 'required|string|in:Low,Medium,High,Urgent',
+        ]);
+
+        $task = Task::findOrFail($request->task_id);
+
+        $task->update(['priority' => $request->priority]);
+
+        return $this->success('Task priority updated successfully', $task);
+    }
+
+    public function getTaskComments(Task $task): \Illuminate\Http\JsonResponse
+    {
+        return $this->success('Task comments retrieved successfully', $task->comments);
+    }
+
 }

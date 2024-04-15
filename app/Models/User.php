@@ -161,7 +161,7 @@ class User extends Authenticatable
 
     public function scopeWithData($queries)
     {
-        return $queries->with('roles', 'skills','userTeams', 'todayAttendance', 'uploads');
+        return $queries->with('children', 'roles', 'skills','userTeams', 'todayAttendance', 'uploads');
     }
 
     public function scopeFilteredByPermissions($queries)

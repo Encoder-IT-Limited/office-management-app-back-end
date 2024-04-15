@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\BillableTimeController;
 use App\Http\Controllers\ProjectNoteController;
+use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\UserNoteController;
 use App\Http\Resources\UserDetailsResource;
 use App\Models\User;
@@ -54,7 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('show/{id}', [UserController::class, 'show'])->middleware('permission:show-user');
         Route::post('update', [UserController::class, 'update'])->middleware('permission:update-user');
         Route::post('status-update', [UserController::class, 'updateUserStatus'])->middleware('permission:update-user');
-        Route::delete('delete/{id}', [UserController::class, 'destroy'])->middleware('permission:delete-user');
+        Route::delete('delete/{user}', [UserController::class, 'destroy'])->middleware('permission:delete-user');
         Route::post('restore', [UserController::class, 'restore'])->middleware('permission:delete-user');
         Route::get('/details', [UserController::class, 'details']);
         Route::patch('/details', [UserController::class, 'updateOwnProfile']);
@@ -104,7 +106,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [TeamController::class, 'index'])->middleware('permission:read-project,read-my-project,read-client-project');
         Route::get('show/{id}', [TeamController::class, 'show'])->middleware('permission:read-project,read-my-project,read-client-project');
         Route::post('/', [TeamController::class, 'updateOrCreateTeam'])->middleware('permission:read-project,read-my-project,read-client-project');
-        Route::delete('/', [TeamController::class, 'destroy'])->middleware('permission:read-project,read-my-project,read-client-project');
+        Route::delete('/{id}', [TeamController::class, 'destroy'])->middleware('permission:read-project,read-my-project,read-client-project');
     });
 
     Route::prefix('tasks')->group(function () {
@@ -114,7 +116,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('reorder', [TaskController::class, 'reorderTask']);
         Route::delete('{id}', [TaskController::class, 'destroy'])->middleware('permission:delete-task');
         Route::delete('/status/{id}', [TaskController::class, 'destroyByStatus']);
+        Route::post('update/status/{task}', [TaskController::class, 'updateTaskStatus']);
+        Route::post('update/priority/{task}', [TaskController::class, 'updateTaskPriority']);
+
+        Route::get('{task}/comments', [TaskController::class, 'getTaskComments']);
     });
+
+    Route::apiResource('comments', TaskCommentController::class)->except('index', 'update');
+    Route::apiResource('billable_times', BillableTimeController::class);
 
     // Reminder ...
     Route::prefix('reminders')->group(function () {
@@ -190,5 +199,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('force-delete/project-note/{projectNote}', [ProjectNoteController::class, 'forceDelete'])->withTrashed()->middleware('permission:force-delete-project-note');
 
 
-
+    Route::get('project/{project}/contributions', [\App\Http\Controllers\PerformanceCalculatorController::class, 'projectContributions']);
 });

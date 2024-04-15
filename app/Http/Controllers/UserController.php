@@ -58,7 +58,7 @@ class UserController extends Controller
     {
         $user = auth()->user();
         if ($user->hasRole('admin')) {
-            $users = User::with('roles', 'skills', 'uploads');
+            $users = User::with('children', 'roles', 'skills', 'uploads', 'notes');
             $users->when($request->has('user_type'), function ($query) use ($request) {
                 $request->validate([
                     'user_type' => 'required|array',
@@ -102,16 +102,12 @@ class UserController extends Controller
                     $file = $request->file('document');
                     $fileName = time() . '_' . $file->getClientOriginalName();
                     $stored_path = $request->file('document')->storeAs('user/file/' . $user->id, $fileName, 'public');
-                    $user->uploads()->create([
-                        'path' => $stored_path
-                    ]);
+                    $user->uploads()->create(['path' => $stored_path]);
                 }
 
                 if ($request->has('notes')) {
                     foreach ($request->notes as $note) {
-                        $user->notes()->create([
-                            'note' => $note
-                        ]);
+                        $user->notes()->create(['note' => $note]);
                     }
                 }
             }
@@ -236,9 +232,9 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function destroy($id)
+    public function destroy(User $user): \Illuminate\Http\JsonResponse
     {
-        User::destroy($id);
+        $user->forceDelete();
 
         return response()->json([
             'message' => 'Deleted Successfully',
