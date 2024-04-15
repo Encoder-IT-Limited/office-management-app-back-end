@@ -27,10 +27,10 @@ class Task extends Model
         'start_date',
         'end_date',
         'priority',
-        'site',
+//        'site',
         'estimated_time',
         'status',
-        'given_time',
+//        'given_time',
     ];
 
     protected $casts = [

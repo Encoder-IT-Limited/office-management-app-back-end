@@ -19,7 +19,6 @@ class BillableTime extends Model
         'time_spent',
         'comment',
         'screenshot',
-        'screenshot',
         'given_time',
         'is_freelancer',
     ];

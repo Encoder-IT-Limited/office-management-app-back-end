@@ -125,6 +125,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('comments', TaskCommentController::class)->except('index', 'update');
     Route::apiResource('billable_times', BillableTimeController::class);
 
+    Route::get('billing-export', [\App\Http\Controllers\BillingExportController::class, 'export']);
+
     // Reminder ...
     Route::prefix('reminders')->group(function () {
         Route::get('/', [ReminderController::class, 'index'])->middleware('permission:read-reminder');
