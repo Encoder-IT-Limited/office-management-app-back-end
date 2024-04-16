@@ -38,7 +38,7 @@ class LabelStatusController extends Controller
             'color' => 'sometimes|required',
             'type' => 'required|in:label,status',
             'franchise' => 'required|in:project,task',
-            'project_id' => 'required|exists:projects,id'
+            'project_id' => 'sometimes|required|exists:projects,id'
         ]);
 
         $labelStatus = LabelStatus::updateOrCreate([

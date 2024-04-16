@@ -19,7 +19,11 @@ class ProjectController extends Controller
 
     public function index(Request $request)
     {
-        $queries = Project::withData()->filteredByPermissions();
+        if (auth()->user()->roles->contains('slug', 'admin')) {
+            $queries = Project::withData();
+        } else {
+            $queries = Project::withData()->filteredByPermissions();
+        }
 
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
 
@@ -43,13 +47,14 @@ class ProjectController extends Controller
                     'budget' => $request->budget,
                     'start_date' => $request->start_date,
                     'end_date' => $request->end_date,
-                    'client_id' => $request->client_id
+                    'client_id' => $request->client_id,
+                    'status_id' => $request->status_id
                 ]
             );
-            $project = Project::findOrFail($request->id ?? $project->id);
+//            $project = Project::findOrFail($request->id ?? $project->id);
 
+            $project->notes()->delete();
             if ($request->has('notes')) {
-                $project->notes()->delete();
                 foreach ($request->notes as $note) {
                     $project->notes()->create([
                         'user_id' => auth()->id(),

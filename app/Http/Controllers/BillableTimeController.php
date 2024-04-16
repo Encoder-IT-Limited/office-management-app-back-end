@@ -18,14 +18,26 @@ class BillableTimeController extends Controller
      */
     public function index(): JsonResponse
     {
-        $per_page = request('per_page') ?? 10;
-        $billableTime = BillableTime::query();
-        if (request('project_id')) {
-            $billableTime->where('project_id', \request('project_id'));
-        } elseif (request('project_id')) {
-            $billableTime->where('task_id', \request('task_id'));
+        $per_page = request('per_page', 25);
+        $billableTime = BillableTime::with(['user', 'task', 'project']);
+
+        if (request('ids')) {
+            $billableTime->whereIn('id', request('ids'));
         }
-        $data = $billableTime->with('user', 'project', 'task')->latest()->paginate($per_page);
+        if (request('by_user')) {
+            $billableTime->where('user_id', request('by_user'));
+        }
+        if (request('by_project')) {
+            $billableTime->where('project_id', request('by_project'));
+        }
+        if (request('start_date')) {
+            $billableTime->where('date', '>=', request('start_date'));
+        }
+        if (request('end_date')) {
+            $billableTime->where('date', '<=', request('end_date'));
+        }
+
+        $data = $billableTime->latest()->paginate($per_page);
 
         return $this->success('Billable time retrieved successfully', $data);
     }

@@ -105,6 +105,7 @@ class UserController extends Controller
                     $user->uploads()->create(['path' => $stored_path]);
                 }
 
+                $user->notes()->delete();
                 if ($request->has('notes')) {
                     foreach ($request->notes as $note) {
                         $user->notes()->create(['note' => $note]);
@@ -162,6 +163,7 @@ class UserController extends Controller
                 ]);
             }
 
+            $user->notes()->delete();
             if ($request->has('notes')) {
                 foreach ($request->notes as $note) {
                     $user->notes()->create([
