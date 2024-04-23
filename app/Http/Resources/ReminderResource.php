@@ -20,7 +20,7 @@ class ReminderResource extends JsonResource
             'description' => $this->description,
             'remind_at' => $this->remind_at,
             'user' => new UserListResource($this->whenLoaded('users')),
-            'project' => new ProjectListResource($this->whenLoaded('projects')),
+            'project' => new ProjectListResource($this->whenLoaded('project')),
             'created_at' => $this->created_at,
         ];
     }
