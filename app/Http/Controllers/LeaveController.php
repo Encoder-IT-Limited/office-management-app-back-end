@@ -57,6 +57,8 @@ class LeaveController extends Controller
         $data = $request->validated();
 //        $data['status'] = "new";
         $data['user_id'] = $data['user_id'] ?? auth()->id();
+        $data['status'] = $data['message'];
+        unset($data['message']);
         $leaveData = Leave::create($data);
 
         return $this->success('Successfully Added', $leaveData);
@@ -70,13 +72,16 @@ class LeaveController extends Controller
     public function update(LeaveUpdateRequest $request, Leave $leave): \Illuminate\Http\JsonResponse
     {
         abort_if(in_array($leave->message, ['accepted', 'rejected']), 403, 'Cannot Update Accepted Or Rejected Leave');
-        $leave->update($request->validated());
+        $data = $request->validated();
+        $data['status'] = $data['message'];
+        unset($data['message']);
+        $leave->update($data);
         return $this->success('Successfully Updated', $leave);
     }
 
     public function destroy(Leave $leave): \Illuminate\Http\JsonResponse
     {
-        if (!auth()->user->hasRole('admin')) {
+        if (!auth()->user()->hasRole('admin')) {
             abort_if(in_array($leave->message, ['accepted', 'rejected']), 403, 'Cannot Update Accepted Or Rejected Leave');
         }
         $leave->delete();
@@ -96,6 +101,8 @@ class LeaveController extends Controller
         if (!$data['accepted_end_date']) {
             $data['accepted_end_date'] = $leave->end_date;
         }
+        $data['status'] = $data['message'];
+        unset($data['message']);
         $leave->update($data);
 
         return $this->success('Successfully Updated', $leave);
