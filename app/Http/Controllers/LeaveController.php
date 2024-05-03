@@ -57,7 +57,7 @@ class LeaveController extends Controller
         $data = $request->validated();
 //        $data['status'] = "new";
         $data['user_id'] = $data['user_id'] ?? auth()->id();
-        $data['status'] = $data['message'];
+        if (isset($data['message'])) $data['status'] = $data['message'];
         unset($data['message']);
         $leaveData = Leave::create($data);
 

@@ -22,17 +22,9 @@ class TaskController extends Controller
     {
         $queries = Task::with($this->taskWith);
 
-        $queries->when($request->has('project_id'), function ($projectQ) use ($request) {
-            return $projectQ->where('project_id', $request->project_id);
-        });
-
-        $queries->when($request->has('author_id'), function ($authorQ) use ($request) {
-            return $authorQ->where('author_id', $request->author_id);
-        });
-
-        $queries->when($request->has('assignee_id'), function ($assigneeQ) use ($request) {
-            return $assigneeQ->where('assignee_id', $request->assignee_id);
-        });
+        if (request('project_id')) $queries->where('project_id', request('project_id'));
+        if (request('author_id')) $queries->where('author_id', request('author_id'));
+        if (request('assignee_id')) $queries->where('assignee_id', request('assignee_id'));
 
         $tasks = $queries->latest()->paginate($request->per_page ?? 25);
 
@@ -72,7 +64,7 @@ class TaskController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            return $this->failure('Something went wrong', 500);
+            return $this->failure($e->getMessage() ?? 'Something Something', 500);
         }
     }
 
