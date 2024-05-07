@@ -23,10 +23,12 @@ class Leave extends Model
         'accepted_start_date',
         'accepted_end_date',
         'user_id',
-        'message',
+        'status',
         'accepted_by',
         'last_updated_by',
     ];
+
+    protected $appends = ['message',];
 
     public function user()
     {
@@ -36,5 +38,10 @@ class Leave extends Model
     public function uploads()
     {
         return $this->morphMany(Upload::class, 'uploadable');
+    }
+
+    public function getMessageAttribute()
+    {
+        return $this->status ?? '';
     }
 }

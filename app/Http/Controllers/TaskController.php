@@ -26,17 +26,9 @@ class TaskController extends Controller
             $queries->where('assignee_id', $user->id);
         }
 
-        $queries->when($request->has('project_id'), function ($projectQ) use ($request) {
-            return $projectQ->where('project_id', $request->project_id);
-        });
-
-        $queries->when($request->has('author_id'), function ($authorQ) use ($request) {
-            return $authorQ->where('author_id', $request->author_id);
-        });
-
-        $queries->when($request->has('assignee_id'), function ($assigneeQ) use ($request) {
-            return $assigneeQ->where('assignee_id', $request->assignee_id);
-        });
+        if (request('project_id')) $queries->where('project_id', request('project_id'));
+        if (request('author_id')) $queries->where('author_id', request('author_id'));
+        if (request('assignee_id')) $queries->where('assignee_id', request('assignee_id'));
 
         $tasks = $queries->latest()->paginate($request->per_page ?? 25);
 
@@ -47,29 +39,37 @@ class TaskController extends Controller
 
     public function store(TaskStoreRequest $request): \Illuminate\Http\JsonResponse
     {
-        $taskData = $request->validated();
-        unset($taskData['id'], $taskData['status'], $taskData['labels']);
-        $taskData['author_id'] = Auth::id();
-        $task = Task::updateOrCreate(['id' => $request->id ?? null], $taskData);
+        DB::beginTransaction();
+        try {
+            $taskData = $request->validated();
+            unset($taskData['id'], $taskData['status'], $taskData['labels']);
+            $taskData['author_id'] = Auth::id();
+            $task = Task::updateOrCreate(['id' => $request->id ?? null], $taskData);
 
-        if ($request->has('status')) {
-            $this->setTaskStatus($task, $request->status);
-        } else {
-            $this->setTaskStatus($task, $task->status->title ?? null);
-        }
-
-        if ($request->has('labels')) {
-            $labelsArray = gettype($request->labels) == 'array' ? $request->labels : [$request->labels];
-            foreach ($labelsArray as $reqLabel) {
-                $this->setTaskLabel($task, $reqLabel);
+            if ($request->has('status')) {
+                $this->setTaskStatus($task, $request->status);
+            } else {
+                $this->setTaskStatus($task, $task->status->title ?? null);
             }
+
+            if ($request->has('labels')) {
+                $labelsArray = gettype($request->labels) == 'array' ? $request->labels : [$request->labels];
+                foreach ($labelsArray as $reqLabel) {
+                    $this->setTaskLabel($task, $reqLabel);
+                }
+            }
+
+            $task = Task::with($this->taskWith)->find($request->id ?? $task->id);
+
+            DB::commit();
+            return response()->json([
+                'task' => $task
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return $this->failure($e->getMessage() ?? 'Something Something', 500);
         }
-
-        $task = Task::with($this->taskWith)->find($request->id ?? $task->id);
-
-        return response()->json([
-            'task' => $task
-        ], 201);
     }
 
     public function show($id)

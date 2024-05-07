@@ -20,6 +20,7 @@ class BillingExportController extends Controller
             'format' => 'sometimes|required|in:excel,xlsx,csv',
             'by_user' => 'sometimes|required|exists:users,id',
             'by_project' => 'sometimes|required|exists:projects,id',
+            'client_id' => 'sometimes|required|exists:users,id',
             'start_date' => 'sometimes|required|date',
             'end_date' => 'sometimes|required|date',
         ]);
@@ -59,6 +60,9 @@ class BillingExportController extends Controller
         }
         if ($request->by_project) {
             $exortableData->where('project_id', $request->by_project);
+        }
+        if ($request->client_id) {
+            $exortableData->where('client_id', $request->client_id);
         }
         if ($request->start_date) {
             $exortableData->where('date', '>=', $request->start_date);

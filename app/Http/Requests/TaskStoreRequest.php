@@ -36,7 +36,7 @@ class TaskStoreRequest extends FormRequest
 
             'priority' => 'sometimes|required|string|in:Low,Medium,High,Urgent',
             'site' => 'sometimes|required|string',
-            'estimated_time' => 'sometimes|required|string',
+            'estimated_time' => 'sometimes|required|numeric',
         ];
     }
 }
