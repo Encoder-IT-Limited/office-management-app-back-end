@@ -19,10 +19,12 @@ class ProjectController extends Controller
 
     public function index(Request $request)
     {
-        if (auth()->user()->roles->contains('slug', 'admin')) {
-            $queries = Project::withData();
+        $user = auth()->user();
+        if (!$user->hasRole('admin')) {
+//        if (auth()->user()->roles->contains('slug', 'admin')) {
+            $queries = Project::with('users')->withData();
         } else {
-            $queries = Project::withData()->filteredByPermissions();
+            $queries = Project::with('users')->withData()->filteredByPermissions();
         }
 
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
@@ -61,6 +63,10 @@ class ProjectController extends Controller
                         'note' => $note
                     ]);
                 }
+            }
+
+            if ($request->has('user_ids')) {
+                $project->users()->sync($request->user_ids);
             }
 
             if ($request->has("teams")) {
@@ -123,7 +129,7 @@ class ProjectController extends Controller
                 }
             }
 
-            $project = Project::with($this->withProject)->with('notes')->find($project->id);
+            $project = Project::with($this->withProject)->with('notes', 'users')->find($project->id);
 
             if (!$request->has('id')) {
                 if (isset($data['reminders'])) {

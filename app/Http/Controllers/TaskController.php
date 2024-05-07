@@ -18,9 +18,13 @@ class TaskController extends Controller
 {
     use ProjectTrait, ApiResponseTrait;
 
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $queries = Task::with($this->taskWith);
+        $user = auth()->user();
+        if (!$user->hasRole('admin')) {
+            $queries->where('assignee_id', $user->id);
+        }
 
         $queries->when($request->has('project_id'), function ($projectQ) use ($request) {
             return $projectQ->where('project_id', $request->project_id);
@@ -43,7 +47,6 @@ class TaskController extends Controller
 
     public function store(TaskStoreRequest $request): \Illuminate\Http\JsonResponse
     {
-
         $taskData = $request->validated();
         unset($taskData['id'], $taskData['status'], $taskData['labels']);
         $taskData['author_id'] = Auth::id();

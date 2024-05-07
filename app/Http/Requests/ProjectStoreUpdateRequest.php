@@ -37,6 +37,9 @@ class ProjectStoreUpdateRequest extends FormRequest
             'teams.*.title' => 'sometimes|required',
             'teams.*.user_ids' => 'sometimes|required|array',
 
+            'user_ids' => 'sometimes|required|array',
+            'user_ids.*' => 'sometimes|required|exists:users,id',
+
             'tasks' => 'sometimes|required|array',
             'tasks.*.id' => 'sometimes|required|exists:tasks,id',
             'tasks.*.title' => 'required|string',

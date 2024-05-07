@@ -32,6 +32,12 @@ class Project extends Model
         'is_kpi_filled' => 'boolean'
     ];
 
+
+    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'project_user', 'project_id', 'user_id')->withTimestamps();
+    }
+
     public function client()
     {
         return $this->belongsTo(User::class, 'client_id');
@@ -86,7 +92,7 @@ class Project extends Model
 
     public function scopeFilteredByPermissions($queries)
     {
-        $user = User::findOrFail(Auth::id());
+        $user = auth()->user();
         if ($user->hasPermission('read-client-project')) {
             $queries->where('client_id', $user->id);
         } else if ($user->hasPermission('read-my-project')) {
@@ -99,5 +105,4 @@ class Project extends Model
 
         return $queries;
     }
-
 }
