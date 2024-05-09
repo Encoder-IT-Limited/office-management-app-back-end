@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProjectStoreUpdateRequest;
+use App\Http\Resources\ProjectCollection;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\Project;
@@ -29,9 +30,7 @@ class ProjectController extends Controller
 
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
 
-        return response()->json([
-            'projects' => $projects
-        ], 200);
+        return $this->success('Projects Retrieved Successfully', ProjectCollection::make($projects));
     }
 
     public function updateOrCreateProject(ProjectStoreUpdateRequest $request): \Illuminate\Http\JsonResponse
@@ -149,7 +148,7 @@ class ProjectController extends Controller
 
     public function show($id)
     {
-        $project = Project::with($this->withProject)->findOrFail($id);
+        $project = Project::with($this->withProject)->with('notes', 'users')->findOrFail($id);
 
         return response()->json([
             'project' => $project

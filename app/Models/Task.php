@@ -27,7 +27,7 @@ class Task extends Model
         'start_date',
         'end_date',
         'priority',
-//        'site',
+        'site',
         'estimated_time',
         'status',
 //        'given_time',
@@ -60,7 +60,10 @@ class Task extends Model
 
     public function status(): MorphToOne
     {
-        return $this->morphToOne(LabelStatus::class, 'statusable')->where(['label_statuses.franchise' => 'task', 'label_statuses.type' => 'status'])->withPivot(['color', 'list_order', 'label_status_id'])->withTimestamps();
+        return $this->morphToOne(LabelStatus::class, 'statusable')
+            ->where(['label_statuses.franchise' => 'task', 'label_statuses.type' => 'status'])
+            ->withPivot(['color', 'list_order', 'label_status_id'])
+            ->withTimestamps();
     }
 
     public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany

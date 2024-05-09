@@ -47,11 +47,11 @@ class TaskController extends Controller
             $taskData['author_id'] = Auth::id();
             $task = Task::updateOrCreate(['id' => $request->id ?? null], $taskData);
 
-//            if ($request->has('status')) {
-//                $this->setTaskStatus($task, $request->status);
-//            } else {
-//                $this->setTaskStatus($task, $task->status->title ?? null);
-//            }
+            if ($request->has('status')) {
+                $this->setTaskStatus($task, $request->status);
+            } else {
+                $this->setTaskStatus($task, $task->status->title ?? null);
+            }
 
             if ($request->has('labels')) {
                 $labelsArray = gettype($request->labels) == 'array' ? $request->labels : [$request->labels];
