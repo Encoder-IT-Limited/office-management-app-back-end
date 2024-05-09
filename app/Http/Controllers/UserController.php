@@ -151,8 +151,13 @@ class UserController extends Controller
             $user->children()->sync($request->users);
 
             if ($request->has('document')) {
-                if ($user->uploads && Storage::disk('public')->exists($user->uploads[0]->path)) {
-                    Storage::disk('public')->delete($user->uploads[0]->path);
+                // remove old images
+                if (count($user->uploads)) {
+                    $oldImages = Upload::where('uploadable_id', $user->id)->where('uploadable_type', User::class)->get();
+                    foreach ($oldImages as $oldImage) {
+                        if (Storage::disk('public')->exists($oldImage->path)) Storage::disk('public')->delete($oldImage->path);
+                        $oldImage->delete();
+                    }
                 }
 
                 $file = $request->file('document');
@@ -173,7 +178,7 @@ class UserController extends Controller
             }
 
             DB::commit();
-            $user->load('parents', 'children');
+            $user->load('parents', 'children', 'uploads');
             return $this->success('User created successfully', new UserDetailsResource($user));
         } catch (\Exception $e) {
             DB::rollBack();

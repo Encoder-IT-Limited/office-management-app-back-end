@@ -30,6 +30,7 @@ class Task extends Model
         'site',
         'estimated_time',
         'status',
+        'screenshot',
 //        'given_time',
     ];
 

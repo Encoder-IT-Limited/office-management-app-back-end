@@ -34,6 +34,8 @@ class TaskStoreRequest extends FormRequest
             'start_date' => 'sometimes|required|date_format:Y-m-d H:i:s',
             'end_date' => 'sometimes|required|date_format:Y-m-d H:i:s',
 
+            'screenshot' => 'sometimes|required|string',
+
             'priority' => 'sometimes|required|string|in:Low,Medium,High,Urgent',
             'site' => 'sometimes|required|string',
             'estimated_time' => 'sometimes|required|numeric',

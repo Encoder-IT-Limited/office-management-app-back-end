@@ -23,6 +23,7 @@ class UserDetailsResource extends JsonResource
             'status' => $this->status,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'uploads' => $this->uploads,
             'role' => $this->whenLoaded('roles', function () {
                 return $this->roles->pluck('name');
             }),

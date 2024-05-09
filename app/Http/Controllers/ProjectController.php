@@ -25,7 +25,15 @@ class ProjectController extends Controller
 //        if (auth()->user()->roles->contains('slug', 'admin')) {
             $queries = Project::with('users')->withData();
         } else {
-            $queries = Project::withData()->filteredByPermissions();
+            $queries = Project::withData();
+
+            if ($user->hasPermission('read-client-project')) {
+                $queries->where('client_id', $user->id);
+            } else if ($user->hasPermission('read-my-project')) {
+                $queries->whereHas('users', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+            }
         }
 
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
