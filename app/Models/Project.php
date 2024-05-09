@@ -33,7 +33,7 @@ class Project extends Model
     ];
 
 
-    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function users()
     {
         return $this->belongsToMany(User::class, 'project_user', 'project_id', 'user_id')->withTimestamps();
     }
@@ -82,7 +82,7 @@ class Project extends Model
     {
         if (count($data) > 0) return $queries->with($data);
         return $queries->with([
-            'client','notes', 'labels', 'status', 'tasks' => function ($data) {
+            'client', 'labels', 'status', 'tasks' => function ($data) {
                 $data->filterAccessable()->with('assignee', 'status', 'labels');
             }, 'teams' => function ($data) {
                 $data->with('teamUsers');
@@ -92,7 +92,7 @@ class Project extends Model
 
     public function scopeFilteredByPermissions($queries)
     {
-        $user = auth()->user();
+        $user = User::findOrFail(Auth::id());
         if ($user->hasPermission('read-client-project')) {
             $queries->where('client_id', $user->id);
         } else if ($user->hasPermission('read-my-project')) {
@@ -105,4 +105,5 @@ class Project extends Model
 
         return $queries;
     }
+
 }

@@ -18,7 +18,7 @@ class TaskController extends Controller
 {
     use ProjectTrait, ApiResponseTrait;
 
-    public function index(Request $request): \Illuminate\Http\JsonResponse
+    public function index(Request $request)
     {
         $queries = Task::with($this->taskWith);
         $user = auth()->user();

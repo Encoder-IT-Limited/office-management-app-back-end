@@ -24,7 +24,7 @@ class ProjectController extends Controller
 //        if (auth()->user()->roles->contains('slug', 'admin')) {
             $queries = Project::with('users')->withData();
         } else {
-            $queries = Project::with('users')->withData()->filteredByPermissions();
+            $queries = Project::withData()->filteredByPermissions();
         }
 
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
