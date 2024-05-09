@@ -33,22 +33,22 @@ class Project extends Model
     ];
 
 
-    public function users()
+    public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(User::class, 'project_user', 'project_id', 'user_id')->withTimestamps();
     }
 
-    public function client()
+    public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'client_id');
     }
 
-    public function tasks()
+    public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Task::class, 'project_id');
     }
 
-    public function teams()
+    public function teams(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Team::class, 'project_id');
     }
@@ -63,17 +63,17 @@ class Project extends Model
         return $this->hasMany(LabelStatus::class, 'project_id');
     }
 
-    public function labels()
+    public function labels(): \Illuminate\Database\Eloquent\Relations\MorphToMany
     {
         return $this->morphToMany(LabelStatus::class, 'statusable')->where('label_statuses.type', 'label')->withPivot(['color', 'label_status_id']);
     }
 
-    public function notes()
+    public function notes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ProjectNote::class, 'project_id');
     }
 
-    public function reminders()
+    public function reminders(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Reminder::class, 'project_id');
     }

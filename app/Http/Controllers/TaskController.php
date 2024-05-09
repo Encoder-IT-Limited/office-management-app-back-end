@@ -6,6 +6,7 @@ use App\Http\Requests\TaskStoreRequest;
 use App\Models\LabelStatus;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\TaskComment;
 use App\Traits\ApiResponseTrait;
 use App\Traits\ProjectTrait;
 use Illuminate\Http\Request;
@@ -42,15 +43,15 @@ class TaskController extends Controller
         DB::beginTransaction();
         try {
             $taskData = $request->validated();
-            unset($taskData['id'], $taskData['status'], $taskData['labels']);
+            unset($taskData['id'], $taskData['status'], $taskData['labels'], $taskData['comment']);
             $taskData['author_id'] = Auth::id();
             $task = Task::updateOrCreate(['id' => $request->id ?? null], $taskData);
 
-            if ($request->has('status')) {
-                $this->setTaskStatus($task, $request->status);
-            } else {
-                $this->setTaskStatus($task, $task->status->title ?? null);
-            }
+//            if ($request->has('status')) {
+//                $this->setTaskStatus($task, $request->status);
+//            } else {
+//                $this->setTaskStatus($task, $task->status->title ?? null);
+//            }
 
             if ($request->has('labels')) {
                 $labelsArray = gettype($request->labels) == 'array' ? $request->labels : [$request->labels];
@@ -59,7 +60,13 @@ class TaskController extends Controller
                 }
             }
 
-            $task = Task::with($this->taskWith)->find($request->id ?? $task->id);
+            if ($request->has('comment')) {
+                $task->comments()->create([
+                    'user_id' => auth()->id(),
+                    'comment' => $request->comment,
+                ]);
+            }
+            $task->load($this->taskWith);
 
             DB::commit();
             return response()->json([

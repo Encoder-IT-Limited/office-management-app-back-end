@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 trait TaskTrait
 {
-    public $taskWith = ['author', 'assignee', 'project', 'status', 'labels'];
+    public $taskWith = ['author', 'assignee', 'project', 'status', 'labels', 'comments'];
 
     public function setTaskStatus($task, $reqStatus = null)
     {
