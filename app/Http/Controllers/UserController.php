@@ -123,6 +123,19 @@ class UserController extends Controller
         }
     }
 
+    public function deleteDocument(User $user): \Illuminate\Http\JsonResponse
+    {
+        if (count($user->uploads)) {
+            $oldImages = Upload::where('uploadable_id', $user->id)->where('uploadable_type', User::class)->get();
+            foreach ($oldImages as $oldImage) {
+                if (Storage::disk('public')->exists($oldImage->path)) Storage::disk('public')->delete($oldImage->path);
+                $oldImage->delete();
+            }
+            return $this->success('Document deleted successfully');
+        }
+        return $this->failure('No document found', 404);
+    }
+
     public function show($id)
     {
         $user = User::findOrFail($id);

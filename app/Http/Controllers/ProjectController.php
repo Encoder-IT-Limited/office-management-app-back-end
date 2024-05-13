@@ -38,8 +38,8 @@ class ProjectController extends Controller
 
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
 
-//        return $this->success('Projects Retrieved Successfully', ProjectCollection::make($projects));
-        return $this->success('Projects Retrieved Successfully', $projects);
+        return $this->success('Projects Retrieved Successfully', ProjectCollection::make($projects));
+//        return $this->success('Projects Retrieved Successfully', $projects);
     }
 
     public function updateOrCreateProject(ProjectStoreUpdateRequest $request): \Illuminate\Http\JsonResponse

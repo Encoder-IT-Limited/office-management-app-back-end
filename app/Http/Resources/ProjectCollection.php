@@ -21,7 +21,7 @@ class ProjectCollection extends ResourceCollection
             'data' => $this->collection->transform(function ($data) {
                 return ProjectResource::make($data);
             }),
-            'meta' => $this->generateMeta(),
+            ...$this->generateMeta()
         ];
     }
 }

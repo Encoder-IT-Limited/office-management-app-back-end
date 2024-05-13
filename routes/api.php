@@ -60,6 +60,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('restore', [UserController::class, 'restore'])->middleware('permission:delete-user');
         Route::get('/details', [UserController::class, 'details']);
         Route::patch('/details', [UserController::class, 'updateOwnProfile']);
+        Route::delete('{user}/delete-document', [UserController::class, 'deleteDocument']);
     });
 
     Route::prefix('api-keys')->group(function () {
