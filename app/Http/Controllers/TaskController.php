@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskStoreRequest;
+use App\Models\BillableTime;
 use App\Models\LabelStatus;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskComment;
 use App\Traits\ApiResponseTrait;
 use App\Traits\ProjectTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -264,7 +266,26 @@ class TaskController extends Controller
 
         $task = Task::findOrFail($request->task_id);
 
+        if ($task->status === 'Completed') {
+            return $this->failure('Task is already completed', 400);
+        }
+
         $task->update(['status' => $request->status]);
+
+        if ($task->status === 'Completed') {
+            BillableTime::create([
+                'task_id' => $task->id,
+                'project_id' => $task->project_id,
+                'user_id' => $task->assignee_id,
+                'site' => $task->site,
+                'date' => $task->end_date,
+                'time_spent' => Carbon::parse($task->end_date)->diffInMinutes($task->start_date),
+                'given_time' => $request->estimated_time,
+                'comment' => '',
+                'screenshot' => '',
+                'is_freelancer' => false,
+            ]);
+        }
 
         return $this->success('Task status updated successfully', $task);
     }

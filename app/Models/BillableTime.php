@@ -44,6 +44,4 @@ class BillableTime extends Model
     {
         return $this->belongsTo(Task::class);
     }
-
-
 }
