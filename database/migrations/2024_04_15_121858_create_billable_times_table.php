@@ -16,7 +16,7 @@ class CreateBillableTimesTable extends Migration
         Schema::create('billable_times', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('task_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('task_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('site')->nullable();
             $table->dateTime('date')->nullable();

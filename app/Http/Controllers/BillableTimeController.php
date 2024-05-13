@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BillableTimeRequest;
 use App\Models\BillableTime;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\JsonResponse;
@@ -45,26 +46,12 @@ class BillableTimeController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param BillableTimeRequest $request
      * @return JsonResponse
      */
-    public function store(Request $request): JsonResponse
+    public function store(BillableTimeRequest $request): JsonResponse
     {
-        $request->validate([
-            'project_id' => 'required|exists:projects,id',
-            'task_id' => 'required|exists:tasks,id',
-            'user_id' => 'required|exists:users,id',
-            'site' => 'sometimes|required|numeric',
-            'time_spent' => 'required|numeric',
-            'date' => 'required|date_format:Y-m-d H:i:s',
-            'comment' => 'sometimes|required|string',
-            'screenshot' => 'sometimes|required|string',
-            'given_time' => 'sometimes|required|string',
-            'is_freelancer' => 'sometimes|required|boolean',
-        ]);
-
-        $billableTime = BillableTime::create($request->all());
-
+        $billableTime = BillableTime::create($request->validated());
         return $this->success('Billable time added successfully', $billableTime);
     }
 
@@ -82,27 +69,13 @@ class BillableTimeController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param Request $request
+     * @param BillableTimeRequest $request
      * @param BillableTime $billableTime
      * @return JsonResponse
      */
-    public function update(Request $request, BillableTime $billableTime): JsonResponse
+    public function update(BillableTimeRequest $request, BillableTime $billableTime): JsonResponse
     {
-        $request->validate([
-            'project_id' => 'sometimes|required|exists:projects,id',
-            'task_id' => 'sometimes|required|exists:tasks,id',
-            'user_id' => 'sometimes|required|exists:users,id',
-            'site' => 'sometimes|required|numeric',
-            'time_spent' => 'sometimes|required|numeric',
-            'date' => 'sometimes|required|date_format:Y-m-d H:i:s',
-            'comment' => 'sometimes|required|string',
-            'screenshot' => 'sometimes|required|string',
-            'given_time' => 'sometimes|required|string',
-            'is_freelancer' => 'sometimes|required|boolean',
-        ]);
-
-        $billableTime->update($request->all());
-
+        $billableTime->update($request->validated());
         return $this->success('Billable time updated successfully', $billableTime);
     }
 

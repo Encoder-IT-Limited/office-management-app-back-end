@@ -28,7 +28,11 @@ class TaskObserver
     public function updated(Task $task)
     {
         if ($task->status === 'Completed') {
-            BillableTime::create([
+            BillableTime::updateOrCreate([
+                'task_id' => $task->id,
+                'project_id' => $task->project_id,
+                'user_id' => $task->assignee_id,
+            ], [
                 'task_id' => $task->id,
                 'project_id' => $task->project_id,
                 'user_id' => $task->assignee_id,
