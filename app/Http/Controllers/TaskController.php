@@ -272,21 +272,6 @@ class TaskController extends Controller
 
         $task->update(['status' => $request->status]);
 
-        if ($task->status === 'Completed') {
-            BillableTime::create([
-                'task_id' => $task->id,
-                'project_id' => $task->project_id,
-                'user_id' => $task->assignee_id,
-                'site' => $task->site,
-                'date' => $task->end_date,
-                'time_spent' => Carbon::parse($task->end_date)->diffInMinutes($task->start_date),
-                'given_time' => $request->estimated_time,
-                'comment' => '',
-                'screenshot' => '',
-                'is_freelancer' => false,
-            ]);
-        }
-
         return $this->success('Task status updated successfully', $task);
     }
 

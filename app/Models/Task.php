@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Observers\TaskObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -38,6 +39,11 @@ class Task extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
     ];
+
+    public static function boot()
+    {
+        Task::observe(TaskObserver::class);
+    }
 
     public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
