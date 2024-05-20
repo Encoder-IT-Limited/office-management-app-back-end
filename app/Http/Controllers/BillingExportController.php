@@ -52,24 +52,12 @@ class BillingExportController extends Controller
         ];
         $exortableData = BillableTime::with(['user', 'task', 'project']);
 
-        if ($request->ids) {
-            $exortableData->whereIn('id', $request->ids);
-        }
-        if ($request->by_user) {
-            $exortableData->where('user_id', $request->by_user);
-        }
-        if ($request->by_project) {
-            $exortableData->where('project_id', $request->by_project);
-        }
-        if ($request->client_id) {
-            $exortableData->where('client_id', $request->client_id);
-        }
-        if ($request->start_date) {
-            $exortableData->where('date', '>=', $request->start_date);
-        }
-        if ($request->end_date) {
-            $exortableData->where('date', '<=', $request->end_date);
-        }
+        if ($request->ids) $exortableData->whereIn('id', $request->ids);
+        if ($request->by_user) $exortableData->where('user_id', $request->by_user);
+        if ($request->by_project) $exortableData->where('project_id', $request->by_project);
+        if ($request->client_id) $exortableData->where('client_id', $request->client_id);
+        if ($request->start_date) $exortableData->whereDate('date', '>=', $request->start_date);
+        if ($request->end_date) $exortableData->whereDate('date', '<=', $request->end_date);
 
         $exortableData = $exortableData->get();
 
