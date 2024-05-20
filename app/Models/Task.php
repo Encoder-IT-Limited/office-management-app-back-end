@@ -40,11 +40,11 @@ class Task extends Model
         'end_date' => 'datetime',
     ];
 
-    public static function boot()
+    protected static function boot()
     {
-        Task::observe(TaskObserver::class);
+        parent::boot();
+        static::observe(TaskObserver::class);
     }
-
     public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');
