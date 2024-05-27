@@ -21,7 +21,7 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        if (!$user->hasRole('admin')) {
+        if ($user->hasRole('admin')) {
 //        if (auth()->user()->roles->contains('slug', 'admin')) {
             $queries = Project::with('users')->withData();
         } else {
