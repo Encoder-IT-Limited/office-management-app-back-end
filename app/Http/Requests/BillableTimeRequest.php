@@ -27,7 +27,7 @@ class BillableTimeRequest extends FormRequest
             'project_id' => 'required|exists:projects,id',
             'task_id' => 'sometimes|required|exists:tasks,id',
             'user_id' => 'required|exists:users,id',
-            'site' => 'sometimes|required|numeric',
+            'site' => 'sometimes|required|string',
             'time_spent' => 'required|numeric',
             'date' => 'required|date_format:Y-m-d H:i:s',
             'comment' => 'sometimes|required|string',
