@@ -23,7 +23,7 @@ trait TaskTrait
             'franchise' => 'task',
             'type' => 'status',
         ], [
-            'color' => $status->color,
+            'color' => $status?->color,
         ]);
 
         $task->status()->sync([$status->id => [
