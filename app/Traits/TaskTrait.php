@@ -27,8 +27,8 @@ trait TaskTrait
         ]);
 
         $task->status()->sync([$status->id => [
-            'color' => $status->color,
-            'list_order' => $status->list_order,
+            'color' => $status?->color,
+            'list_order' => $status?->list_order,
         ]]);
 
         return $task->refresh();
