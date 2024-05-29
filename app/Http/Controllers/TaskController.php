@@ -52,7 +52,7 @@ class TaskController extends Controller
             if ($request->has('status')) {
                 $this->setTaskStatus($task, $request->status);
             } else {
-                $this->setTaskStatus($task, $task->status->title ?? null);
+//                $this->setTaskStatus($task, $task?->status?->title ?? null);
             }
 
             if ($request->has('labels')) {
