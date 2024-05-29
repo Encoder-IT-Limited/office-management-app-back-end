@@ -43,7 +43,7 @@ class TaskController extends Controller
     public function store(TaskStoreRequest $request): \Illuminate\Http\JsonResponse
     {
         DB::beginTransaction();
-//        try {
+        try {
             $taskData = $request->validated();
             unset($taskData['id'], $taskData['labels'], $taskData['comment']);
             $taskData['status'] = $taskData['status'] ?? 'New';
@@ -75,11 +75,11 @@ class TaskController extends Controller
             return response()->json([
                 'task' => $task
             ], 201);
-//        } catch (\Exception $e) {
-//            DB::rollBack();
-//            Log::error($e->getMessage());
-//            return $this->failure($e->getMessage() ?? 'Something Something', 500);
-//        }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return $this->failure($e->getMessage() ?? 'Something Something', 500);
+        }
     }
 
     public function show($id)
