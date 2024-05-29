@@ -45,14 +45,15 @@ class TaskController extends Controller
         DB::beginTransaction();
         try {
             $taskData = $request->validated();
-            unset($taskData['id'], $taskData['status'], $taskData['labels'], $taskData['comment']);
+            unset($taskData['id'], $taskData['labels'], $taskData['comment']);
+            $taskData['status'] = $taskData['status'] ?? 'New';
             $taskData['author_id'] = Auth::id();
             $task = Task::updateOrCreate(['id' => $request->id ?? null], $taskData);
 
             if ($request->has('status')) {
                 $this->setTaskStatus($task, $request->status);
             } else {
-//                $this->setTaskStatus($task, $task?->status?->title ?? null);
+                $this->setTaskStatus($task, 'Upcoming' ?? null);
             }
 
             if ($request->has('labels')) {
