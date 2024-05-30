@@ -44,63 +44,23 @@ class Handler extends ExceptionHandler
         // });
 
         $this->renderable(function (Throwable $e, $request) {
-//            if ($request->is('api/*')) {
-//                if ($e instanceof ValidationException) {
-//                    return response()->json([
-//                        'message' => $e->getMessage(),
-//                        'errors' => $e->errors()
-//                    ], 422);
-//                }
-//                elseif ($e instanceof  \Illuminate\Auth\AuthenticationException) {
-//                    return $this->unauthenticated($request, $e);
-//                }
-//                //
-//                else if ($e instanceof NotFoundHttpException && $e->getMessage() == "") {
-//                    return response()->json([
-//                        'error' => 'Resource not found'
-//                    ], 404);
-//                }
-//                //
-//                else {
-//                    return response()->json([
-//                        'error' => $e->getMessage(),
-//                    ], 500);
-//                }
-//            }
-//            return parent::render($request, $e);
-
-            $this->reportable(function (Throwable $e, $request) {
-                if ($request->is('api/*') || $request->wantsJson()) {
-                    $request->headers->set('Accept', 'application/json');
+            if ($request->is('api/*')) {
+                if ($e instanceof ValidationException) {
+                    return response()->json([
+                        'message' => $e->getMessage(),
+                        'errors' => $e->errors()
+                    ], 422);
+                } elseif ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                    return $this->unauthenticated($request, $e);
+                } //
+                else if ($e instanceof NotFoundHttpException && $e->getMessage() == "") {
+                    return $this->apiResponse($e);
+                } //
+                else {
                     return $this->apiResponse($e);
                 }
-                return parent::render($request, $e);
-            });
-            // Model Not found ...
-            $this->renderable(function (ModelNotFoundException $e, $request) {
-                if ($request->wantsJson() || $request->is('api/*')) return $this->apiResponse($e);
-                return parent::render($request, $e);
-            });
-            // 404 page not found ...
-            $this->renderable(function (NotFoundHttpException $e, $request) {
-                if ($request->wantsJson() || $request->is('api/*')) return $this->apiResponse($e);
-                return parent::render($request, $e);
-            });
-            // Authentication Error ...
-            $this->renderable(function (AuthenticationException $e, $request) {
-                if ($request->wantsJson() || $request->is('api/*')) return $this->apiResponse($e);
-                return parent::render($request, $e);
-            });
-            // Unauthorized Error ...
-            $this->renderable(function (UnauthorizedException $e, $request) {
-                if ($request->wantsJson() || $request->is('api/*')) return $this->apiResponse($e);
-                return parent::render($request, $e);
-            });
-            // Validation Error ...
-//        $this->renderable(function (ValidationException $e, $request) {
-//            if ($request->wantsJson() || $request->is('api/*')) return $this->apiResponse($e);
-//            return parent::render($request, $e);
-//        });
+            }
+            return parent::render($request, $e);
         });
     }
 
