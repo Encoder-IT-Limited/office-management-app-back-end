@@ -20,6 +20,7 @@ class ReminderController extends Controller
     {
         $reminder = Reminder::with('users', 'project')
             ->where('user_id', auth()->id())
+            ->latest()
             ->get();
         return $this->success('Success', ReminderResource::collection($reminder));
     }
