@@ -131,6 +131,8 @@ class AttendanceController extends Controller
             $queries = Attendance::with('employee')->whereHas('employee', function ($employeeQ) {
                 $employeeQ->filteredByPermissions();
             })->whereYear('check_in', '=', $this->year)
+                ->whereMonth('check_in', '=', $this->month)
+                ->whereYear('check_in', '=', $this->year)
                 ->whereMonth('check_in', '=', $this->month);
         }
 
@@ -142,9 +144,7 @@ class AttendanceController extends Controller
                 $dateQ->whereDay('check_in', '=', $request->date);
             });
         } else if ($user->hasRole('developer')) {
-            $queries = Attendance::where('employee_id', $user->id)
-                ->whereYear('check_in', '=', $this->year)
-                ->whereMonth('check_in', '=', $this->month);
+            $queries = Attendance::with('employee')->where('employee_id', $user->id);
         }
 
         $attendances = $queries->orderByDesc('check_in')->paginate($request->per_page ?? 31);
