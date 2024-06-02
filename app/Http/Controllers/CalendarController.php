@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ProjectTask;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -10,7 +10,7 @@ class CalendarController extends Controller
 {
     public function developerCalendar($id)
     {
-        $developerDates = ProjectTask::where('developer_id', $id)->get();
+        $developerDates = Task::where('developer_id', $id)->get();
 
         $developerCalendars = array();
         foreach ($developerDates as $developerDate) {
@@ -28,7 +28,7 @@ class CalendarController extends Controller
 
     public function projectCalendar($id)
     {
-        $projectDates = ProjectTask::where('project_id', $id)->get();
+        $projectDates = Task::where('project_id', $id)->get();
 
         $projectCalendars = array();
         foreach ($projectDates as $projectDate) {
@@ -44,9 +44,9 @@ class CalendarController extends Controller
         return response()->json($projectCalendars);
     }
 
-    public function calenderView()
+    public function calenderView(): \Illuminate\Http\JsonResponse
     {
-        $developerDates = User::with('projectTask', 'skills')->whereHas('roles', function ($role) {
+        $developerDates = User::with('myTodoTasks', 'skills')->whereHas('roles', function ($role) {
             return $role->where('slug', 'developer');
         })->get();
         return response()->json($developerDates);

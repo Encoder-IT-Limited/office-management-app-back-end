@@ -113,6 +113,16 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'user_users', 'user_id');
     }
 
+    public function myTodoTasks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Task::class, 'assignee_id');
+    }
+
+    public function myOwnedTasks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Task::class, 'author_id');
+    }
+
     public function scopeDelaysCount($query, $year, $month)
     {
         return $query->withCount(['attendances AS delay_count' => function ($attendance) use ($year, $month) {
