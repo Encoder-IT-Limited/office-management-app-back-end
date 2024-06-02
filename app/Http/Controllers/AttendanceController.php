@@ -43,7 +43,7 @@ class AttendanceController extends Controller
             ])->refresh();
 
             return response()->json([
-                'attendance'  => $todayAttendance->load('employee'),
+                'attendance' => $todayAttendance->load('employee'),
             ], 200);
         } else throw new Exception('You are already checked-in', 500);
     }
@@ -68,7 +68,7 @@ class AttendanceController extends Controller
             ]);
 
             return response()->json([
-                'attendance'  => $user->todayAttendance->load('employee'),
+                'attendance' => $user->todayAttendance->load('employee'),
             ], 200);
         }
         throw new Exception('You are already checked-out or not checked-in yet!', 500);
@@ -110,24 +110,31 @@ class AttendanceController extends Controller
         ], 200);
     }
 
-    public function getEmployeeAttendances(Request $request)
+    public function getEmployeeAttendances(Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $this->validateWith([
-            'year'        => 'sometimes|required',
-            'month'       => 'sometimes|required',
-            'date'        => 'sometimes|required',
+            'year' => 'sometimes|required',
+            'month' => 'sometimes|required',
+            'date' => 'sometimes|required',
             'employee_id' => 'sometimes|required|exists:users,id',
         ]);
 
         $this->year = $validated['year'] ?? $this->year;
         $this->month = $validated['month'] ?? $this->month;
 
-        $queries = Attendance::with('employee')->whereHas('employee', function ($employeeQ) {
-            $employeeQ->filteredByPermissions();
-        })->whereYear('check_in', '=', $this->year)
-            ->whereMonth('check_in', '=', $this->month);
-
         $user = User::findOrFail(Auth::id());
+        if ($user->hasRole('admin')) {
+            $queries = Attendance::with('employee')
+                ->whereYear('check_in', '=', $this->year)
+                ->whereMonth('check_in', '=', $this->month);
+        } else {
+            $queries = Attendance::with('employee')->whereHas('employee', function ($employeeQ) {
+                $employeeQ->filteredByPermissions();
+            })->whereYear('check_in', '=', $this->year)
+                ->whereMonth('check_in', '=', $this->month);
+        }
+
+
         if ($user->hasRole('admin')) {
             $queries->when($request->has('employee_id'), function ($employeeQ) use ($request) {
                 $employeeQ->where('employee_id', $request->employee_id);
@@ -154,8 +161,8 @@ class AttendanceController extends Controller
     public function getEmployeeDelays(Request $request)
     {
         $validated = $this->validateWith([
-            'month'       => 'sometimes|required',
-            'year'        => 'sometimes|required',
+            'month' => 'sometimes|required',
+            'year' => 'sometimes|required',
         ]);
 
         $this->year = $validated['year'] ?? $this->year;
