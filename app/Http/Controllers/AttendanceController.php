@@ -148,9 +148,7 @@ class AttendanceController extends Controller
                 $employeeQ->where('employee_id', $request->employee_id);
             })->when($request->has('date'), function ($dateQ) use ($request) {
                 $dateQ->whereDay('check_in', '=', $request->date);
-            })->with(['employee.breakTimes' => function ($query) {
-                $query->whereDate('start_time', Carbon::today())->latest()->first();
-            }]);
+            });
         } else if ($user->hasRole('developer')) {
             $queries = Attendance::with('employee')
                 ->where('employee_id', $user->id)

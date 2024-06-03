@@ -28,6 +28,8 @@ class AttendanceResource extends JsonResource
             'updated_at' => $this->updated_at,
             'employee' => $this->employee,
             'break_time' => $this->breakTimes,
+
+            'break_status' => $this->employee->breakTimes()->whereDate('start_time', $this->date)->whereNull('end_time')->exists(),
         ];
     }
 }
