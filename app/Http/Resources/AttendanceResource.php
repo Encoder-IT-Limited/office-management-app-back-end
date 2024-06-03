@@ -27,7 +27,7 @@ class AttendanceResource extends JsonResource
             'is_delay' => $this->isDelay,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'employee' => EmployeeResource::collection($this->whenLoaded('employee')),
+            'employee' => $this->employee,
             'break_time' => $this->breakTimes,
 
             'break_status' => $this?->employee?->breakTimes()->whereDate('start_time', Carbon::today())->whereNull('end_time')->exists(),

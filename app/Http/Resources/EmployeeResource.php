@@ -24,8 +24,6 @@ class EmployeeResource extends JsonResource
             'delay_time' => $this->delay_time,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-//            'attendance' => AttendanceResource::collection($this->whenLoaded('attendance')),
-//            'break_time' => BreaktimeResource::collection($this->whenLoaded('breakTimes')),
         ];
     }
 }
