@@ -132,11 +132,11 @@ class AttendanceController extends Controller
 
         $user = User::findOrFail(Auth::id());
         if ($user->hasRole('admin')) {
-            $queries = Attendance::with('employee')
+            $queries = Attendance::with('employee', 'employee.breakTimes')
                 ->whereYear('check_in', '=', $this->year)
                 ->whereMonth('check_in', '=', $this->month);
         } else {
-            $queries = Attendance::with('employee')->whereHas('employee', function ($employeeQ) {
+            $queries = Attendance::with('employee', 'employee.breakTimes')->whereHas('employee', function ($employeeQ) {
                 $employeeQ->filteredByPermissions();
             })->whereYear('check_in', '=', $this->year)
                 ->whereMonth('check_in', '=', $this->month);
@@ -148,9 +148,7 @@ class AttendanceController extends Controller
                 $employeeQ->where('employee_id', $request->employee_id);
             })->when($request->has('date'), function ($dateQ) use ($request) {
                 $dateQ->whereDay('check_in', '=', $request->date);
-            })->with(['employee.breakTimes' => function ($query) {
-                $query->whereDate('start_time', Carbon::today())->latest()->first();
-            }]);
+            });
         } else if ($user->hasRole('developer')) {
             $queries = Attendance::with('employee')
                 ->where('employee_id', $user->id)

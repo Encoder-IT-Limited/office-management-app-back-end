@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AttendanceResource extends JsonResource
@@ -29,7 +30,7 @@ class AttendanceResource extends JsonResource
             'employee' => $this->employee,
             'break_time' => $this->breakTimes,
 
-            'break_status' => $this->employee->breakTimes()->whereDate('start_time', $this->date)->whereNull('end_time')->exists(),
+            'break_status' => $this?->employee?->breakTimes()->whereDate('start_time', Carbon::today())->whereNull('end_time')->exists(),
         ];
     }
 }
