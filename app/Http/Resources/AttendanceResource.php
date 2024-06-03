@@ -27,7 +27,7 @@ class AttendanceResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'employee' => $this->employee,
-            'break_time' => $this->breakTime,
+            'break_time' => $this->breakTimes,
         ];
     }
 }
