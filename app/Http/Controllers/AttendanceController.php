@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AttendanceCollection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,10 +22,14 @@ class AttendanceController extends Controller
         $this->date = Carbon::today()->format('d');
     }
 
-    public function checkIn(Request $request)
+    /**
+     * @throws Exception
+     */
+    public function checkIn(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = User::findOrFail(Auth::id());
-        $checkedInAt = Carbon::now()->subMinutes(5);
+//        $checkedInAt = Carbon::now()->subMinutes(5);
+        $checkedInAt = Carbon::now();
         if ($user->hasRole('admin')) {
             if ($request->has('employee_id')) {
                 $user = User::findOrFail($request->employee_id);
@@ -48,7 +53,10 @@ class AttendanceController extends Controller
         } else throw new Exception('You are already checked-in', 500);
     }
 
-    public function checkOut(Request $request)
+    /**
+     * @throws Exception
+     */
+    public function checkOut(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = User::findOrFail(Auth::id());
         $checkedOutAt = Carbon::now();
@@ -143,19 +151,22 @@ class AttendanceController extends Controller
             });
         } else if ($user->hasRole('developer')) {
             $queries = Attendance::with('employee')
+                ->with(['breakTime' => function ($query) {
+                    $query->whereDate('start_time', Carbon::today())->latest()->first();
+                }])
                 ->where('employee_id', $user->id)
                 ->whereYear('check_in', '=', $this->year)
-                ->whereMonth('check_in', '=', $this->month);;
+                ->whereMonth('check_in', '=', $this->month);
         }
 
         $attendances = $queries->orderByDesc('check_in')->paginate($request->per_page ?? 31);
 
         return response()->json([
-            'attendance' => $attendances
+            'attendance' => AttendanceCollection::make($attendances)
         ], 200);
     }
 
-    public function deleteAttendances($id)
+    public function deleteAttendances($id): \Illuminate\Http\JsonResponse
     {
         Attendance::destroy($id);
         return response()->json([
