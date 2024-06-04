@@ -33,7 +33,7 @@ class BillableTimeRequest extends FormRequest
             'date' => 'required|date_format:Y-m-d H:i:s',
             'comment' => 'sometimes|required|string',
             'screenshot' => 'sometimes|required|string',
-            'given_time' => 'sometimes|required|number',
+            'given_time' => 'sometimes|required|numeric',
             'is_freelancer' => 'sometimes|required|boolean',
         ];
     }
