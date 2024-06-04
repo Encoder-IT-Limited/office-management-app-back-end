@@ -29,7 +29,7 @@ class BillableTimeController extends Controller
                 '%given_time',
                 '%comment',
                 'user|%name,%email,%phone,%designation',
-                'project|%name,%budget,%message',
+                'project|%name,%budget',
                 'task|%title,%description,%reference,%priority,%site,%estimated_time,%status',
             ]);
         }
