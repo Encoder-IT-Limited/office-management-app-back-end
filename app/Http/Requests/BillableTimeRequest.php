@@ -21,7 +21,7 @@ class BillableTimeRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'project_id' => 'required|exists:projects,id',
