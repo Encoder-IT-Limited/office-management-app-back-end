@@ -22,6 +22,18 @@ class BillableTimeController extends Controller
         $per_page = request('per_page', 25);
         $billableTime = BillableTime::with(['user', 'task', 'project']);
 
+        if (\request('search_query')) {
+            $billableTime->search(\request('search_query'), [
+                '%site',
+                '%time_spent',
+                '%given_time',
+                '%comment',
+                'user|%name,%email,%phone,%designation',
+                'project|%name,%budget,%message',
+                'task|%title,%description,%reference,%priority,%site,%estimated_time,%status',
+            ]);
+        }
+
         if (request('ids')) {
             $billableTime->whereIn('id', request('ids'));
         }
