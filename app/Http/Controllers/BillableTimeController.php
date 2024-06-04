@@ -25,6 +25,7 @@ class BillableTimeController extends Controller
         if (\request('search_query')) {
             $billableTime->search(\request('search_query'), [
                 '%site',
+                '%task',
                 '%time_spent',
                 '%given_time',
                 '%comment',

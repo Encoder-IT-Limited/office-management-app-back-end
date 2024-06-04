@@ -15,6 +15,7 @@ class BillableTime extends Model
         'user_id',
         'project_id',
         'task_id',
+        'task',
         'site',
         'date',
         'time_spent',
