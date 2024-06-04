@@ -30,6 +30,7 @@ class UserStoreRequest extends FormRequest
             'password' => 'required|confirmed',
             'designation' => 'sometimes|required|string',
             'role_id' => 'required|exists:roles,id',
+            'delay_time' => 'sometimes|required',
             'skills.*.skill_id' => 'sometimes|required|exists:skills,id',
             'skills.*.experience' => 'sometimes|required|max:10',
             'users[]' => 'sometimes|nullable|array',
