@@ -173,6 +173,10 @@ class AttendanceController extends Controller
 
     public function getEmployeeDelays(Request $request)
     {
+        $user = auth()->user();
+        abort_if(!($user->hasPermission('read-client-user') || $user->hasPermission('read-my-user')),
+            403,
+            'You are not allowed to access this resource!');
         $validated = $this->validateWith([
             'month' => 'sometimes|required',
             'year' => 'sometimes|required',
@@ -181,7 +185,8 @@ class AttendanceController extends Controller
         $this->year = $validated['year'] ?? $this->year;
         $this->month = $validated['month'] ?? $this->month;
 
-        $employees = User::filteredByPermissions()->delaysCount($this->year, $this->month)->onlyDeveloper()->paginate($request->per_page ?? 20);
+//        $employees = User::filteredByPermissions()->delaysCount($this->year, $this->month)->onlyDeveloper()->paginate($request->per_page ?? 20);
+        $employees = User::delaysCount($this->year, $this->month)->onlyDeveloper()->paginate($request->per_page ?? 20);
 
         return response()->json([
             'employees' => $employees ?? []

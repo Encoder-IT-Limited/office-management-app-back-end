@@ -176,7 +176,7 @@ class User extends Authenticatable
 
     public function scopeFilteredByPermissions($queries)
     {
-        $user = User::findOrFail(Auth::id());
+        $user = auth()->user();
 
         if ($user->hasPermission('read-client-user')) {
             $queries->whereHas('userTeams', function ($teamQ) use ($user) {
