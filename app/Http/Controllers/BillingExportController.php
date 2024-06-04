@@ -50,7 +50,7 @@ class BillingExportController extends Controller
             'Screenshot',
             'Created At',
         ];
-        $exortableData = BillableTime::with(['user', 'task', 'project']);
+        $exortableData = BillableTime::with(['user', 'project']);
 
         if (\request('search_query')) {
             $exortableData->search(\request('search_query'), [
@@ -60,7 +60,7 @@ class BillingExportController extends Controller
                 '%comment',
                 'user|%name,%email,%phone,%designation',
                 'project|%name,%budget',
-                'task|%title,%description,%reference,%priority,%site,%estimated_time,%status',
+//                'task|%title,%description,%reference,%priority,%site,%estimated_time,%status',
             ]);
         }
 
