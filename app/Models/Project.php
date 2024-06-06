@@ -9,10 +9,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Fidum\EloquentMorphToOne\MorphToOne;
 use Fidum\EloquentMorphToOne\HasMorphToOne;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Project extends Model
 {
     use HasFactory, HasMorphToOne, SoftDeletes;
+    use LogsActivity;
 
     protected $table = 'projects';
 
@@ -32,6 +35,14 @@ class Project extends Model
         'is_kpi_filled' => 'boolean'
     ];
 
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([...self::getFillable()])
+            ->logOnlyDirty();
+        // Chain fluent methods for configuration options
+    }
 
     public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {

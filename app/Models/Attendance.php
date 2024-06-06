@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use DateTimeInterface;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Attendance extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     private $checkedIn = '08:30:00';
 
@@ -24,18 +27,26 @@ class Attendance extends Model
     ];
 
     protected $casts = [
-        'check_in'   => 'datetime',
-        'check_out'  => 'datetime',
-        'delay_time'  => 'datetime',
-        'created_at'  => 'datetime',
-        'updated_at'  => 'datetime',
-        'deleted_at'  => 'datetime',
-        'is_delay'   => 'boolean',
+        'check_in' => 'datetime',
+        'check_out' => 'datetime',
+        'delay_time' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+        'is_delay' => 'boolean',
         'duration' => 'datetime:H:i',
         'break_time' => 'datetime:H:i',
     ];
 
     protected $appends = ['duration', 'is_delay', 'break_time'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([...self::getFillable()])
+            ->logOnlyDirty();
+        // Chain fluent methods for configuration options
+    }
 
     public function employee()
     {

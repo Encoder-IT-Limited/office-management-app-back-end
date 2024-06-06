@@ -5,13 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class LabelStatus extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     protected $table = 'label_statuses';
     protected $fillable = ['title', 'type', 'franchise', 'project_id', 'color'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([...self::getFillable()])
+            ->logOnlyDirty();
+        // Chain fluent methods for configuration options
+    }
 
     public function tasks()
     {
@@ -68,7 +79,8 @@ class LabelStatus extends Model
         return $query->where('title', $title);
     }
 
-    public function scopeFilter($queries, $request){
+    public function scopeFilter($queries, $request)
+    {
         return $queries->when($request->has('type'), function ($query) use ($request) {
             $query->where('type', $request->type);
         })->when($request->has('project_id'), function ($query) use ($request) {
