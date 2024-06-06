@@ -14,7 +14,7 @@ class ActivityLogController extends Controller
      */
     public function index(): \Illuminate\Http\JsonResponse
     {
-        $activity = Activity::latest()->paginate(20);
+        $activity = Activity::with('causer')->latest()->paginate(20);
         return $this->success('Activity Log Retrieved Successfully', $activity);
     }
 
