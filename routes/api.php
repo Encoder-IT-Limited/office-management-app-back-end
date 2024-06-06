@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BillableTimeController;
 use App\Http\Controllers\ProjectNoteController;
 use App\Http\Controllers\TaskCommentController;
@@ -190,6 +191,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('restore/project-note/{projectNote}', [ProjectNoteController::class, 'restore'])->withTrashed()->middleware('permission:restore-project-note');
     Route::delete('force-delete/project-note/{projectNote}', [ProjectNoteController::class, 'forceDelete'])->withTrashed()->middleware('permission:force-delete-project-note');
 
+
+
+    Route::get("activity-log", [ActivityLogController::class, 'index']);
 
     Route::get('project/{project}/contributions', [\App\Http\Controllers\PerformanceCalculatorController::class, 'projectContributions']);
 });
