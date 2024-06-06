@@ -9,12 +9,20 @@ use Illuminate\Http\Request;
 class ActivityLogController extends Controller
 {
     use ApiResponseTrait;
+
     /**
      * Display a listing of the resource.
      */
     public function index(): \Illuminate\Http\JsonResponse
     {
-        $activity = ActivityLog::with('causer')->latest()->paginate(20);
+        $activity = ActivityLog::with('causer');
+        if (request('user_id')) {
+            $activity = $activity->where('causer_id', request('user_id'));
+        }
+        if (request('log_name')) {
+            $activity = $activity->where('log_name', request('log_name'));
+        }
+        $activity = $activity->latest()->paginate(20);
         return $this->success('Activity Log Retrieved Successfully', $activity);
     }
 
