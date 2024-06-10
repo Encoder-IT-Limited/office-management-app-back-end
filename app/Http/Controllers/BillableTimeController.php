@@ -43,7 +43,11 @@ class BillableTimeController extends Controller
                 $billableTime->whereIn('user_id', request('by_user'));
             }
         } else if (auth()->user()->hasRole('developer') && !empty(auth()->user()->children)) {
-            $billableTime->whereIn('user_id', auth()->user()->children->pluck('id'));
+            if (request('by_user')) {
+                $billableTime->whereIn('user_id', [auth()->id(), ...auth()->user()->children->pluck('id')->toArray()]);
+            } else {
+                $billableTime->where('user_id', auth()->id());
+            }
         } else {
             $billableTime->where('user_id', auth()->id());
         }
