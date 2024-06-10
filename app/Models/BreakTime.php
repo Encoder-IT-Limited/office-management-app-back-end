@@ -5,18 +5,29 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class BreakTime extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     protected $fillable = ['start_time', 'end_time', 'reason', 'employee_id'];
 
     protected $casts = [
-        'start_time'   => 'datetime',
-        'end_time'  => 'datetime',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
         'duration' => 'datetime:"H:i"',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([...self::getFillable()])
+            ->logOnlyDirty();
+        // Chain fluent methods for configuration options
+    }
 
     protected $appends = ['duration'];
 
@@ -28,7 +39,7 @@ class BreakTime extends Model
     public function getDurationAttribute()
     {
         $breakEnd = Carbon::parse($this->end_time) ?? Carbon::now();
-        return gmdate("H:i",  Carbon::parse($this->start_time)->diffInSeconds($breakEnd));
+        return gmdate("H:i", Carbon::parse($this->start_time)->diffInSeconds($breakEnd));
     }
 
     public function scopeBreakFilter($query, $year, $month, $date)

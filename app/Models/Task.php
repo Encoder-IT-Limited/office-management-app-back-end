@@ -10,10 +10,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Fidum\EloquentMorphToOne\MorphToOne;
 use Fidum\EloquentMorphToOne\HasMorphToOne;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Task extends Model
 {
     use HasFactory, HasMorphToOne, SoftDeletes;
+    use LogsActivity;
 
 
     protected $table = 'tasks';
@@ -40,11 +43,20 @@ class Task extends Model
         'end_date' => 'datetime',
     ];
 
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([...self::getFillable()])
+            ->logOnlyDirty();
+        // Chain fluent methods for configuration options
+    }
+
     protected static function boot()
     {
         parent::boot();
         static::observe(TaskObserver::class);
     }
+
     public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');

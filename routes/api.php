@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\BillableTimeController;
 use App\Http\Controllers\ProjectNoteController;
 use App\Http\Controllers\TaskCommentController;
@@ -22,17 +23,6 @@ use App\Http\Controllers\SkillController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UserController;
-
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
 
 Route::post('login', [AuthController::class, 'login']);
 
@@ -201,6 +191,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('restore/project-note/{projectNote}', [ProjectNoteController::class, 'restore'])->withTrashed()->middleware('permission:restore-project-note');
     Route::delete('force-delete/project-note/{projectNote}', [ProjectNoteController::class, 'forceDelete'])->withTrashed()->middleware('permission:force-delete-project-note');
 
+
+
+    Route::get("activity-log", [ActivityLogController::class, 'index']);
 
     Route::get('project/{project}/contributions', [\App\Http\Controllers\PerformanceCalculatorController::class, 'projectContributions']);
 });

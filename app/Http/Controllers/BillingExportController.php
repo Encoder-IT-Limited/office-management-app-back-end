@@ -50,7 +50,19 @@ class BillingExportController extends Controller
             'Screenshot',
             'Created At',
         ];
-        $exortableData = BillableTime::with(['user', 'task', 'project']);
+        $exortableData = BillableTime::with(['user', 'project']);
+
+        if (\request('search_query')) {
+            $exortableData->search(\request('search_query'), [
+                '%site',
+                '%time_spent',
+                '%given_time',
+                '%comment',
+                'user|%name,%email,%phone,%designation',
+                'project|%name,%budget',
+//                'task|%title,%description,%reference,%priority,%site,%estimated_time,%status',
+            ]);
+        }
 
         if ($request->ids) $exortableData->whereIn('id', $request->ids);
         if ($request->by_user) $exortableData->where('user_id', $request->by_user);

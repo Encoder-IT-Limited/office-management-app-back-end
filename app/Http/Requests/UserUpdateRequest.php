@@ -30,6 +30,7 @@ class UserUpdateRequest extends FormRequest
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:11',
             'designation' => 'sometimes|required',
             'password' => 'sometimes|required|confirmed',
+            'delay_time' => 'sometimes|required',
             'role_id' => 'required|exists:roles,id',
             'skills.*.skill_id' => 'sometimes|required|exists:skills,id',
             'skills.*.experience' => 'sometimes|required|max:10',

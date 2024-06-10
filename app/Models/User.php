@@ -11,10 +11,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\HasPermissionsTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasPermissionsTrait;
+    use LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -51,6 +54,14 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([...self::getFillable()])
+            ->logOnlyDirty();
+        // Chain fluent methods for configuration options
+    }
 
     public function roles()
     {
@@ -176,7 +187,7 @@ class User extends Authenticatable
 
     public function scopeFilteredByPermissions($queries)
     {
-        $user = User::findOrFail(Auth::id());
+        $user = auth()->user();
 
         if ($user->hasPermission('read-client-user')) {
             $queries->whereHas('userTeams', function ($teamQ) use ($user) {

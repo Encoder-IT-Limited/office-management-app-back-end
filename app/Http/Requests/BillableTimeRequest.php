@@ -21,18 +21,19 @@ class BillableTimeRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'project_id' => 'required|exists:projects,id',
             'task_id' => 'sometimes|required|exists:tasks,id',
             'user_id' => 'required|exists:users,id',
+            'task' => 'sometimes|required|string',
             'site' => 'sometimes|required|string',
             'time_spent' => 'required|numeric',
             'date' => 'required|date_format:Y-m-d H:i:s',
             'comment' => 'sometimes|required|string',
             'screenshot' => 'sometimes|required|string',
-            'given_time' => 'sometimes|required|string',
+            'given_time' => 'sometimes|required|numeric',
             'is_freelancer' => 'sometimes|required|boolean',
         ];
     }
