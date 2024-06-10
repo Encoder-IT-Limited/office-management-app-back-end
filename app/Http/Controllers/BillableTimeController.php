@@ -26,10 +26,10 @@ class BillableTimeController extends Controller
             $billableTime->whereIn('id', request('ids'));
         }
         if (request('by_user')) {
-            $billableTime->where('user_id', request('by_user'));
+            $billableTime->whereIn('user_id', request('by_user'));
         }
         if (request('by_project')) {
-            $billableTime->where('project_id', request('by_project'));
+            $billableTime->whereIn('project_id', request('by_project'));
         }
         if (request('start_date')) {
             $billableTime->where('date', '>=', request('start_date'));
