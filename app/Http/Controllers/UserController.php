@@ -31,7 +31,7 @@ class UserController extends Controller
         $this->date = Carbon::today()->format('d');
     }
 
-    public function indexOld(Request $request)
+    public function indexOld(Request $request): \Illuminate\Http\JsonResponse
     {
         $queries = User::filteredByPermissions()->withData()->where('status', 'active')->withTrashed();
 
@@ -54,7 +54,7 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = auth()->user();
         if ($user->hasRole('admin')) {
@@ -136,7 +136,7 @@ class UserController extends Controller
         return $this->failure('No document found', 404);
     }
 
-    public function show($id)
+    public function show($id): \Illuminate\Http\JsonResponse
     {
         $user = User::findOrFail($id);
         $user->load('parents', 'children');
@@ -200,7 +200,7 @@ class UserController extends Controller
         }
     }
 
-    public function updateOwnProfile(Request $request)
+    public function updateOwnProfile(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = Auth::user();
         $validator = Validator::make($request->all(), [
@@ -261,7 +261,7 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function updateUserStatus(Request $request)
+    public function updateUserStatus(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -276,7 +276,7 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function restore(Request $request)
+    public function restore(Request $request): \Illuminate\Http\JsonResponse
     {
         User::withTrashed()->find($request->id)->restore();
 
@@ -285,7 +285,7 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function details()
+    public function details(): \Illuminate\Http\JsonResponse
     {
         $user = User::with(['apiKeys', 'roles' => function ($role) {
             $role->with('permissions');
