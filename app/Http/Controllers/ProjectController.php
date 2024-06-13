@@ -44,7 +44,7 @@ class ProjectController extends Controller
 
         if ($request->has('status_id')) {
             $queries->with('status', function ($query) use ($request) {
-                $query->where('id', $request->status_id);
+                $query->where('label_statuses.id', $request->status_id);
             });
         }
 
