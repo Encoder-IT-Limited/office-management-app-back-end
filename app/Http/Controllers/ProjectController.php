@@ -36,12 +36,12 @@ class ProjectController extends Controller
             }
         }
 
-        if ($request->has('search_query')) {
-            $queries->search($request->search_query, [
-                '%name',
-            ]);
-        }
-
+//        if ($request->has('search_query')) {
+//            $queries->search($request->search_query, [
+//                '%name',
+//            ]);
+//        }
+//
 //        if ($request->status_id) {
 //            $queries->whereHas('status', function ($query) use ($request) {
 //                $query->where('label_statuses.id', $request->status_id);
