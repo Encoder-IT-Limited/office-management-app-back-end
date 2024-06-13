@@ -52,7 +52,7 @@ class ProjectStoreUpdateRequest extends FormRequest
             'tasks.*.labels' => 'sometimes|required|array',
 
             'notes' => 'sometimes|required|array',
-            'notes.*' => 'required|string',
+            'notes.*' => 'sometimes|required|string',
 
             'reminders' => 'sometimes|required|array',
             'reminders.*.user_id' => 'sometimes|required|exists:users,id',

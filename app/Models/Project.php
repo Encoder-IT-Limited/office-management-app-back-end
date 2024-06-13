@@ -9,13 +9,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Fidum\EloquentMorphToOne\MorphToOne;
 use Fidum\EloquentMorphToOne\HasMorphToOne;
 use Illuminate\Support\Facades\Auth;
+use NahidFerdous\Searchable\Searchable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Project extends Model
 {
     use HasFactory, HasMorphToOne, SoftDeletes;
-    use LogsActivity;
+    use LogsActivity, Searchable;
 
     protected $table = 'projects';
 

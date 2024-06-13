@@ -43,6 +43,36 @@ class BillableTime extends Model
         // Chain fluent methods for configuration options
     }
 
+    public function getGivenTimeAttribute($value): array
+    {
+        $hours = explode(':', $value)[0];
+        $minutes = explode(':', $value)[1];
+        return [
+            'hours' => $hours,
+            'minutes' => $minutes,
+        ];
+    }
+
+    public function setGivenTimeAttribute($value): void
+    {
+        $this->attributes['given_time'] = $value['hours'] . ':' . $value['minutes'];
+    }
+
+    public function getTimeSpentAttribute($value): array
+    {
+        $hours = explode(':', $value)[0];
+        $minutes = explode(':', $value)[1];
+        return [
+            'hours' => $hours,
+            'minutes' => $minutes,
+        ];
+    }
+
+    public function setTimeSpentAttribute($value): void
+    {
+        $this->attributes['time_spent'] = $value['hours'] . ':' . $value['minutes'];
+    }
+
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);

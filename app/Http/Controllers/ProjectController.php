@@ -36,6 +36,19 @@ class ProjectController extends Controller
             }
         }
 
+        if ($request->has('search_query')) {
+            $queries->search($request->search_query, [
+                '%name',
+            ]);
+        }
+
+        if ($request->has('status_id')) {
+            $queries->search($request->status_id, [
+                'status|id',
+            ]);
+        }
+
+
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
 
         return $this->success('Projects Retrieved Successfully', ProjectCollection::make($projects));

@@ -74,7 +74,20 @@ class BillableTimeController extends Controller
      */
     public function store(BillableTimeRequest $request): JsonResponse
     {
-        $billableTime = BillableTime::create($request->validated());
+        $data = $request->validated();
+//        if (isset($data['time_spent']['hours']) && isset($data['time_spent']['minutes'])) {
+//            $data['time_spent'] = $data['time_spent']['hours'] + $data['time_spent']['minutes'];
+//        } else {
+//            $data['time_spent'] = 0;
+//        }
+//
+//        if (isset($data['given_time']['hours']) && isset($data['given_time']['minutes'])) {
+//            $data['given_time'] = $data['given_time']['hours'] + $data['given_time']['minutes'];
+//        } else {
+//            $data['given_time'] = 0;
+//        }
+
+        $billableTime = BillableTime::create($data);
         return $this->success('Billable time added successfully', $billableTime);
     }
 
