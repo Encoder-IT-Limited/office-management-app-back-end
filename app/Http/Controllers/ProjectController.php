@@ -42,7 +42,7 @@ class ProjectController extends Controller
             ]);
         }
 
-        if ($request->has('status_id')) {
+        if ($request->status_id) {
             $queries->whereHas('status', function ($query) use ($request) {
                 $query->where('label_statuses.id', $request->status_id);
             });
