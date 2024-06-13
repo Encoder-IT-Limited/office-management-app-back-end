@@ -79,10 +79,12 @@ class ProjectController extends Controller
             $project->notes()->delete();
             if ($request->has('notes')) {
                 foreach ($request->notes as $note) {
-                    $project->notes()->create([
-                        'user_id' => auth()->id(),
-                        'note' => $note
-                    ]);
+                    if ($note) {
+                        $project->notes()->create([
+                            'user_id' => auth()->id(),
+                            'note' => $note
+                        ]);
+                    }
                 }
             }
 
