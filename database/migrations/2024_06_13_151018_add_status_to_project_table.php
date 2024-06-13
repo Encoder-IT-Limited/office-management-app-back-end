@@ -15,7 +15,7 @@ class AddStatusToProjectTable extends Migration
     {
         Schema::table('projects', function (Blueprint $table) {
             $table->foreignId('status_id')->nullable()->constrained('label_statuses')->onDelete('set null');
-            $table->string('status')->default(\App\Enums\ProjectStatusEnum::UpComing)->after('client_id');
+            $table->string('status')->default(\App\Enums\ProjectStatusEnum::UpComing->value)->after('client_id');
         });
     }
 
