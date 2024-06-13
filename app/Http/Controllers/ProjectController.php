@@ -42,11 +42,11 @@ class ProjectController extends Controller
             ]);
         }
 
-        if ($request->status_id) {
-            $queries->whereHas('status', function ($query) use ($request) {
-                $query->where('label_statuses.id', $request->status_id);
-            });
-        }
+//        if ($request->status_id) {
+//            $queries->whereHas('status', function ($query) use ($request) {
+//                $query->where('label_statuses.id', $request->status_id);
+//            });
+//        }
 
 
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
