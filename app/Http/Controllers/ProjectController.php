@@ -43,9 +43,7 @@ class ProjectController extends Controller
         }
 
         if ($request->has('status_id')) {
-            $queries->search($request->status_id, [
-                'status|id',
-            ]);
+            $queries->whereRelation('status', 'id', $request->status_id);
         }
 
 
