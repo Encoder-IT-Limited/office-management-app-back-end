@@ -45,12 +45,16 @@ class BillableTime extends Model
 
     public function getGivenTimeAttribute($value): array
     {
-        $hours = explode(':', $value)[0];
-        $minutes = explode(':', $value)[1];
-        return [
-            'hours' => $hours,
-            'minutes' => $minutes,
-        ];
+        if (!$value) return ['hours' => 0, 'minutes' => 0];
+        if (str_contains($value, ':')) {
+            $hours = explode(':', $value)[0];
+            $minutes = explode(':', $value)[1];
+            return [
+                'hours' => $hours,
+                'minutes' => $minutes,
+            ];
+        }
+        return ['hours' => 0, 'minutes' => 0];
     }
 
     public function setGivenTimeAttribute($value): void
@@ -60,12 +64,16 @@ class BillableTime extends Model
 
     public function getTimeSpentAttribute($value): array
     {
-        $hours = explode(':', $value)[0];
-        $minutes = explode(':', $value)[1];
-        return [
-            'hours' => $hours,
-            'minutes' => $minutes,
-        ];
+        if (!$value) return ['hours' => 0, 'minutes' => 0];
+        if (str_contains($value, ':')) {
+            $hours = explode(':', $value)[0];
+            $minutes = explode(':', $value)[1];
+            return [
+                'hours' => $hours,
+                'minutes' => $minutes,
+            ];
+        }
+        return ['hours' => 0, 'minutes' => 0];
     }
 
     public function setTimeSpentAttribute($value): void
