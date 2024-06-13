@@ -43,7 +43,9 @@ class ProjectController extends Controller
         }
 
         if ($request->has('status_id')) {
-            $queries->whereRelation('taskStatuses', 'id', $request->status_id);
+            $queries->whereHas('status', function ($query) use ($request) {
+                $query->where('id', $request->status_id);
+            });
         }
 
 
