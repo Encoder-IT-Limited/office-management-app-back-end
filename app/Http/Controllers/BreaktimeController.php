@@ -36,17 +36,21 @@ class BreaktimeController extends Controller
         ]);
 
         return response()->json([
-            'break'  => $break->load('employee'),
+            'break' => $break->load('employee'),
         ], 200);
     }
 
     public function endingBreak(Request $request)
     {
         $user = User::findOrFail(Auth::id());
-        $user->breakTimes()->whereNull('end_time')->update(['end_time' => Carbon::now()]);
+        $user->breakTimes()
+            ->whereNull('end_time')
+            ->update([
+                'end_time' => Carbon::now()
+            ]);
 
         return response()->json([
-            'break'  => $user->breakTimes()->latest()->first()->load('employee'),
+            'break' => $user->breakTimes()->latest()->first()->load('employee'),
         ], 200);
     }
 
@@ -72,9 +76,9 @@ class BreaktimeController extends Controller
     public function getEmployeeBreaks(Request $request)
     {
         $validated = $this->validateWith([
-            'year'        => 'sometimes|required',
-            'month'       => 'sometimes|required',
-            'date'        => 'sometimes|required',
+            'year' => 'sometimes|required',
+            'month' => 'sometimes|required',
+            'date' => 'sometimes|required',
             'employee_id' => 'sometimes|required|exists:users,id',
         ]);
 
@@ -95,7 +99,7 @@ class BreaktimeController extends Controller
         $employees->getCollection()->transform(function ($employee) {
             $employee = $employee->toArray();
             if ($employee['break_count'] > 0) {
-                $employee['break_time_duration'] = (int) $employee['break_times'][0]['break_duration'];
+                $employee['break_time_duration'] = (int)$employee['break_times'][0]['break_duration'];
             } else {
                 $employee['break_time_duration'] = 0;
             }
@@ -111,9 +115,9 @@ class BreaktimeController extends Controller
     public function getEmployeeBreakDetails(Request $request)
     {
         $validated = $this->validateWith([
-            'year'        => 'required',
-            'month'       => 'required',
-            'date'        => 'required',
+            'year' => 'required',
+            'month' => 'required',
+            'date' => 'required',
             'employee_id' => 'required|exists:users,id',
         ]);
 
@@ -136,6 +140,7 @@ class BreaktimeController extends Controller
             'breaks' => $breaks
         ], 200);
     }
+
     public function deleteBreakTime($id)
     {
         BreakTime::destroy($id);

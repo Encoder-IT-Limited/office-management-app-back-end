@@ -72,7 +72,9 @@ class Attendance extends Model
 
     public function getBreakTimeAttribute()
     {
-        $breakTimes = BreakTime::where('employee_id', $this->employee_id)->whereDate('start_time', Carbon::parse($this->check_in))->get();
+        $breakTimes = BreakTime::where('employee_id', $this->employee_id)
+            ->whereDate('start_time', Carbon::parse($this->check_in)->format('Y-m-d'))
+            ->get();
         $breakTimeDuration = 0;
         foreach ($breakTimes as $break) {
             $breakEnd = Carbon::parse($break->end_time) ?? Carbon::now();
