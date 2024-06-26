@@ -36,17 +36,17 @@ class ProjectController extends Controller
             }
         }
 
-//        if ($request->has('search_query')) {
-//            $queries->search($request->search_query, [
-//                '%name',
-//            ]);
-//        }
-//
-//        if ($request->status_id) {
-//            $queries->whereHas('status', function ($query) use ($request) {
-//                $query->where('label_statuses.id', $request->status_id);
-//            });
-//        }
+        if ($request->has('search_query')) {
+            $queries->search($request->search_query, [
+                '%name',
+            ]);
+        }
+
+        if ($request->status_id) {
+            $queries->whereHas('status', function ($query) use ($request) {
+                $query->where('label_statuses.id', $request->status_id);
+            });
+        }
 
 
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
@@ -55,7 +55,8 @@ class ProjectController extends Controller
 //        return $this->success('Projects Retrieved Successfully', $projects);
     }
 
-    public function updateOrCreateProject(ProjectStoreUpdateRequest $request): \Illuminate\Http\JsonResponse
+    public
+    function updateOrCreateProject(ProjectStoreUpdateRequest $request): \Illuminate\Http\JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -170,7 +171,8 @@ class ProjectController extends Controller
         }
     }
 
-    public function show($id)
+    public
+    function show($id)
     {
         $project = Project::with($this->withProject)->with('notes', 'users')->findOrFail($id);
 
@@ -179,7 +181,8 @@ class ProjectController extends Controller
         ], 200);
     }
 
-    public function updateProjectStatus(Request $request)
+    public
+    function updateProjectStatus(Request $request)
     {
         $this->validateWith([
             'project_id' => 'required|exists:projects,id',
@@ -194,7 +197,8 @@ class ProjectController extends Controller
         ], 200);
     }
 
-    public function update(Request $request)
+    public
+    function update(Request $request)
     {
         return 'Deprecated';
 
@@ -221,7 +225,8 @@ class ProjectController extends Controller
         ], 201);
     }
 
-    public function destroy($id)
+    public
+    function destroy($id)
     {
         $project = Project::findOrFail($id);
         $project->delete();
