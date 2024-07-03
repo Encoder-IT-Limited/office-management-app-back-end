@@ -43,25 +43,46 @@ class Handler extends ExceptionHandler
         //     //
         // });
 
-//        $this->renderable(function (Throwable $e, $request) {
-//            if ($request->is('api/*')) {
+        $this->renderable(function (Throwable $e, $request) {
+            if ($request->is('api/*')) {
 //                if ($e instanceof ValidationException) {
 //                    return response()->json([
 //                        'message' => $e->getMessage(),
 //                        'errors' => $e->errors()
 //                    ], 422);
-//                } elseif ($e instanceof \Illuminate\Auth\AuthenticationException) {
-//                    return $this->unauthenticated($request, $e);
-//                } //
-//                else if ($e instanceof NotFoundHttpException && $e->getMessage() == "") {
-//                    return $this->apiResponse($e);
-//                } //
-//                else {
-//                    return $this->apiResponse($e);
 //                }
-//            }
-//            return parent::render($request, $e);
-//        });
+                if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                    return $this->unauthenticated($request, $e);
+                }
+                if ($e instanceof NotFoundHttpException && $e->getMessage() == "") {
+                    return $this->apiResponse($e);
+                }
+                if ($e instanceof UnauthorizedException) {
+                    return response()->json([
+                        'message' => $e->getMessage()
+                    ], 403);
+                }
+                if ($e instanceof ModelNotFoundException) {
+                    return response()->json([
+                        'message' => 'Resource not found'
+                    ], 404);
+                }
+                if ($e instanceof ValidationException) {
+                    return response()->json([
+                        'message' => $e->getMessage(),
+                        'errors' => $e->errors()
+                    ], 422);
+                }
+                if ($e instanceof \Exception) {
+                    return $this->apiResponse($e);
+                }
+                if ($e instanceof \Throwable) {
+                    return $this->apiResponse($e);
+                }
+                return $this->apiResponse($e);
+            }
+            return parent::render($request, $e);
+        });
     }
 
     private function apiResponse($exception): \Illuminate\Http\JsonResponse

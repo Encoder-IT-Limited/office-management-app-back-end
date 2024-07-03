@@ -123,6 +123,14 @@ class PermissionSeeder extends Seeder
             'read-trashed-user-reminder',
             'restore-user-reminder',
             'force-delete-user-reminder',
+
+            'read-project-bill',
+            'store-project-bill',
+            'update-project-bill',
+            'delete-project-bill',
+            'read-trashed-project-bill',
+            'restore-project-bill',
+            'force-delete-project-bill',
         ];
 
         Role::updateOrCreate(['slug' => 'admin'], [

@@ -9,7 +9,7 @@ trait ProjectTrait
 {
     use TaskTrait;
 
-    private $withProject;
+    private array $withProject;
     public function __construct()
     {
         $this->withProject = [

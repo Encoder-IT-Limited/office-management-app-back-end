@@ -75,6 +75,8 @@ class BreaktimeController extends Controller
 
     public function getEmployeeBreaks(Request $request)
     {
+        $user = auth()->user();
+        abort_if(!($user->hasPermission('read-my-user')), 403, 'You are not allowed to access this resource!');
         $validated = $this->validateWith([
             'year' => 'sometimes|required',
             'month' => 'sometimes|required',
@@ -86,15 +88,22 @@ class BreaktimeController extends Controller
         $this->month = $validated['month'] ?? $this->month;
         $this->date = $validated['date'] ?? $this->date;
 
-        $employees = User::filteredByPermissions()->with(['breakTimes' => function ($breakQ) {
-            $breakQ
-                ->breakFilter($this->year, $this->month, $this->date)
+        $query = User::query();
+        if (!$user->hasRole('admin')) {
+            $query->where('id', $user->id);
+        }
+        $query->with(['breakTimes' => function ($breakQ) {
+            $breakQ->breakFilter($this->year, $this->month, $this->date)
                 ->select('employee_id')
                 ->selectRaw('SUM(TIMESTAMPDIFF(SECOND, start_time, end_time)) as break_duration')
                 ->groupBy('employee_id');
         }])->withCount(['breakTimes as break_count' => function ($breakQ) {
             return $breakQ->breakFilter($this->year, $this->month, $this->date);
-        }])->onlyDeveloper()->paginate($request->per_page ?? 20);
+        }])
+//            ->filteredByPermissions()
+            ->onlyDeveloper();
+
+        $employees = $query->paginate($request->per_page ?? 20);
 
         $employees->getCollection()->transform(function ($employee) {
             $employee = $employee->toArray();

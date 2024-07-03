@@ -138,13 +138,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('breaks')->group(function () {
-        Route::get('/', [BreaktimeController::class, 'getEmployeeBreaks']);
+        Route::get('/', [BreaktimeController::class, 'getEmployeeBreaks'])->middleware('permission:read-break');
         Route::get('details', [BreaktimeController::class, 'getEmployeeBreakDetails'])->middleware('permission:read-break');
-        Route::post('start', [BreaktimeController::class, 'startingBreak']);
-        Route::get('end', [BreaktimeController::class, 'endingBreak']);
-        Route::delete('{id}', [BreaktimeController::class, 'deleteBreakTime']);
+        Route::post('start', [BreaktimeController::class, 'startingBreak'])->middleware('permission:store-break');
+        Route::get('end', [BreaktimeController::class, 'endingBreak'])->middleware('permission:update-break');
+        Route::delete('{id}', [BreaktimeController::class, 'deleteBreakTime'])->middleware('permission:delete-break');
 
-        Route::post('create', [BreaktimeController::class, 'createBreak'])->middleware('permission:update-break');
+        Route::post('create', [BreaktimeController::class, 'createBreak'])->middleware('permission:store-break');
     });
 
     Route::prefix('attendances')->group(function () {
@@ -190,7 +190,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('trash/project-note', [ProjectNoteController::class, 'trash'])->middleware('permission:read-trashed-project-note');
     Route::get('restore/project-note/{projectNote}', [ProjectNoteController::class, 'restore'])->withTrashed()->middleware('permission:restore-project-note');
     Route::delete('force-delete/project-note/{projectNote}', [ProjectNoteController::class, 'forceDelete'])->withTrashed()->middleware('permission:force-delete-project-note');
-
 
 
     Route::get("activity-log", [ActivityLogController::class, 'index']);

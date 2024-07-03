@@ -23,7 +23,7 @@ class ProjectController extends Controller
         $user = auth()->user();
         if ($user->hasRole('admin')) {
 //        if (auth()->user()->roles->contains('slug', 'admin')) {
-            $queries = Project::with('users')->withData();
+            $queries = Project::with('users', 'status')->withData();
         } else {
             $queries = Project::withData();
 
@@ -48,11 +48,10 @@ class ProjectController extends Controller
             });
         }
 
-
         $projects = $queries->latest()->paginate($request->per_page ?? 25);
 
+        return $this->success('Projects Retrieved Successfully', $projects);
         return $this->success('Projects Retrieved Successfully', ProjectCollection::make($projects));
-//        return $this->success('Projects Retrieved Successfully', $projects);
     }
 
     public
