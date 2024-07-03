@@ -21,7 +21,7 @@ class TaskController extends Controller
 {
     use ProjectTrait, ApiResponseTrait;
 
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Http\JsonResponse
     {
         $queries = Task::with($this->taskWith);
         $user = auth()->user();
@@ -32,6 +32,7 @@ class TaskController extends Controller
         if (request('project_id')) $queries->where('project_id', request('project_id'));
         if (request('author_id')) $queries->where('author_id', request('author_id'));
         if (request('assignee_id')) $queries->where('assignee_id', request('assignee_id'));
+        if (request('date')) $queries->whereDate('created_at', Carbon::parse(request('date')));
 
         $tasks = $queries->latest()->paginate($request->per_page ?? 25);
 
