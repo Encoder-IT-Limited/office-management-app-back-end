@@ -52,6 +52,9 @@ class BreaktimeController extends Controller
     {
         $user = auth()->user();
         $breaks = $user->breakTimes()->whereDate('created_at', Carbon::now())->whereNull('end_time')->get();
+        return response()->json([
+            'breaks' => $breaks,
+        ], 200);
         if ($breaks->count() === 0) {
             return response()->json([
                 'message' => 'No break found to end!',
