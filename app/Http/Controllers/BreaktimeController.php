@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 use Carbon\Carbon;
 
+use Illuminate\Support\Facades\DB;
 use App\Models\{User, BreakTime};
 
 class BreaktimeController extends Controller
@@ -57,25 +58,27 @@ class BreaktimeController extends Controller
                 'message' => 'No break found to end!',
             ], 404);
         }
+
 //        $user->breakTimes()->whereDate('created_at', Carbon::now())
 //            ->whereNull('end_time')
 //            ->update([
 //                'end_time' => now()
 //            ]);
 
-        BreakTime::where('employee_id', $user->id)
+//        BreakTime::where('employee_id', $user->id)
+//            ->whereDate('created_at', Carbon::now())
+//            ->whereNull('end_time')
+//            ->update([
+//                'end_time' => now()
+//            ]);
+        DB::table('break_times')
+            ->where('employee_id', $user->id)
             ->whereDate('created_at', Carbon::now())
             ->whereNull('end_time')
-            ->update([
-                'end_time' => now()
-            ]);
-        $break = BreakTime::where('employee_id', $user->id)
-            ->whereDate('created_at', Carbon::now())
-            ->latest()->first();
-        $break->load('employee');
+            ->update(['end_time' => now()]);
 
         return response()->json([
-            'break' => $break,
+            'break' => $user->breakTimes()->latest()->first()->load('employee'),
         ], 200);
     }
 
