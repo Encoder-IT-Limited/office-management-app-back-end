@@ -63,6 +63,7 @@ class BreaktimeController extends Controller
                 'end_time' => now()
             ]);
         }
+            info($breaks->toArray());
 
         return response()->json([
             'break' => $user->breakTimes()->latest()->first()->load('employee'),
