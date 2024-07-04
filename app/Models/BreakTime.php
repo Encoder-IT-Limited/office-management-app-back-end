@@ -49,13 +49,13 @@ class BreakTime extends Model
             ->whereDay('start_time', '=', $date);
     }
 
-    public function getStartTimeAttribute($value)
-    {
-        return Carbon::parse($value)->format('Y-m-d H:i:s');
-    }
-
-    public function getEndTimeAttribute($value)
-    {
-        return Carbon::parse($value)->format('Y-m-d H:i:s');
-    }
+//    public function getStartTimeAttribute($value)
+//    {
+//        return Carbon::parse($value)->format('Y-m-d H:i:s');
+//    }
+//
+//    public function getEndTimeAttribute($value)
+//    {
+//        return Carbon::parse($value)->format('Y-m-d H:i:s');
+//    }
 }
