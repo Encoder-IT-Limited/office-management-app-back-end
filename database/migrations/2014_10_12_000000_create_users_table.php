@@ -23,6 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('designation', 64)->nullable();
             $table->time('delay_time')->nullable();
             $table->enum('status', ['active', 'inactive']);
+            $table->string('username')->unique()->nullable()->after('id');
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();
