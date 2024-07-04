@@ -39,7 +39,7 @@ class BreaktimeController extends Controller
 
         $break = $user->breakTimes()
             ->create([
-                'start_time' => Carbon::now(),
+                'start_time' => now(),
                 'reason' => $request->reason,
             ]);
 
@@ -57,18 +57,15 @@ class BreaktimeController extends Controller
                 'message' => 'No break found to end!',
             ], 404);
         }
-        $break = $user->breakTimes()->whereDate('created_at', Carbon::now())
+        $user->breakTimes()->whereDate('created_at', Carbon::now())
             ->whereNull('end_time')
             ->update([
-                'end_time' => Carbon::now()
+                'end_time' => now()
             ]);
 
-//        $break = $break->first();
 
         return response()->json([
             'break' => $user->breakTimes()->latest()->first()->load('employee'),
-//            'start' => Carbon::parse($user->breakTimes()->latest()->first()->start_time)->format('H:i:s'),
-//            'end' => Carbon::parse($user->breakTimes()->latest()->first()->end_time)->format('H:i:s'),
         ], 200);
     }
 
