@@ -43,43 +43,43 @@ class BillableTime extends Model
         // Chain fluent methods for configuration options
     }
 
-    public function getGivenTimeAttribute($value): array
-    {
-        if (!$value) return ['hours' => 0, 'minutes' => 0];
-        if (str_contains($value, ':')) {
-            $hours = explode(':', $value)[0];
-            $minutes = explode(':', $value)[1];
-            return [
-                'hours' => $hours,
-                'minutes' => $minutes,
-            ];
-        }
-        return ['hours' => 0, 'minutes' => 0];
-    }
-
-    public function setGivenTimeAttribute($value): void
-    {
-        $this->attributes['given_time'] = $value['hours'] . ':' . $value['minutes'];
-    }
-
-    public function getTimeSpentAttribute($value): array
-    {
-        if (!$value) return ['hours' => 0, 'minutes' => 0];
-        if (str_contains($value, ':')) {
-            $hours = explode(':', $value)[0];
-            $minutes = explode(':', $value)[1];
-            return [
-                'hours' => $hours,
-                'minutes' => $minutes,
-            ];
-        }
-        return ['hours' => 0, 'minutes' => 0];
-    }
-
-    public function setTimeSpentAttribute($value): void
-    {
-        $this->attributes['time_spent'] = $value['hours'] . ':' . $value['minutes'];
-    }
+//    public function getGivenTimeAttribute($value): array
+//    {
+//        if (!$value) return ['hours' => 0, 'minutes' => 0];
+//        if (str_contains($value, ':')) {
+//            $hours = explode(':', $value)[0];
+//            $minutes = explode(':', $value)[1];
+//            return [
+//                'hours' => $hours,
+//                'minutes' => $minutes,
+//            ];
+//        }
+//        return ['hours' => 0, 'minutes' => 0];
+//    }
+//
+//    public function setGivenTimeAttribute($value): void
+//    {
+//        $this->attributes['given_time'] = $value['hours'] . ':' . $value['minutes'];
+//    }
+//
+//    public function getTimeSpentAttribute($value): array
+//    {
+//        if (!$value) return ['hours' => 0, 'minutes' => 0];
+//        if (str_contains($value, ':')) {
+//            $hours = explode(':', $value)[0];
+//            $minutes = explode(':', $value)[1];
+//            return [
+//                'hours' => $hours,
+//                'minutes' => $minutes,
+//            ];
+//        }
+//        return ['hours' => 0, 'minutes' => 0];
+//    }
+//
+//    public function setTimeSpentAttribute($value): void
+//    {
+//        $this->attributes['time_spent'] = $value['hours'] . ':' . $value['minutes'];
+//    }
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BillableTimeRequest;
 use App\Models\BillableTime;
 use App\Traits\ApiResponseTrait;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -75,6 +76,8 @@ class BillableTimeController extends Controller
     public function store(BillableTimeRequest $request): JsonResponse
     {
         $data = $request->validated();
+        $data['time_spent'] = (string)Carbon::parse($data['time_spent'])->format('H:i');
+        $data['given_time'] = (string)Carbon::parse($data['given_time'])->format('H:i');
 //        if (isset($data['time_spent']['hours']) && isset($data['time_spent']['minutes'])) {
 //            $data['time_spent'] = $data['time_spent']['hours'] + $data['time_spent']['minutes'];
 //        } else {
