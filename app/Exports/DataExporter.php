@@ -56,8 +56,11 @@ class DataExporter implements FromCollection, WithHeadings
                         if (count($relations) > 1) {
                             $r = $modelData;
                             foreach ($relations as $relation) {
-                                if (!empty($r) && $r->exists()) {
+                                if (is_object($r) && method_exists($r, $relation)) {
                                     $r = $r->$relation;
+                                } else {
+                                    $r = null;
+                                    break;
                                 }
                             }
                             $info[$output] = $r ?? '';
