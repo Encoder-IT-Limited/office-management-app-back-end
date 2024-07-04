@@ -61,6 +61,10 @@ class BillableTimeController extends Controller
         if (request('end_date')) {
             $billableTime->where('date', '<=', request('end_date'));
         }
+        if (\request('my-todays-tasks')) {
+            $billableTime->whereDate('date', Carbon::today())
+                ->where('user_id', auth()->id());
+        }
 
         $data = $billableTime->latest()->paginate($per_page);
 
