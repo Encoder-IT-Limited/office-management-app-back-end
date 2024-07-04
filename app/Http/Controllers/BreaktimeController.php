@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BreakTimeResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -50,7 +51,7 @@ class BreaktimeController extends Controller
     public function endingBreak(Request $request)
     {
         $user = auth()->user();
-        $breaks = $user->breakTimes()->whereDate('created_at', Carbon::now())->whereNull('end_time')->get();
+        $breaks = $user->breakTimes()->with('employee')->whereDate('created_at', Carbon::now())->whereNull('end_time')->get();
         if ($breaks->count() === 0) {
             return response()->json([
                 'message' => 'No break found to end!',
@@ -63,7 +64,8 @@ class BreaktimeController extends Controller
                 'end_time' => now()
             ]);
         }
-            info($breaks->toArray());
+        $breaks = BreakTimeResource::collection($breaks);
+            info($breaks);
 
         return response()->json([
             'break' => $user->breakTimes()->latest()->first()->load('employee'),
