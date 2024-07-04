@@ -36,7 +36,6 @@ class BreaktimeController extends Controller
             ], 200);
         }
 
-
         $break = $user->breakTimes()
             ->create([
                 'start_time' => now(),
@@ -58,6 +57,7 @@ class BreaktimeController extends Controller
             ], 404);
         }
         foreach ($breaks as $break) {
+            info($break->toArray());
             $break->update([
                 'start_time' => $break->start_time,
                 'end_time' => now()
