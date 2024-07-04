@@ -63,9 +63,16 @@ class BreaktimeController extends Controller
                 'end_time' => now()
             ]);
 
+        $break = BreakTime::where('employee_id', $user->id)
+            ->whereDate('created_at', Carbon::now())
+            ->whereNull('end_time')
+            ->update([
+                'end_time' => now()
+            ]);
+
 
         return response()->json([
-            'break' => $user->breakTimes()->latest()->first()->load('employee'),
+            'break' => $break->load('employee'),
         ], 200);
     }
 
