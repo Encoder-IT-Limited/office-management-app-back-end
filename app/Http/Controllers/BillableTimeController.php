@@ -61,7 +61,7 @@ class BillableTimeController extends Controller
         if (request('end_date')) {
             $billableTime->where('date', '<=', request('end_date'));
         }
-        if (\request('my-tasks-today')) {
+        if (\request()->has('my-tasks-today')) {
             $billableTime->whereDate('date', Carbon::today())
                 ->where('user_id', auth()->id());
         }
