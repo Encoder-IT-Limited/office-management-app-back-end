@@ -64,7 +64,7 @@ class BreaktimeController extends Controller
                 'end_time' => now()
             ]);
         }
-        info($user->breakTimes()->toArray());
+        info($user->breakTimes()->get()->toArray());
 
 
         info(now());
