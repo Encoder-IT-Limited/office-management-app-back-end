@@ -20,32 +20,30 @@ class DataExporter implements FromCollection, WithHeadings
 
     private $writerType = Excel::XLSX;
 
-    public function __construct($ids = null, $model = null, $columns = [], $head = [], $exortableData = null)
+    public function __construct($ids = null, $model = null, $columns = [], $head = [], $modelDatas = null)
     {
         $this->ids = $ids;
         $this->model = $model;
         $this->columns = $columns;
         $this->head = $head;
-        $this->exortableData = $exortableData;
+        $this->modelDatas = $modelDatas;
     }
 
     public function collection(): \Illuminate\Support\Collection
     {
 //        $model = '\App\Models\\' . $this->model;
-        if ($this->exortableData) {
-            $modelDatas = $this->exortableData;
-        } else {
-            $model = $this->model;
+        $model = $this->model;
+        if (!$this->modelDatas) {
             if ($this->ids) {
-                $modelDatas = $model::whereIn('id', $this->ids)->get();
+                $this->modelDatas = $model::whereIn('id', $this->ids)->get();
             } else {
-                $modelDatas = $model::all();
+                $this->modelDatas = $model::all();
             }
         }
 
         $data = array();
         $cols = $this->columns;
-        foreach ($modelDatas as $modelData) {
+        foreach ($this->modelDatas as $modelData) {
             $info = array();
             if (count($cols)) {
                 foreach ($cols as $col) {
