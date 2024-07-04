@@ -60,15 +60,11 @@ class BreaktimeController extends Controller
         foreach ($breaks as $break) {
             info($break->toArray());
             $break->update([
-//                'start_time' => $break->start_time,
                 'end_time' => Carbon::now(),
-                'reason' => 'nahid'
             ]);
         }
         info($breaks->toArray());
 
-
-        info(Carbon::now());
         return response()->json([
             'break' => $user->breakTimes()->latest()->first()->load('employee'),
         ], 200);
