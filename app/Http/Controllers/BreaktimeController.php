@@ -62,12 +62,12 @@ class BreaktimeController extends Controller
             'end_time' => Carbon::now()
         ]);
 
-        $break = $break->first();
+//        $break = $break->first();
 
         return response()->json([
             'break' => $user->breakTimes()->latest()->first()->load('employee'),
-            'start' => Carbon::parse($break->start_time)->format('H:i:s'),
-            'end' => Carbon::parse($break->end_time)->format('H:i:s'),
+            'start' => Carbon::parse($user->breakTimes()->latest()->first()->start_time)->format('H:i:s'),
+            'end' => Carbon::parse($user->breakTimes()->latest()->first()->end_time)->format('H:i:s'),
         ], 200);
     }
 
