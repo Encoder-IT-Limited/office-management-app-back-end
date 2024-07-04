@@ -48,4 +48,14 @@ class BreakTime extends Model
             ->whereMonth('start_time', '=', $month)
             ->whereDay('start_time', '=', $date);
     }
+
+    public function getStartTimeAttribute($value)
+    {
+        return Carbon::parse($value)->format('Y-m-d H:i:s');
+    }
+
+    public function getEndTimeAttribute($value)
+    {
+        return Carbon::parse($value)->format('Y-m-d H:i:s');
+    }
 }
