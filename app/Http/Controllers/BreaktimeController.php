@@ -61,7 +61,7 @@ class BreaktimeController extends Controller
             info($break->toArray());
             $break->update([
                 'start_time' => $break->start_time,
-                'end_time' => now()
+                'end_time' => Carbon::now()
             ]);
         }
         info($breaks->toArray());
