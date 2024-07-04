@@ -48,7 +48,9 @@ class ProjectController extends Controller
             });
         }
 
-        $projects = $queries->latest()->paginate($request->per_page ?? 25);
+        $projects = $queries
+            ->withCount('billableTimes')
+            ->latest()->paginate($request->per_page ?? 25);
 
         return $this->success('Projects Retrieved Successfully', $projects);
         return $this->success('Projects Retrieved Successfully', ProjectCollection::make($projects));

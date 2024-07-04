@@ -25,6 +25,7 @@ class CreateBillableTimesTable extends Migration
             $table->longText('screenshot')->nullable();
             $table->string('given_time')->nullable();
             $table->boolean('is_freelancer')->default(false);
+
             $table->softDeletes();
             $table->timestamps();
         });
