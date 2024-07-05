@@ -311,8 +311,8 @@ class UserController extends Controller
         }])->find(Auth::id());
 
         return response()->json([
-//            'user' => new UserDetailsResource($user),
-            'user' => $user
+            'user' => new UserDetailsResource($user),
+//            'user' => $user
         ], 200);
     }
 }
