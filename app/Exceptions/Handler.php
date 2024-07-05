@@ -98,7 +98,7 @@ class Handler extends ExceptionHandler
             404 => 'Resource Not Found',
             405 => 'Method Not Allowed',
             422 => $exception->original['message'],
-            default => ($statusCode == 500) ? (config('app.debug') ? $exception->getMessage() : 'Whoops, looks like something went wrong') : $exception->getMessage(),
+            default => ($statusCode == 500) ? (config('app.debug') ? $exception->getMessage() : 'Oops, looks like something went wrong') : $exception->getMessage(),
         };
         if ($statusCode == 422) $response['errors'] = $exception->original['errors'];
 

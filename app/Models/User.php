@@ -55,6 +55,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $appends = ['isCheckedIn'];
+
+    public function getIsCheckedInAttribute(): bool
+    {
+        return (bool)$this->todayAttendance();
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -119,6 +126,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(User::class, 'user_users', 'parent_user_id');
     }
+
     public function parents()
     {
         return $this->belongsToMany(User::class, 'user_users', 'user_id');
@@ -182,7 +190,7 @@ class User extends Authenticatable
 
     public function scopeWithData($queries)
     {
-        return $queries->with('children', 'roles', 'skills','userTeams', 'todayAttendance', 'uploads');
+        return $queries->with('children', 'roles', 'skills', 'userTeams', 'todayAttendance', 'uploads');
     }
 
     public function scopeFilteredByPermissions($queries)
