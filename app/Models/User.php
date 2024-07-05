@@ -57,7 +57,7 @@ class User extends Authenticatable
 
     protected $appends = ['isCheckedIn'];
 
-    public function getIsCheckedInAttribute(): bool
+    public function getIsCheckedInAttribute()
     {
         return $this->todayAttendance();
     }
