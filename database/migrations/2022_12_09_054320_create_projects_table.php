@@ -22,8 +22,8 @@ class CreateProjectsTable extends Migration
 //            $table->foreignId('status_id')->constrained('project_statuses')->onDelete('cascade');
             $table->foreignId('client_id')->nullable()->constrained('id')->on('users')->onDelete('cascade');
             $table->foreignId('status_id')->nullable()->constrained('label_statuses')->onDelete('set null');
-            $table->string('status')->default(\App\Enums\ProjectStatusEnum::UpComing->value)->after('client_id');
-            $table->foreignId('team_id')->nullable()->constrained('teams')->after('id');
+            $table->string('status')->default(\App\Enums\ProjectStatusEnum::UpComing->value);
+            $table->foreignId('team_id')->nullable()->constrained('teams');
             $table->softDeletes();
             $table->timestamps();
         });

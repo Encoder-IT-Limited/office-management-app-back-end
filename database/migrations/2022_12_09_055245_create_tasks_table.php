@@ -28,7 +28,7 @@ class CreateTasksTable extends Migration
 
             $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date')->nullable();
-            $table->string('site')->nullable()->after('title');
+            $table->string('site')->nullable();
             $table->enum('priority', ['Low', 'Medium', 'High', 'Urgent',])->nullable();
             $table->enum('status', ['New', 'In Progress', 'On Hold', 'Completed', 'Testing', 'Issue', 'Canceled',])
                 ->nullable()
