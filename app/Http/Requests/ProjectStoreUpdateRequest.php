@@ -26,11 +26,11 @@ class ProjectStoreUpdateRequest extends FormRequest
         return [
             'id' => 'sometimes|required|exists:projects,id',
             'name' => 'required|string|unique:projects,name,' . $this->id,
-            'budget' => 'required',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
-            'client_id' => 'required|exists:users,id',
-            'status_id' => 'required|exists:label_statuses,id',
+            'budget' => 'sometimes|required',
+            'start_date' => 'sometimes|required|date',
+            'end_date' => 'sometimes|required|date',
+            'client_id' => 'sometimes|required|exists:users,id',
+            'status_id' => 'sometimes|required|exists:label_statuses,id',
 
             'teams' => 'sometimes|required|array',
             'teams.*.id' => 'sometimes|required|exists:teams,id',

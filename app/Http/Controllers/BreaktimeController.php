@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BreakTimeResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,12 +29,19 @@ class BreaktimeController extends Controller
 
         $user = User::findOrFail(Auth::id());
 
-        $break = $user->breakTimes()->updateOrCreate([
-            'end_time' => null
-        ], [
-            'start_time' => Carbon::now(),
-            'reason' => $request->reason,
-        ]);
+        // existing break did not end
+        $breaks = $user->breakTimes()->whereDate('created_at', Carbon::now())->whereNull('end_time')->get();
+        if ($breaks->count() > 0) {
+            return response()->json([
+                'break' => $breaks->first()->load('employee'),
+            ], 200);
+        }
+
+        $break = $user->breakTimes()
+            ->create([
+                'start_time' => Carbon::now(),
+                'reason' => $request->reason,
+            ]);
 
         return response()->json([
             'break' => $break->load('employee'),
@@ -42,12 +50,20 @@ class BreaktimeController extends Controller
 
     public function endingBreak(Request $request)
     {
-        $user = User::findOrFail(Auth::id());
-        $user->breakTimes()
-            ->whereNull('end_time')
-            ->update([
-                'end_time' => Carbon::now()
+        $user = auth()->user();
+        $breaks = $user->breakTimes()->whereDate('created_at', Carbon::now())->whereNull('end_time')->get();
+        if ($breaks->count() === 0) {
+            return response()->json([
+                'message' => 'No break found to end!',
+            ], 404);
+        }
+        foreach ($breaks as $break) {
+            info($break->toArray());
+            $break->update([
+                'end_time' => Carbon::now(),
             ]);
+        }
+        info($breaks->toArray());
 
         return response()->json([
             'break' => $user->breakTimes()->latest()->first()->load('employee'),

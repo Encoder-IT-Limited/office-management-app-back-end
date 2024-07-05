@@ -60,6 +60,11 @@ class Project extends Model
         return $this->hasMany(Task::class, 'project_id');
     }
 
+    public function billableTimes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BillableTime::class, 'project_id');
+    }
+
     public function teams(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Team::class, 'project_id');

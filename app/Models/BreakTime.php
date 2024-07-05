@@ -16,9 +16,9 @@ class BreakTime extends Model
     protected $fillable = ['start_time', 'end_time', 'reason', 'employee_id'];
 
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
-        'duration' => 'datetime:"H:i"',
+//        'start_time' => 'datetime',
+//        'end_time' => 'datetime',
+//        'duration' => 'datetime:"H:i"',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -48,4 +48,14 @@ class BreakTime extends Model
             ->whereMonth('start_time', '=', $month)
             ->whereDay('start_time', '=', $date);
     }
+
+//    public function getStartTimeAttribute($value)
+//    {
+//        return Carbon::parse($value)->format('Y-m-d H:i:s');
+//    }
+//
+//    public function getEndTimeAttribute($value)
+//    {
+//        return Carbon::parse($value)->format('Y-m-d H:i:s');
+//    }
 }
