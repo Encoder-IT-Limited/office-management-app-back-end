@@ -24,8 +24,22 @@ class UserDetailsResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'uploads' => $this->uploads,
-            'role' => $this->whenLoaded('roles', function () {
-                return $this->roles->pluck('name');
+            'roles' => $this->whenLoaded('roles', function () {
+                // return roles and permissions
+                return $this->roles->map(function ($role) {
+                    return [
+                        'id' => $role->id,
+                        'name' => $role->name,
+                        'slug' => $role->slug,
+                        'permissions' => $role->permissions->map(function ($permission) {
+                            return [
+                                'id' => $permission->id,
+                                'name' => $permission->name,
+                                'slug' => $permission->slug,
+                            ];
+                        }),
+                    ];
+                });
             }),
             'skills' => $this->whenLoaded('skills', function () {
                 $skills = $this->skills;
@@ -47,6 +61,13 @@ class UserDetailsResource extends JsonResource
             'notes' => $this->whenLoaded('notes', function () {
                 return $this->notes;
             }),
+            'break_times' => $this->whenLoaded('breakTimes', function () {
+                return $this->breakTimes;
+            }),
+            'today_attendance' => $this->whenLoaded('todayAttendance', function () {
+                return $this->todayAttendance;
+            }),
+            'delays_count' => $this->delays_count,
             'parents' => UserListResource::collection($this->whenLoaded('parents')),
             'children' => UserListResource::collection($this->whenLoaded('children')),
         ];
