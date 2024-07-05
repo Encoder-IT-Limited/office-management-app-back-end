@@ -30,7 +30,7 @@ class Project extends Model
         'status_id'
     ];
 
-    protected $cast = [
+    protected $casts = [
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'is_kpi_filled' => 'boolean'
