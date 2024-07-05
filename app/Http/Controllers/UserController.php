@@ -252,6 +252,19 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function removeProfileImage(User $user): \Illuminate\Http\JsonResponse
+    {
+        if (count($user->uploads)) {
+            $oldImages = Upload::where('uploadable_id', $user->id)->where('uploadable_type', User::class)->get();
+            foreach ($oldImages as $oldImage) {
+                if (Storage::disk('public')->exists($oldImage->path)) Storage::disk('public')->delete($oldImage->path);
+                $oldImage->delete();
+            }
+            return $this->success('Profile image removed successfully');
+        }
+        return $this->failure('No profile image found', 404);
+    }
+
     public function destroy(User $user): \Illuminate\Http\JsonResponse
     {
         $user->forceDelete();

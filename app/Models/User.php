@@ -102,7 +102,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Team::class, 'team_user', 'user_id', 'team_id');
     }
 
-    public function uploads()
+    public function uploads(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Upload::class, 'uploadable');
     }
