@@ -59,7 +59,7 @@ class User extends Authenticatable
 
     public function getIsCheckedInAttribute(): bool
     {
-        return (bool)$this->todayAttendance();
+        return $this->todayAttendance();
     }
 
     public function getActivitylogOptions(): LogOptions
