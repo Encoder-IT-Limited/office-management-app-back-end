@@ -92,7 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('show/{id}', [ProjectController::class, 'show'])->middleware('permission:show-project');
         // Route::patch('update', [ProjectController::class, 'update'])->middleware('permission:update-project');
         Route::delete('delete/{project}', [ProjectController::class, 'destroy'])->middleware('permission:delete-project');
-        Route::post('status-update', [ProjectController::class, 'updateProjectStatus']);
+        Route::post('status-update', [ProjectController::class, 'updateProjectStatus'])->middleware('permission:update-project-status');
     });
 
     Route::prefix('teams')->group(function () {

@@ -45,6 +45,7 @@ class PermissionSeeder extends Seeder
             'show-project',
             'update-project',
             'delete-project',
+            'update-project-status',
 
             'read-leave',
             'read-my-leave',
