@@ -148,7 +148,7 @@ class AttendanceController extends Controller
             }
         }
 
-        $userIds = array_unique($userIds);
+//        $userIds = array_unique($userIds);
 
         $queries = Attendance::with('employee')
             ->whereIn('employee_id', $userIds)
