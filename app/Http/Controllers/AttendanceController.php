@@ -142,32 +142,29 @@ class AttendanceController extends Controller
                 })->whereYear('check_in', '=', $this->year)
                 ->whereMonth('check_in', '=', $this->month);
         }
-
-        if ($user->hasRole('admin')) {
-            $queries->when($request->has('employee_id'), function ($employeeQ) use ($request) {
-                $employeeQ->where('employee_id', $request->employee_id);
-            })->when($request->has('date'), function ($dateQ) use ($request) {
-                $dateQ->whereDay('check_in', '=', $request->date);
-            });
-        } else if ($user->hasRole('developer')) {
-            $queries = Attendance::with('employee')
-                ->where('employee_id', $user->id)
-                ->when($request->has('date'), function ($dateQ) use ($request) {
-                    $dateQ->whereDay('check_in', '=', $request->date);
-                })
-                ->whereYear('check_in', '=', $this->year)
-                ->whereMonth('check_in', '=', $this->month);
-        } else if ($user->hasRole('client')) {
-            $project = Project::where('client_id', $user->id)->first();
-            $userIds = $project->users->pluck('id')->toArray();
-            $queries = Attendance::with('employee')
-                ->whereIn('employee_id', $userIds)
-                ->when($request->has('date'), function ($dateQ) use ($request) {
-                    $dateQ->whereDay('check_in', '=', $request->date);
-                })
-                ->whereYear('check_in', '=', $this->year)
-                ->whereMonth('check_in', '=', $this->month);
+        $userIds = [];
+        if ($request->has('employee_id')) {
+            $userIds[] = $request->employee_id;
         }
+        if ($user->hasPermission('view-all-attendance')) {
+            $userIds = User::filteredByPermissions()->pluck('id')->toArray();
+        }
+        if ($user->hasPermission('view-my-attendance')) {
+            $userIds[] = $user->id;
+        }
+        if ($user->hasPermission('view-developer-attendance')) {
+            $project = Project::where('client_id', $user->id)->first();
+            $userIds[] = $project->users->pluck('id')->toArray();
+        }
+        $userIds = array_unique($userIds);
+
+        $queries = Attendance::with('employee')
+            ->whereIn('employee_id', $userIds)
+            ->when($request->has('date'), function ($dateQ) use ($request) {
+                $dateQ->whereDay('check_in', '=', $request->date);
+            })
+            ->whereYear('check_in', '=', $this->year)
+            ->whereMonth('check_in', '=', $this->month);
 
         $attendances = $queries->orderByDesc('check_in')->paginate($request->per_page ?? 31);
 
