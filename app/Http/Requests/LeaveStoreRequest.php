@@ -31,7 +31,8 @@ class LeaveStoreRequest extends FormRequest
             'end_date' => 'required|date|after:start_date|after_or_equal:today',
             'reason' => 'required|string',
             'accepted_start_date' => 'nullable|date|after_or_equal:start_date|before:accepted_end_date',
-            'accepted_end_date' => 'nullable|date|after:accepted_start_date|before_or_equal:end_date',
+            'accepted_end_date' => 'nullable|date|before_or_equal:end_date',
+//            'accepted_end_date' => 'nullable|date|after:accepted_start_date|before_or_equal:end_date',
         ];
     }
 }
