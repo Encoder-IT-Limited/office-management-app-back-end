@@ -135,29 +135,29 @@ class AttendanceController extends Controller
         $userIds = [];
         if ($user->hasPermission('view-all-attendance')) {
             if ($request->has('employee_id')) $userIds[] = $request->employee_id;
-            $userIds[] = User::pluck('id')->toArray();
+            $userIds = array_merge($userIds, User::pluck('id')->toArray());
         }
         if ($user->hasPermission('view-my-attendance')) {
             $userIds[] = $user->id;
         }
         if ($user->hasPermission('view-developer-attendance')) {
             $project = Project::where('client_id', $user->id)->first();
-            $userIds[] = $project->users->pluck('id')->toArray();
+            $developerUserIds = $project->users->pluck('id')->toArray();
             if ($request->has('employee_id')) {
                 $userIds = array_intersect($userIds, [$request->employee_id]);
             }
+            $userIds = array_merge($userIds, $developerUserIds);
         }
 
-//        $userIds = array_unique($userIds);
+        $userIds = array_unique($userIds);
 
         $queries = Attendance::with('employee')
             ->whereIn('employee_id', $userIds)
-//            ->when($request->has('date'), function ($dateQ) use ($request) {
-//                $dateQ->whereDay('check_in', '=', $request->date);
-//            })
-//            ->whereYear('check_in', '=', $this->year)
-//            ->whereMonth('check_in', '=', $this->month)
-        ;
+            ->when($request->has('date'), function ($dateQ) use ($request) {
+                $dateQ->whereDay('check_in', '=', $request->date);
+            })
+            ->whereYear('check_in', '=', $this->year)
+            ->whereMonth('check_in', '=', $this->month);
 
         $attendances = $queries->orderByDesc('check_in')->paginate($request->per_page ?? 31);
 
