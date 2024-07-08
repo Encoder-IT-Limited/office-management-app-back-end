@@ -150,14 +150,14 @@ class AttendanceController extends Controller
 
 //        $userIds = array_unique($userIds);
 
-        dd($userIds);
         $queries = Attendance::with('employee')
             ->whereIn('employee_id', $userIds)
-            ->when($request->has('date'), function ($dateQ) use ($request) {
-                $dateQ->whereDay('check_in', '=', $request->date);
-            })
-            ->whereYear('check_in', '=', $this->year)
-            ->whereMonth('check_in', '=', $this->month);
+//            ->when($request->has('date'), function ($dateQ) use ($request) {
+//                $dateQ->whereDay('check_in', '=', $request->date);
+//            })
+//            ->whereYear('check_in', '=', $this->year)
+//            ->whereMonth('check_in', '=', $this->month)
+        ;
 
         $attendances = $queries->orderByDesc('check_in')->paginate($request->per_page ?? 31);
 
