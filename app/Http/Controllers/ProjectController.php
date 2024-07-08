@@ -24,9 +24,9 @@ class ProjectController extends Controller
         $user = auth()->user();
         if ($user->hasRole('admin')) {
 //        if (auth()->user()->roles->contains('slug', 'admin')) {
-            $queries = Project::with('users', 'status')->withData();
+            $queries = Project::with('users', 'status', 'notes')->withData();
         } else {
-            $queries = Project::withData();
+            $queries = Project::with('notes')->withData();
 
             if ($user->hasPermission('read-client-project')) {
                 $queries->where('client_id', $user->id);
