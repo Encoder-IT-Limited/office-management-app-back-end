@@ -150,6 +150,7 @@ class AttendanceController extends Controller
 
 //        $userIds = array_unique($userIds);
 
+        dd($userIds);
         $queries = Attendance::with('employee')
             ->whereIn('employee_id', $userIds)
             ->when($request->has('date'), function ($dateQ) use ($request) {
