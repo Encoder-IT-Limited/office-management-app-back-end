@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Exception;
 use Carbon\Carbon;
 
-use App\Models\{User, Attendance};
+use App\Models\{Project, User, Attendance};
 
 class AttendanceController extends Controller
 {
@@ -152,6 +152,13 @@ class AttendanceController extends Controller
         } else if ($user->hasRole('developer')) {
             $queries = Attendance::with('employee')
                 ->where('employee_id', $user->id)
+                ->whereYear('check_in', '=', $this->year)
+                ->whereMonth('check_in', '=', $this->month);
+        } else if ($user->hasRole('client')) {
+            $project = Project::where('client_id', $user->id)->first();
+            $userIds = $project->users->pluck('id')->toArray();
+            $queries = Attendance::with('employee')
+                ->whereIn('employee_id', $userIds)
                 ->whereYear('check_in', '=', $this->year)
                 ->whereMonth('check_in', '=', $this->month);
         }
