@@ -299,7 +299,7 @@ class ProjectController extends Controller
     {
 
         try {
-            $project->projectTasks()->forceDelete();
+//            $project->projectTasks()->forceDelete();
             $project->forceDelete();
             return $this->success('Project Deleted Successfully');
         } catch (\Throwable $th) {
