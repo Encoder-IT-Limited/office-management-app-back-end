@@ -33,7 +33,7 @@ class UserController extends Controller
 
     public function indexOld(Request $request): \Illuminate\Http\JsonResponse
     {
-        $queries = User::filteredByPermissions()->withData()->where('status', 'active')->withTrashed();
+        $queries = User::filteredByPermissions()->withData()->where('status', 'active');
 
         $queries->when($request->has('user_type'), function ($query) use ($request) {
             $request->validate([
@@ -72,12 +72,11 @@ class UserController extends Controller
         } else {
             $queries = User::filteredByPermissions()
                 ->withData()
-                ->where('status', 'active')
-                ->withTrashed();
+                ->where('status', 'active');
             $users = $queries;
         }
 
-        $users = $users->withTrashed()->latest()->paginate($request->per_page ?? 25);
+        $users = $users->latest()->paginate($request->per_page ?? 25);
         return response()->json([
             'users' => $users,
             'user' => Auth::user(),
