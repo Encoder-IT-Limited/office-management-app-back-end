@@ -135,7 +135,7 @@ class AttendanceController extends Controller
         $userIds = [];
         if ($user->hasPermission('view-all-attendance')) {
             if ($request->has('employee_id')) $userIds[] = $request->employee_id;
-            $userIds[] = User::filteredByPermissions()->pluck('id')->toArray();
+            $userIds[] = User::pluck('id')->toArray();
         }
         if ($user->hasPermission('view-my-attendance')) {
             $userIds[] = $user->id;
