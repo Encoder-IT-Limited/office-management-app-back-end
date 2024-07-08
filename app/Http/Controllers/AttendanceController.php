@@ -150,7 +150,6 @@ class AttendanceController extends Controller
                 $dateQ->whereDay('check_in', '=', $request->date);
             });
         } else if ($user->hasRole('developer')) {
-            dd('nahid');
             $queries = Attendance::with('employee')
                 ->where('employee_id', $user->id)
                 ->when($request->has('date'), function ($dateQ) use ($request) {
