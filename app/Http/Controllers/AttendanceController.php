@@ -143,6 +143,7 @@ class AttendanceController extends Controller
         if ($user->hasPermission('view-developer-attendance')) {
             $project = Project::where('client_id', $user->id)->first();
             $developerUserIds = $project->users->pluck('id')->toArray();
+            dd($developerUserIds);
             if ($request->has('employee_id')) {
                 $userIds = array_intersect($userIds, [$request->employee_id]);
             }
