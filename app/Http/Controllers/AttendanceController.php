@@ -131,17 +131,7 @@ class AttendanceController extends Controller
         $this->month = $validated['month'] ?? $this->month;
 
         $user = User::findOrFail(Auth::id());
-        if ($user->hasRole('admin')) {
-            $queries = Attendance::with('employee')
-                ->whereYear('check_in', '=', $this->year)
-                ->whereMonth('check_in', '=', $this->month);
-        } else {
-            $queries = Attendance::with('employee')
-                ->whereHas('employee', function ($employeeQ) {
-                    $employeeQ->filteredByPermissions();
-                })->whereYear('check_in', '=', $this->year)
-                ->whereMonth('check_in', '=', $this->month);
-        }
+
         $userIds = [];
         if ($request->has('employee_id')) {
             $userIds[] = $request->employee_id;
