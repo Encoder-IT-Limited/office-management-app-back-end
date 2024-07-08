@@ -81,7 +81,7 @@ class PermissionSeeder extends Seeder
 
             'read-attendance',
             'read-my-attendance',
-            'read-client-attendance',
+            'read-developer-attendance',
             'update-attendance',
             'checkin-attendance',
             'checkout-attendance',

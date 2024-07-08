@@ -25,7 +25,7 @@ class ProjectStoreUpdateRequest extends FormRequest
     {
         return [
             'id' => 'sometimes|required|exists:projects,id',
-            'name' => 'required|string|unique:projects,name,' . $this->id,
+            'name' => 'required|string|unique:projects,name,' . $this->project->id,
             'budget' => 'sometimes|required',
             'start_date' => 'sometimes|required|date',
             'end_date' => 'sometimes|required|date',
