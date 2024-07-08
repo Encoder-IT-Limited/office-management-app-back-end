@@ -28,7 +28,7 @@ class BillingExportController extends Controller
             'project.name',
             'site',
             'user.name',
-            'title',
+            'task',
 //            'task.estimated_time',
 //            'task.status',
             'time_spent',
