@@ -87,7 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('projects')->group(function () {
         Route::get('/', [ProjectController::class, 'index'])->middleware('permission:read-project,read-client-project,read-my-project');
-        Route::post('/', [ProjectController::class, 'updateOrCreateProject'])->middleware('permission:update-project');
+        Route::post('/', [ProjectController::class, 'create'])->middleware('permission:update-project');
         Route::put('/{project}', [ProjectController::class, 'update'])->middleware('permission:update-project');
         Route::get('show/{id}', [ProjectController::class, 'show'])->middleware('permission:show-project');
         // Route::patch('update', [ProjectController::class, 'update'])->middleware('permission:update-project');

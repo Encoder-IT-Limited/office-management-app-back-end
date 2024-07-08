@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProjectStoreUpdateRequest;
+use App\Http\Requests\ProjectStoreRequest;
+use App\Http\Requests\ProjectUpdateRequest;
 use App\Http\Resources\ProjectCollection;
 use App\Models\Task;
 use App\Models\Team;
@@ -56,7 +57,7 @@ class ProjectController extends Controller
         return $this->success('Projects Retrieved Successfully', ProjectCollection::make($projects));
     }
 
-    public function updateOrCreateProject(ProjectStoreUpdateRequest $request): \Illuminate\Http\JsonResponse
+    public function create(ProjectStoreRequest $request): \Illuminate\Http\JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -191,7 +192,7 @@ class ProjectController extends Controller
     }
 
     public
-    function update(ProjectStoreUpdateRequest $request, Project $project): \Illuminate\Http\JsonResponse
+    function update(ProjectUpdateRequest $request, Project $project): \Illuminate\Http\JsonResponse
     {
         DB::beginTransaction();
         try {
