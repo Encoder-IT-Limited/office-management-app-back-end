@@ -133,11 +133,9 @@ class AttendanceController extends Controller
         $user = User::findOrFail(Auth::id());
 
         $userIds = [];
-        if ($request->has('employee_id')) {
-            $userIds[] = $request->employee_id;
-        }
         if ($user->hasPermission('view-all-attendance')) {
-            $userIds = User::filteredByPermissions()->pluck('id')->toArray();
+            if ($request->has('employee_id')) $userIds[] = $request->employee_id;
+            $userIds[] = User::filteredByPermissions()->pluck('id')->toArray();
         }
         if ($user->hasPermission('view-my-attendance')) {
             $userIds[] = $user->id;
@@ -145,7 +143,11 @@ class AttendanceController extends Controller
         if ($user->hasPermission('view-developer-attendance')) {
             $project = Project::where('client_id', $user->id)->first();
             $userIds[] = $project->users->pluck('id')->toArray();
+            if ($request->has('employee_id')) {
+                $userIds = array_intersect($userIds, [$request->employee_id]);
+            }
         }
+
         $userIds = array_unique($userIds);
 
         $queries = Attendance::with('employee')
