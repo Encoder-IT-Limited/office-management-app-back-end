@@ -90,7 +90,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [ProjectController::class, 'updateOrCreateProject'])->middleware('permission:store-project,update-project');
         Route::get('show/{id}', [ProjectController::class, 'show'])->middleware('permission:show-project');
         // Route::patch('update', [ProjectController::class, 'update'])->middleware('permission:update-project');
-        Route::delete('delete/{id}', [ProjectController::class, 'destroy'])->middleware('permission:delete-project');
+        Route::delete('delete/{project}', [ProjectController::class, 'destroy'])->middleware('permission:delete-project');
         Route::post('status-update', [ProjectController::class, 'updateProjectStatus']);
     });
 

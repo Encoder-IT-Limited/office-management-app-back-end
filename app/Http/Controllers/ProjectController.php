@@ -226,20 +226,15 @@ class ProjectController extends Controller
         ], 201);
     }
 
-    public
-    function destroy($id)
+    public function destroy(Project $project): \Illuminate\Http\JsonResponse
     {
-        $project = Project::findOrFail($id);
-        $project->delete();
 
         try {
-            $project->projectTasks()->delete();
+            $project->projectTasks()->forceDelete();
+            $project->forceDelete();
+            return $this->success('Project Deleted Successfully');
         } catch (\Throwable $th) {
-            //
+            return $this->failure($th->getMessage());
         }
-
-        return response()->json([
-            'message' => 'Deleted Success',
-        ], 200);
     }
 }
