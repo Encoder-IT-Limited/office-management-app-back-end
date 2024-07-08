@@ -152,6 +152,9 @@ class AttendanceController extends Controller
         } else if ($user->hasRole('developer')) {
             $queries = Attendance::with('employee')
                 ->where('employee_id', $user->id)
+                ->when($request->has('date'), function ($dateQ) use ($request) {
+                    $dateQ->whereDay('check_in', '=', $request->date);
+                })
                 ->whereYear('check_in', '=', $this->year)
                 ->whereMonth('check_in', '=', $this->month);
         } else if ($user->hasRole('client')) {
@@ -159,6 +162,9 @@ class AttendanceController extends Controller
             $userIds = $project->users->pluck('id')->toArray();
             $queries = Attendance::with('employee')
                 ->whereIn('employee_id', $userIds)
+                ->when($request->has('date'), function ($dateQ) use ($request) {
+                    $dateQ->whereDay('check_in', '=', $request->date);
+                })
                 ->whereYear('check_in', '=', $this->year)
                 ->whereMonth('check_in', '=', $this->month);
         }
