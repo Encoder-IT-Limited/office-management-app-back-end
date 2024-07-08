@@ -144,7 +144,7 @@ class AttendanceController extends Controller
             $project = Project::where('client_id', $user->id)->get();
             $developerUserIds = $project->map(function ($item) {
                 return $item->users->pluck('id')->toArray();
-            })->flatten()->toArray()
+            })->flatten()->toArray();
             if ($request->has('employee_id')) {
                 $userIds = array_intersect($userIds, [$request->employee_id]);
             }
