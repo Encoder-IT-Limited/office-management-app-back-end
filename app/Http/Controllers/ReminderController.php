@@ -18,8 +18,21 @@ class ReminderController extends Controller
 
     public function index(Request $request): \Illuminate\Http\JsonResponse
     {
-        $reminder = Reminder::with('users', 'project')
-            ->where('user_id', auth()->id())
+        $reminder = Reminder::query();
+        $reminder->with('users', 'project');
+        if (request('start_date')) {
+            $reminder->whereDate('remind_at', '>=', request('start_date'));
+        }
+        if (request('end_date')) {
+            $reminder->whereDate('remind_at', '<=', request('end_date'));
+        }
+        if (request()->has('project_id')) {
+            $reminder->where('project_id', $request->project_id);
+        }
+        if (!request('start_date') && !request('end_date')) {
+            $reminder->whereDate('remind_at', '=', Carbon::now()->format('Y-m-d'));
+        }
+        $reminder->where('user_id', auth()->id())
             ->latest()
             ->get();
         return $this->success('Success', ReminderResource::collection($reminder));
