@@ -32,7 +32,7 @@ class ReminderController extends Controller
         if (!request('start_date') && !request('end_date')) {
             $reminder->whereDate('remind_at', '=', Carbon::now()->format('Y-m-d'));
         }
-        $reminder->where('user_id', auth()->id())
+        $reminder = $reminder->where('user_id', auth()->id())
             ->latest()
             ->get();
         return $this->success('Success', ReminderResource::collection($reminder));
