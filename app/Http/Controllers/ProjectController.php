@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProjectStoreRequest;
 use App\Http\Requests\ProjectUpdateRequest;
 use App\Http\Resources\ProjectCollection;
+use App\Models\LabelStatus;
 use App\Models\Task;
 use App\Models\Team;
 use App\Models\Project;
@@ -53,15 +54,11 @@ class ProjectController extends Controller
             ->withCount('billableTimes')
             ->latest()->paginate($request->per_page ?? 25);
 
-        $projectStatusCounts = DB::table('projects')
-            ->join('label_statuses', function ($join) {
-                $join->on('projects.id', '=', 'label_statuses.statusable_id')
-                    ->where('label_statuses.statusable_type', '=', Project::class)
-                    ->where('label_statuses.franchise', '=', 'project')
-                    ->where('label_statuses.type', '=', 'status');
-            })
-            ->selectRaw('label_statuses.name as status, COUNT(projects.id) as project_count')
-            ->groupBy('label_statuses.name')
+        $projectStatusCounts = LabelStatus::where('franchise', 'project')
+            ->where('type', 'status')
+            ->withCount(['projects' => function ($query) {
+                $query->where('projects.deleted_at', null);
+            }])
             ->get();
 
         $data = [
