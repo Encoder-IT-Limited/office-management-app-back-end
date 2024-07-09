@@ -72,7 +72,9 @@ class Project extends Model
 
     public function status(): MorphToOne
     {
-        return $this->morphToOne(LabelStatus::class, 'statusable')->where(['label_statuses.franchise' => 'project', 'label_statuses.type' => 'status'])->withPivot(['color', 'label_status_id']);
+        return $this->morphToOne(LabelStatus::class, 'statusable')
+            ->where(['label_statuses.franchise' => 'project', 'label_statuses.type' => 'status'])
+            ->withPivot(['color', 'label_status_id']);
     }
 
     public function taskStatuses()

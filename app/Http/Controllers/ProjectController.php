@@ -53,7 +53,22 @@ class ProjectController extends Controller
             ->withCount('billableTimes')
             ->latest()->paginate($request->per_page ?? 25);
 
-        return $this->success('Projects Retrieved Successfully', $projects);
+        $projectStatusCounts = DB::table('projects')
+            ->join('label_statuses', function ($join) {
+                $join->on('projects.id', '=', 'label_statuses.statusable_id')
+                    ->where('label_statuses.statusable_type', '=', Project::class)
+                    ->where('label_statuses.franchise', '=', 'project')
+                    ->where('label_statuses.type', '=', 'status');
+            })
+            ->selectRaw('label_statuses.name as status, COUNT(projects.id) as project_count')
+            ->groupBy('label_statuses.name')
+            ->get();
+
+        $data = [
+            'projects' => $projects,
+            'projectStatusCounts' => $projectStatusCounts
+        ];
+        return $this->success('Projects Retrieved Successfully', $data);
         return $this->success('Projects Retrieved Successfully', ProjectCollection::make($projects));
     }
 
