@@ -101,7 +101,7 @@ class Project extends Model
     {
         if (count($data) > 0) return $queries->with($data);
         return $queries->with([
-            'client', 'labels', 'status',
+            'client', 'labels', 'status', 'reminders',
             'tasks' => function ($data) {
                 $data->filterAccessable()->with('assignee', 'status', 'labels');
             }, 'teams' => function ($data) {
