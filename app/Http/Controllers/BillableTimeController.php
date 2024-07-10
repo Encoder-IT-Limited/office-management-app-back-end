@@ -44,7 +44,9 @@ class BillableTimeController extends Controller
 
         if (request('ids')) {
             $billableTime->whereIn('id', request('ids'));
-            $billableTime->orWhereRelation('project.client', 'id', request('ids'));
+            $billableTime->whereHas('project.client', function ($query) {
+                $query->whereIn('id', request('ids'));
+            });
         }
         if (auth()->user()->hasRole('admin')) {
             if (request('by_user')) {
