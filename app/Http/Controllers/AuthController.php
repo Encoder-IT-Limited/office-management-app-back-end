@@ -25,8 +25,13 @@ class AuthController extends Controller
             if (Auth::attempt($request->only(['email', 'password']))) {
                 $user = User::find(Auth::id());
 
+                if ($user->status == 'inactive') {
+                    return response()->json([
+                        'message' => "Your account is inactive, please contact admin",
+                    ], 401);
+                }
+
                 return response()->json([
-                    'message' => true,
                     'message' => "Successfully Login",
                     'token' => $user->createToken('Api Token')->plainTextToken,
                 ], 200);
