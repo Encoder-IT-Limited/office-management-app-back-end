@@ -49,8 +49,8 @@ class EmailReminder extends Command
 
         foreach ($reminders as $reminder) {
 //            info('Sending email to ' . $reminder->users->email);
-//            Mail::to($reminder->users->email)->send(new ReminderMail($reminder));
-            Mail::to('iamtestuser222@gmail.com')->send(new ReminderMail($reminder));
+            Mail::to($reminder->users->email)->send(new ReminderMail($reminder));
+//            Mail::to('iamtestuser222@gmail.com')->send(new ReminderMail($reminder));
         }
     }
 }
