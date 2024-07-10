@@ -29,6 +29,7 @@ class ReminderMail extends Mailable
      */
     public function build()
     {
+        info('Sending email to ' . $this->reminder);
         return $this->view('mails.reminderMail')
             ->subject('Reminder')
             ->with([
