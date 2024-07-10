@@ -22,7 +22,7 @@ class EmailReminder extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Send email reminder to users';
 
     /**
      * Create a new command instance.
@@ -37,19 +37,19 @@ class EmailReminder extends Command
     /**
      * Execute the console command.
      *
-     * @return int
+     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
-        $reminders = Reminder::with('users')->where('date', Carbon::now()->toDateString())->where('message', 1)->get();
-        info('this is send');
-        // foreach ($reminders as $reminder) {
-        //     $reminder_at = new Carbon($reminder->reminder_at);
-        //     $now = Carbon::now()->toTimeString();
-        //     if ($reminder_at->diffInMinutes($now) == 0) {
-        //         info('this is send');
-        //         Mail::to($reminder->users->email)->send(new ReminderMail($reminder));
-        //     }
-        // }
+        $reminders = Reminder::with('users', 'project', 'clients')
+            ->whereDate('date', Carbon::now())
+            ->where('message', 1)
+            ->where('status', 0)
+            ->get();
+
+        foreach ($reminders as $reminder) {
+            log('Sending email to ' . $reminder->users->email);
+            Mail::to($reminder->users->email)->send(new ReminderMail($reminder));
+        }
     }
 }

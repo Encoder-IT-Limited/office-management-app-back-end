@@ -60,7 +60,6 @@ class ProjectUpdateRequest extends FormRequest
             'reminders.*.description' => 'sometimes|required|string',
             'reminders.*.remind_at' => 'sometimes|required|date:Y/m/d H:i:s|after:now',
             'reminders.*.message' => 'sometimes|required|string',
-
         ];
     }
 }

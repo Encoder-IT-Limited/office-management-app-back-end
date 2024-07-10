@@ -30,6 +30,7 @@ class ReminderUpdateRequest extends FormRequest
             'description' => 'required|string',
             'remind_at' => 'required|date:d/m/Y H:i:s|after:now',
             'message' => 'sometimes|required|boolean',
+            'status' => 'sometimes|required|boolean'
         ];
     }
 }

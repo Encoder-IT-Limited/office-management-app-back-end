@@ -23,6 +23,7 @@ class CreateRemindersTable extends Migration
             $table->text('description', 500)->nullable();
             $table->dateTime('remind_at');
             $table->boolean('message')->default(1);
+            $table->boolean('status')->default(0)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

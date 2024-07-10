@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ReminderStatusEnum;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ReminderStoreRequest extends FormRequest
@@ -30,6 +31,7 @@ class ReminderStoreRequest extends FormRequest
             'description' => 'required|string',
             'remind_at' => 'required|date',
             'message' => 'sometimes|required|boolean',
+            'status' => 'sometimes|required|boolean'
         ];
     }
 }
