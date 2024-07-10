@@ -62,12 +62,18 @@ class BillingExportController extends Controller
                 '%comment',
                 'user|%name,%email,%phone,%designation',
                 'project|%name,%budget',
+                'project.client|%name,%budget',
 //                'task|%title,%description,%reference,%priority,%site,%estimated_time,%status',
             ]);
         }
 
         if ($request->ids) $exortableData->whereIn('id', $request->ids);
-        if ($request->by_user) $exortableData->whereIn('user_id', $request->by_user);
+        if ($request->by_user) {
+            $exortableData->whereIn('user_id', request('by_user'));
+            $exortableData->orWhereHas('project.client', function ($query) {
+                $query->whereIn('id', request('by_user'));
+            });
+        }
         if ($request->by_project) $exortableData->whereIn('project_id', $request->by_project);
         if ($request->client_id) $exortableData->whereIn('client_id', $request->by_user);
 //        if ($request->client_id) $exortableData->whereIn('client_id', $request->client_id);
