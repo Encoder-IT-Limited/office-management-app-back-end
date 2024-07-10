@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ReminderStoreRequest;
-use App\Http\Requests\ReminderUpdateRequest;
 use App\Http\Resources\ReminderResource;
 use App\Models\Reminder;
 use App\Traits\ApiResponseTrait;
@@ -51,7 +50,7 @@ class ReminderController extends Controller
         return $this->success('Success', new ReminderResource($reminder->load('users', 'projects')));
     }
 
-    public function update(ReminderUpdateRequest $request, Reminder $reminder): \Illuminate\Http\JsonResponse
+    public function update(ReminderStoreRequest $request, Reminder $reminder): \Illuminate\Http\JsonResponse
     {
         $data = $request->validated();
         $reminder->update($data);

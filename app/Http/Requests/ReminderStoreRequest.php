@@ -29,7 +29,7 @@ class ReminderStoreRequest extends FormRequest
             'project_id' => 'required|exists:projects,id',
             'title' => 'required|string',
             'description' => 'required|string',
-            'remind_at' => 'required|date',
+            'remind_at' => 'required|date|after:now',
             'message' => 'sometimes|required|boolean',
             'status' => 'sometimes|required|boolean'
         ];
