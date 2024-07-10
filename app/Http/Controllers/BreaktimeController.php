@@ -82,7 +82,7 @@ class BreaktimeController extends Controller
 
         $user = User::findOrFail($validated['employee_id']);
         if (!$user->hasRole('developer')) {
-            abort(403, 'Break can only be created for developer users!');
+            abort(422, 'Break can only be created for developer users!');
         }
 
         $data = $validated;
