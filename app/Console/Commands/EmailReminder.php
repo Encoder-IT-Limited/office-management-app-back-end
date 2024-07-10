@@ -42,7 +42,7 @@ class EmailReminder extends Command
     public function handle(): void
     {
         $reminders = Reminder::with('users', 'project', 'clients')
-            ->whereDate('remind_at', Carbon::now())
+            ->where('remind_at', Carbon::now())
             ->where('message', 1)
             ->where('status', 0)
             ->get();
