@@ -19,6 +19,8 @@ class ReminderResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'remind_at' => $this->remind_at,
+            'message' => $this->message,
+            'status' => $this->status,
             'user' => new UserListResource($this->whenLoaded('users')),
             'project' => new ProjectListResource($this->whenLoaded('project')),
             'created_at' => $this->created_at,
