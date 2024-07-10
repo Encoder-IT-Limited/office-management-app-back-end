@@ -58,6 +58,12 @@ class ReminderController extends Controller
         return $this->success('Successfully Updated', new ReminderResource($reminder));
     }
 
+    public function toggleStatus(Request $request, Reminder $reminder): \Illuminate\Http\JsonResponse
+    {
+        $reminder->update(['status' => !$reminder->status]);
+        return $this->success('Successfully Updated', new ReminderResource($reminder));
+    }
+
     public function destroy(Reminder $reminder): \Illuminate\Http\JsonResponse
     {
         $reminder->delete();

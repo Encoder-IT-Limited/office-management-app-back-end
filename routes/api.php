@@ -126,6 +126,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [ReminderController::class, 'store'])->middleware('permission:store-reminder');
         Route::get('{reminder}', [ReminderController::class, 'show'])->middleware('permission:show-reminder');
         Route::put('{reminder}', [ReminderController::class, 'update'])->middleware('permission:update-reminder');
+        Route::put('{reminder}/toggle-status', [ReminderController::class, 'toggleStatus'])->middleware('permission:update-reminder');
         Route::delete('{reminder}', [ReminderController::class, 'destroy'])->middleware('permission:delete-reminder');
     });
 
