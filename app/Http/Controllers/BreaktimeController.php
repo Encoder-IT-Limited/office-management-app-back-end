@@ -80,6 +80,11 @@ class BreaktimeController extends Controller
             'reason' => 'required'
         ]);
 
+        $user = User::findOrFail($validated['employee_id']);
+        if (!$user->hasRole('developer')) {
+            abort(403, 'Break can only be created for developer users!');
+        }
+
         $data = $validated;
         $data['start_time'] = Carbon::parse($validated['start_time']);
         $data['end_time'] = Carbon::parse($validated['end_time']);
