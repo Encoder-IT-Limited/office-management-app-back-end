@@ -12,6 +12,7 @@ class ReminderMail extends Mailable
     use Queueable, SerializesModels;
 
     public $reminder;
+
     /**
      * Create a new message instance.
      *
@@ -29,11 +30,9 @@ class ReminderMail extends Mailable
      */
     public function build()
     {
-        info('Sending email to ' . $this->reminder);
-        return $this->view('mails.reminderMail')
-            ->subject('Reminder')
-            ->with([
-                'reminder' => $this->reminder
-            ]);
+        $reminder = $this->reminder;
+        info('Sending email to ' . $reminder->users->email);
+        return $this->view('mails.reminderMail', compact('reminder'))
+            ->subject('Reminder');
     }
 }
