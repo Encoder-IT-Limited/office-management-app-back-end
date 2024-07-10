@@ -80,9 +80,13 @@ class BreaktimeController extends Controller
             'reason' => 'required'
         ]);
 
+        $data = $validated;
+        $data['start_time'] = Carbon::parse($validated['start_time']);
+        $data['end_time'] = Carbon::parse($validated['end_time']);
+
         $break = BreakTime::updateOrCreate([
             'id' => $request->id,
-        ], $validated);
+        ], $data);
 
         return response()->json([
             'break' => $break,
