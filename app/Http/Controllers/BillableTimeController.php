@@ -37,12 +37,14 @@ class BillableTimeController extends Controller
                 '%comment',
                 'user|%name,%email,%phone,%designation',
                 'project|%name,%budget',
+                'project.client|%name,%budget',
 //                'task|%title,%description,%reference,%priority,%site,%estimated_time,%status',
             ]);
         }
 
         if (request('ids')) {
             $billableTime->whereIn('id', request('ids'));
+            $billableTime->orWhereRelation('project.client', 'id', request('ids'));
         }
         if (auth()->user()->hasRole('admin')) {
             if (request('by_user')) {
