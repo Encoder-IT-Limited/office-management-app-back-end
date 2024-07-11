@@ -176,6 +176,12 @@ class User extends Authenticatable
         return $query->filterByRoles('client');
     }
 
+    public function myProjects()
+    {
+        return $this->hasMany(Project::class, 'user_id');
+
+    }
+
     public function getUserRoleAttribute()
     {
         return $this->roles;
