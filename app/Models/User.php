@@ -75,6 +75,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id')->withTimestamps();;
     }
 
+    public function billableTimes()
+    {
+        return $this->hasMany(BillableTime::class, 'user_id');
+    }
+
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'skill_user', 'user_id', 'skill_id')->withPivot([
