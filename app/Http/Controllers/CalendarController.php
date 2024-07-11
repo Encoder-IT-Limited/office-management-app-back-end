@@ -46,7 +46,7 @@ class CalendarController extends Controller
 
     public function calenderView(): \Illuminate\Http\JsonResponse
     {
-        $developerDates = User::with('billableTimes', 'skills')->whereHas('roles', function ($role) {
+        $developerDates = User::with('billableTimes', 'skills', 'projects')->whereHas('roles', function ($role) {
             return $role->where('slug', 'developer');
         })->get();
         return response()->json($developerDates);
