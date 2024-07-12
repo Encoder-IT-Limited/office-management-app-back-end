@@ -28,9 +28,9 @@ class ReminderController extends Controller
         if (request()->has('project_id')) {
             $reminder->where('project_id', $request->project_id);
         }
-        if (!request('start_date') && !request('end_date')) {
-            $reminder->whereDate('remind_at', '=', Carbon::now()->format('Y-m-d'));
-        }
+//        if (!request('start_date') && !request('end_date')) {
+//            $reminder->whereDate('remind_at', '=', Carbon::now()->format('Y-m-d'));
+//        }
         $reminder = $reminder->where('user_id', auth()->id())
             ->latest()
             ->get();
