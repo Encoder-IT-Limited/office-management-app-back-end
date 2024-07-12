@@ -41,6 +41,7 @@ class ReminderController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = $data['user_id'] ?? auth()->id();
+        $data['remind_at'] = Carbon::parse($data['remind_at']);
         $reminder = Reminder::create($data);
         return $this->success('Successfully Created', new ReminderResource($reminder));
     }
@@ -53,6 +54,7 @@ class ReminderController extends Controller
     public function update(ReminderStoreRequest $request, Reminder $reminder): \Illuminate\Http\JsonResponse
     {
         $data = $request->validated();
+        $data['remind_at'] = Carbon::parse($data['remind_at']);
         $reminder->update($data);
         return $this->success('Successfully Updated', new ReminderResource($reminder));
     }
