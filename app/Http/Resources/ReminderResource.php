@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ReminderResource extends JsonResource
@@ -18,7 +19,7 @@ class ReminderResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
-            'remind_at' => $this->remind_at,
+            'remind_at' => Carbon::parse($this->remind_at),
             'message' => $this->message,
             'status' => $this->status,
             'user' => new UserListResource($this->whenLoaded('users')),
