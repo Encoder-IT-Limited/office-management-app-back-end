@@ -51,7 +51,7 @@ class BreaktimeController extends Controller
     public function endingBreak(Request $request)
     {
         $user = auth()->user();
-        $breaks = $user->breakTimes()->whereDate('created_at', Carbon::now())->whereNull('end_time')->get();
+        $breaks = $user->breakTimes()->whereDate('created_at', Carbon::now()->subHours(6))->whereNull('end_time')->get();
         if ($breaks->count() === 0) {
             return response()->json([
                 'message' => 'No break found to end!',
@@ -60,7 +60,7 @@ class BreaktimeController extends Controller
         foreach ($breaks as $break) {
             info($break->toArray());
             $break->update([
-                'end_time' => Carbon::now(),
+                'end_time' => Carbon::now()->subHours(6),
             ]);
         }
         info($breaks->toArray());
