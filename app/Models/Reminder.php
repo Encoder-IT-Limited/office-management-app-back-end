@@ -29,7 +29,7 @@ class Reminder extends Model
     protected $casts = [
         'message' => 'boolean',
         'status' => 'boolean',
-//        'remind_at' => 'datetime',
+        'remind_at' => 'datetime',
     ];
 
     public function getActivitylogOptions(): LogOptions
