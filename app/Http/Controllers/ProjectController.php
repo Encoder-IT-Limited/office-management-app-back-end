@@ -52,7 +52,7 @@ class ProjectController extends Controller
 
         $projects = $queries
             ->withCount(['billableTimes' => function ($query) {
-                $query->whereHas('users', function ($query) {
+                $query->whereHas('user', function ($query) {
                     $query->where('user_id', auth()->id());
                 });
             }])
