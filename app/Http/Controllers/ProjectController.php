@@ -27,7 +27,9 @@ class ProjectController extends Controller
 //        if (auth()->user()->roles->contains('slug', 'admin')) {
             $queries = Project::with('users', 'status', 'notes')->withData();
         } else {
-            $queries = Project::with('notes')->withData();
+            $queries = Project::with(['client', 'labels', 'status', 'reminders' => function ($query) {
+                $query->where('user_id', auth()->id());
+            }]);
 
             if ($user->hasPermission('read-client-project')) {
                 $queries->where('client_id', $user->id);
@@ -50,13 +52,16 @@ class ProjectController extends Controller
             });
         }
 
-        $projects = $queries
-            ->withCount(['billableTimes' => function ($query) {
+        if ($user->hasRole('admin')) {
+            $projects = $queries->withCount(['billableTimes'])
+                ->latest()->paginate($request->per_page ?? 25);
+        } else {
+            $projects = $queries->withCount(['billableTimes' => function ($query) {
                 $query->whereHas('user', function ($query) {
                     $query->where('user_id', auth()->id());
                 });
-            }])
-            ->latest()->paginate($request->per_page ?? 25);
+            }])->latest()->paginate($request->per_page ?? 25);
+        }
 
         $projectStatusCounts = LabelStatus::where('franchise', 'project')
             ->where('type', 'status')
@@ -73,7 +78,8 @@ class ProjectController extends Controller
 //        return $this->success('Projects Retrieved Successfully', ProjectCollection::make($projects));
     }
 
-    public function create(ProjectStoreRequest $request): \Illuminate\Http\JsonResponse
+    public
+    function create(ProjectStoreRequest $request): \Illuminate\Http\JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -311,7 +317,8 @@ class ProjectController extends Controller
         }
     }
 
-    public function destroy(Project $project): \Illuminate\Http\JsonResponse
+    public
+    function destroy(Project $project): \Illuminate\Http\JsonResponse
     {
 
         try {
