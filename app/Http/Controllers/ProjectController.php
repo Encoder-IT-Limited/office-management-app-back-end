@@ -51,16 +51,17 @@ class ProjectController extends Controller
         }
 
         $projects = $queries
-            ->withCount('billableTimes')
+            ->withCount(['billableTimes' => function ($query) {
+                $query->whereHas('users', function ($query) {
+                    $query->where('user_id', auth()->id());
+                });
+            }])
             ->latest()->paginate($request->per_page ?? 25);
 
         $projectStatusCounts = LabelStatus::where('franchise', 'project')
             ->where('type', 'status')
             ->withCount(['projects' => function ($query) {
-                $query->where('projects.deleted_at', null)
-                    ->whereHas('users', function ($query) {
-                        $query->where('user_id', auth()->id());
-                    });
+                $query->where('projects.deleted_at', null);
             }])
             ->get();
 
@@ -69,7 +70,7 @@ class ProjectController extends Controller
             'projectStatusCounts' => $projectStatusCounts
         ];
         return $this->success('Projects Retrieved Successfully', $data);
-        return $this->success('Projects Retrieved Successfully', ProjectCollection::make($projects));
+//        return $this->success('Projects Retrieved Successfully', ProjectCollection::make($projects));
     }
 
     public function create(ProjectStoreRequest $request): \Illuminate\Http\JsonResponse
