@@ -57,7 +57,10 @@ class ProjectController extends Controller
         $projectStatusCounts = LabelStatus::where('franchise', 'project')
             ->where('type', 'status')
             ->withCount(['projects' => function ($query) {
-                $query->where('projects.deleted_at', null);
+                $query->where('projects.deleted_at', null)
+                    ->whereHas('users', function ($query) {
+                        $query->where('user_id', auth()->id());
+                    });
             }])
             ->get();
 
