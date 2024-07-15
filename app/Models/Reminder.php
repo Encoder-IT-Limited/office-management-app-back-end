@@ -27,7 +27,7 @@ class Reminder extends Model
     ];
 
     protected $casts = [
-        'remind_at' => 'date:d/m/Y time:H:i:s',
+        'remind_at' => 'datetime',
         'message' => 'boolean',
         'status' => 'boolean',
     ];
