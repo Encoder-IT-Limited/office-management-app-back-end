@@ -97,7 +97,8 @@ class AttendanceController extends Controller
         if (!$request->has('delay_time')) {
             $default_delay_time = $user->delay_time;
             $date = Carbon::parse($request->check_in)->toDateString();
-            $default_delay_time = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $default_delay_time, config('app.timezone'));
+//            $default_delay_time = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $default_delay_time, config('app.timezone'));
+            $default_delay_time = Carbon::parse($date . ' ' . $default_delay_time, config('app.timezone'));
 
             $validated['delay_time'] = $default_delay_time;
         }
