@@ -41,7 +41,7 @@ class ReminderController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = $data['user_id'] ?? auth()->id();
-        $data['remind_at'] = Carbon::parse($data['remind_at']);
+//        $data['remind_at'] = Carbon::parse($data['remind_at']);
         $reminder = Reminder::create($data);
         return $this->success('Successfully Created', new ReminderResource($reminder));
     }
