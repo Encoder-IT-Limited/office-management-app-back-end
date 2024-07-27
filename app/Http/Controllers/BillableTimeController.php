@@ -45,22 +45,6 @@ class BillableTimeController extends Controller
         if (request('ids')) {
             $billableTime->whereIn('id', request('ids'));
         }
-        if (auth()->user()->hasRole('admin')) {
-            if (request('by_user')) {
-                $billableTime->whereIn('user_id', request('by_user'));
-                $billableTime->whereHas('project.client', function ($query) {
-                    $query->whereIn('id', request('by_user'));
-                });
-            }
-        } else if (auth()->user()->hasRole('developer') && !empty(auth()->user()->children)) {
-            if (request('by_user')) {
-                $billableTime->whereIn('user_id', [auth()->id(), ...auth()->user()->children->pluck('id')->toArray()]);
-            } else {
-                $billableTime->where('user_id', auth()->id());
-            }
-        } else {
-            $billableTime->where('user_id', auth()->id());
-        }
         if (request('by_project')) {
             $billableTime->whereIn('project_id', request('by_project'));
         }
@@ -74,7 +58,22 @@ class BillableTimeController extends Controller
             $billableTime->whereDate('date', Carbon::today())
                 ->where('user_id', auth()->id());
         }
-
+        if (auth()->user()->hasRole('admin')) {
+            if (request('by_user')) {
+                $billableTime->whereIn('user_id', request('by_user'));
+                $billableTime->orWhereHas('project.client', function ($query) {
+                    $query->whereIn('id', request('by_user'));
+                });
+            }
+        } else if (auth()->user()->hasRole('developer') && !empty(auth()->user()->children)) {
+            if (request('by_user')) {
+                $billableTime->whereIn('user_id', [auth()->id(), ...auth()->user()->children->pluck('id')->toArray()]);
+            } else {
+                $billableTime->where('user_id', auth()->id());
+            }
+        } else {
+            $billableTime->where('user_id', auth()->id());
+        }
         $data = $billableTime->latest()->paginate($per_page);
 
         return $this->success('Billable time retrieved successfully', $data);
