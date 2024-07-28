@@ -194,11 +194,13 @@ class AttendanceController extends Controller
 //        $employees = User::filteredByPermissions()->delaysCount($this->year, $this->month)->onlyDeveloper()->paginate($request->per_page ?? 20);
         if (!$request->employee_id || $request->employee_id == 'all') {
 
-            $users = User::withCount(['attendances AS delay_count' => function ($attendance) {
+            $employees = User::withCount(['attendances AS delay_count' => function ($attendance) {
                 $attendance->whereYear('check_in', '=', $this->year)
-                    ->whereMonth('check_in', '=', $this->month); // Assuming delay() is a scope to count delays
-            }])->having('delay_count', '>', 0) // Add this line to filter users with non-zero delay count
-            ->latest()
+                    ->whereMonth('check_in', '=', $this->month);
+            }])
+                ->onlyDeveloper()
+                ->having('delay_count', '>', 0) // Add this line to filter users with non-zero delay count
+                ->latest()
                 ->paginate($request->per_page ?? 20);
 
 
