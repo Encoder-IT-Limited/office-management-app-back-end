@@ -141,7 +141,7 @@ class BreaktimeController extends Controller
             }
             unset($employee['break_times']);
             if ($employee['break_count'] <= 0) {
-                return null;
+                return;
             }
             return $employee;
         });
