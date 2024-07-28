@@ -147,6 +147,12 @@ class User extends Authenticatable
         return $this->hasMany(Task::class, 'author_id');
     }
 
+    public function scopeDelays($query, $year, $month)
+    {
+        return $query->whereHas(['attendances AS delay_count' => function ($attendance) use ($year, $month) {
+            return $attendance->whereYear('check_in', '=', $year)->whereMonth('check_in', '=', $month)->delay();
+        }]);
+    }
     public function scopeDelaysCount($query, $year, $month)
     {
         return $query->withCount(['attendances AS delay_count' => function ($attendance) use ($year, $month) {
