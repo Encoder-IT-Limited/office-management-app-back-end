@@ -63,10 +63,10 @@ class AttendanceController extends Controller
 
         if ($user->hasRole('admin')) {
             if ($request->has('employee_id')) {
-                $user = User::findOrFail($request->employee_id, 'Asia/Dhaka');
+                $user = User::findOrFail($request->employee_id);
             }
             if ($request->has('check_out')) {
-                $checkedOutAt = Carbon::parse($request->check_out, 'Asia/Dhaka');
+                $checkedOutAt = Carbon::parse($request->check_out);
             }
         }
 
