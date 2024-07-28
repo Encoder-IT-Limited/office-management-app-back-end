@@ -143,15 +143,6 @@ class BreaktimeController extends Controller
             return $employee;
         });
 
-        // if $employee['break_count'] <= 0 remove employee from collection
-        $employees->getCollection()->transform(function ($employee) {
-            if ($employee['break_count'] <= 0) {
-                return;
-            }
-            return $employee;
-        });
-
-
         return response()->json([
             'employees' => $employees ?? []
         ], 200);
