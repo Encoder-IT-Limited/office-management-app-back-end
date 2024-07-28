@@ -39,7 +39,7 @@ class ReminderController extends Controller
 
     public function store(ReminderStoreRequest $request): \Illuminate\Http\JsonResponse
     {
-        if ($request->remind_at && Carbon::parse($request->remind_at)->lessThanOrEqualTo(Carbon::now())) {
+        if ($request->remind_at && Carbon::parse($request->remind_at, config('app.timezone'))->lessThanOrEqualTo(Carbon::now())) {
             return $this->failure('Remind at date should be greater than current date time');
         }
 
@@ -57,7 +57,7 @@ class ReminderController extends Controller
 
     public function update(ReminderStoreRequest $request, Reminder $reminder): \Illuminate\Http\JsonResponse
     {
-        if ($request->remind_at && Carbon::parse($request->remind_at)->lessThanOrEqualTo(Carbon::now())) {
+        if ($request->remind_at && Carbon::parse($request->remind_at, config('app.timezone'))->lessThanOrEqualTo(Carbon::now())) {
             return $this->failure('Remind at date should be greater than current date time');
         }
         $data = $request->validated();
