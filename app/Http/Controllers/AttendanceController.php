@@ -188,16 +188,18 @@ class AttendanceController extends Controller
             'year' => 'sometimes|required',
         ]);
 
-        $this->year = $validated['year'] ?? $this->year;
-        $this->month = $validated['month'] ?? $this->month;
 
 //        $employees = User::filteredByPermissions()->delaysCount($this->year, $this->month)->onlyDeveloper()->paginate($request->per_page ?? 20);
         if (!$request->employee_id || $request->employee_id == 'all') {
-            $employees = User::delaysCount($this->year, $this->month)->onlyDeveloper()->latest()->paginate($request->per_page ?? 20);
+            $year = $validated['year'] ?? $this->year;
+            $month = $validated['month'] ?? $this->month;
+            $employees = User::withCount(['attendances AS delay_count' => function ($query) use ($year, $month) {
+                $query->whereYear('check_in', '=', $year)
+                    ->whereMonth('check_in', '=', $month);
+            }])->onlyDeveloper()->latest()->paginate($request->per_page ?? 20);
         } else {
             $employees = User::where('id', $request->employee_id)->delaysCount($this->year, $this->month)->onlyDeveloper()->latest()->paginate($request->per_page ?? 20);
         }
-
 
         return response()->json([
             'employees' => $employees ?? []
