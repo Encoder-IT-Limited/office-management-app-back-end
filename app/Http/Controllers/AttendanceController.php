@@ -193,7 +193,10 @@ class AttendanceController extends Controller
         if (!$request->employee_id || $request->employee_id == 'all') {
             $year = $validated['year'] ?? $this->year;
             $month = $validated['month'] ?? $this->month;
-            $employees = User::withCount(['attendances AS delay_count' => function ($query) use ($year, $month) {
+            $employees = User::whereHas(['attendances' => function ($query) use ($year, $month) {
+                $query->whereYear('check_in', '=', $year)
+                    ->whereMonth('check_in', '=', $month);
+            }])->withCount(['attendances AS delay_count' => function ($query) use ($year, $month) {
                 $query->whereYear('check_in', '=', $year)
                     ->whereMonth('check_in', '=', $month);
             }])->onlyDeveloper()->latest()->paginate($request->per_page ?? 20);
