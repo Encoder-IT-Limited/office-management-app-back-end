@@ -29,7 +29,7 @@ class AttendanceController extends Controller
     {
         $user = User::findOrFail(Auth::id());
 //        $checkedInAt = Carbon::now()->subMinutes(5);
-        $checkedInAt = Carbon::now(config('app.timezone'));
+        $checkedInAt = Carbon::now('Asia/Dhaka');
         if ($user->hasRole('admin')) {
             if ($request->has('employee_id')) {
                 $user = User::findOrFail($request->employee_id);
@@ -59,7 +59,7 @@ class AttendanceController extends Controller
     public function checkOut(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = User::findOrFail(Auth::id());
-        $checkedOutAt = Carbon::now(config('app.timezone'));
+        $checkedOutAt = Carbon::now('Asia/Dhaka');
 
         if ($user->hasRole('admin')) {
             if ($request->has('employee_id')) {
