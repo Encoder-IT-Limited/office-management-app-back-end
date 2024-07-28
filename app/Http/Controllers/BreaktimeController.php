@@ -140,8 +140,12 @@ class BreaktimeController extends Controller
                 $employee['break_time_duration'] = 0;
             }
             unset($employee['break_times']);
+            return $employee;
+        });
+
+        $employees->getCollection()->transform(function ($employee) {
             if ($employee['break_count'] <= 0) {
-                return;
+                return null;
             }
             return $employee;
         });
