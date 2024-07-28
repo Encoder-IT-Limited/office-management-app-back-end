@@ -117,7 +117,7 @@ class BreaktimeController extends Controller
 
         $query = User::whereHas(['breakTimes' => function ($query) {
             return $query->breakFilter($this->year, $this->month, $this->date);
-        }])->query();
+        }]);
         if (!$user->hasRole('admin')) {
             $query->where('id', $user->id);
         }
