@@ -15,6 +15,7 @@ class CreateBillableTimesTable extends Migration
     {
         Schema::create('billable_times', function (Blueprint $table) {
             $table->id();
+            $table->string('task')->nullable();
             $table->foreignId('project_id')->constrained()->cascadeOnDelete();
             $table->foreignId('task_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -25,7 +26,6 @@ class CreateBillableTimesTable extends Migration
             $table->longText('screenshot')->nullable();
             $table->string('given_time')->nullable();
             $table->boolean('is_freelancer')->default(false);
-
             $table->softDeletes();
             $table->timestamps();
         });

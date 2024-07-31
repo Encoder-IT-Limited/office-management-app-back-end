@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('restore', [UserController::class, 'restore'])->middleware('permission:delete-user');
         Route::get('/details', [UserController::class, 'details']);
         Route::patch('/details', [UserController::class, 'updateOwnProfile']);
+        Route::delete('remove-profile-image/{user}', [UserController::class, 'removeProfileImage']);
         Route::delete('{user}/delete-document', [UserController::class, 'deleteDocument']);
     });
 
@@ -86,11 +87,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('projects')->group(function () {
         Route::get('/', [ProjectController::class, 'index'])->middleware('permission:read-project,read-client-project,read-my-project');
-        Route::post('/', [ProjectController::class, 'updateOrCreateProject'])->middleware('permission:store-project,update-project');
+        Route::post('/', [ProjectController::class, 'create'])->middleware('permission:update-project');
+        Route::put('/{project}', [ProjectController::class, 'update'])->middleware('permission:update-project');
         Route::get('show/{id}', [ProjectController::class, 'show'])->middleware('permission:show-project');
         // Route::patch('update', [ProjectController::class, 'update'])->middleware('permission:update-project');
-        Route::delete('delete/{id}', [ProjectController::class, 'destroy'])->middleware('permission:delete-project');
-        Route::post('status-update', [ProjectController::class, 'updateProjectStatus']);
+        Route::delete('delete/{project}', [ProjectController::class, 'destroy'])->middleware('permission:delete-project');
+        Route::post('status-update', [ProjectController::class, 'updateProjectStatus'])->middleware('permission:update-project-status');
     });
 
     Route::prefix('teams')->group(function () {
@@ -114,8 +116,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::apiResource('comments', TaskCommentController::class)->except('index', 'update');
+    /// Billing times is "TASK" ....
     Route::apiResource('billable_times', BillableTimeController::class);
-
     Route::get('billing-export', [\App\Http\Controllers\BillingExportController::class, 'export']);
 
     // Reminder ...
@@ -124,6 +126,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [ReminderController::class, 'store'])->middleware('permission:store-reminder');
         Route::get('{reminder}', [ReminderController::class, 'show'])->middleware('permission:show-reminder');
         Route::put('{reminder}', [ReminderController::class, 'update'])->middleware('permission:update-reminder');
+        Route::put('{reminder}/toggle-status', [ReminderController::class, 'toggleStatus'])->middleware('permission:update-reminder');
         Route::delete('{reminder}', [ReminderController::class, 'destroy'])->middleware('permission:delete-reminder');
     });
 
@@ -174,8 +177,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('{userNote}', [UserNoteController::class, 'destroy'])->middleware('permission:delete-user-note');
     });
     Route::get('trash/user-note', [UserNoteController::class, 'trash'])->middleware('permission:read-trashed-user-note');
-    Route::get('restore/user-note/{userNote}', [UserNoteController::class, 'restore'])->withTrashed()->middleware('permission:restore-user-note');
-    Route::delete('force-delete/user-note/{userNote}', [UserNoteController::class, 'forceDelete'])->withTrashed()->middleware('permission:force-delete-user-note');
+    Route::get('restore/user-note/{userNote}', [UserNoteController::class, 'restore'])->middleware('permission:restore-user-note');
+    Route::delete('force-delete/user-note/{userNote}', [UserNoteController::class, 'forceDelete'])->middleware('permission:force-delete-user-note');
 
 
     // Project Notes
@@ -188,8 +191,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('{projectNote}', [ProjectNoteController::class, 'destroy'])->middleware('permission:delete-project-note');
     });
     Route::get('trash/project-note', [ProjectNoteController::class, 'trash'])->middleware('permission:read-trashed-project-note');
-    Route::get('restore/project-note/{projectNote}', [ProjectNoteController::class, 'restore'])->withTrashed()->middleware('permission:restore-project-note');
-    Route::delete('force-delete/project-note/{projectNote}', [ProjectNoteController::class, 'forceDelete'])->withTrashed()->middleware('permission:force-delete-project-note');
+    Route::get('restore/project-note/{projectNote}', [ProjectNoteController::class, 'restore'])->middleware('permission:restore-project-note');
+    Route::delete('force-delete/project-note/{projectNote}', [ProjectNoteController::class, 'forceDelete'])->middleware('permission:force-delete-project-note');
 
 
     Route::get("activity-log", [ActivityLogController::class, 'index']);

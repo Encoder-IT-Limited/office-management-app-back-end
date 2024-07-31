@@ -55,6 +55,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+//    protected $appends = ['isCheckedIn'];
+//
+//    public function getIsCheckedInAttribute()
+//    {
+//        return $this->todayAttendance();
+//    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -66,6 +73,11 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id')->withTimestamps();;
+    }
+
+    public function billableTimes()
+    {
+        return $this->hasMany(BillableTime::class, 'user_id');
     }
 
     public function skills()
@@ -95,7 +107,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Team::class, 'team_user', 'user_id', 'team_id');
     }
 
-    public function uploads()
+    public function uploads(): \Illuminate\Database\Eloquent\Relations\MorphMany
     {
         return $this->morphMany(Upload::class, 'uploadable');
     }
@@ -119,6 +131,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(User::class, 'user_users', 'parent_user_id');
     }
+
     public function parents()
     {
         return $this->belongsToMany(User::class, 'user_users', 'user_id');
@@ -134,6 +147,12 @@ class User extends Authenticatable
         return $this->hasMany(Task::class, 'author_id');
     }
 
+    public function scopeDelays($query, $year, $month)
+    {
+        return $query->whereHas(['attendances AS delay_count' => function ($attendance) use ($year, $month) {
+            return $attendance->whereYear('check_in', '=', $year)->whereMonth('check_in', '=', $month)->delay();
+        }]);
+    }
     public function scopeDelaysCount($query, $year, $month)
     {
         return $query->withCount(['attendances AS delay_count' => function ($attendance) use ($year, $month) {
@@ -163,6 +182,12 @@ class User extends Authenticatable
         return $query->filterByRoles('client');
     }
 
+    public function myProjects()
+    {
+        return $this->belongsToMany(Project::class, 'project_user', 'user_id', 'project_id');
+
+    }
+
     public function getUserRoleAttribute()
     {
         return $this->roles;
@@ -182,7 +207,7 @@ class User extends Authenticatable
 
     public function scopeWithData($queries)
     {
-        return $queries->with('children', 'roles', 'skills','userTeams', 'todayAttendance', 'uploads');
+        return $queries->with('children', 'roles', 'skills', 'userTeams', 'todayAttendance', 'uploads');
     }
 
     public function scopeFilteredByPermissions($queries)

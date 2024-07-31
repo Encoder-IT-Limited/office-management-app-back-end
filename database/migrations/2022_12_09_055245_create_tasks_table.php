@@ -22,10 +22,20 @@ class CreateTasksTable extends Migration
             $table->foreignIdFor(User::class, 'author_id');
             $table->foreignIdFor(User::class, 'assignee_id')->nullable();
             $table->string('title');
-            $table->longText('description');
+            $table->longText('description')->nullable();
             $table->string('reference')->nullable();
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
+            $table->text('screenshot')->nullable();
+
+            $table->dateTime('start_date')->nullable();
+            $table->dateTime('end_date')->nullable();
+            $table->string('site')->nullable();
+            $table->enum('priority', ['Low', 'Medium', 'High', 'Urgent',])->nullable();
+            $table->enum('status', ['New', 'In Progress', 'On Hold', 'Completed', 'Testing', 'Issue', 'Canceled',])
+                ->nullable()
+                ->default('New');
+            $table->string('estimated_time')->nullable();
+            $table->string('given_time')->nullable();
+
             $table->softDeletes();
             $table->timestamps();
         });

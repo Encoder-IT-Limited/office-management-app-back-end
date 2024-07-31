@@ -22,6 +22,11 @@ class Upload extends Model
         'uploadable_type'
     ];
 
+    public function getPathAttribute($value): ?string
+    {
+        return $value ? asset('/storage/' . $value) : null;
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

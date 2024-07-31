@@ -30,7 +30,7 @@ class BreaktimeController extends Controller
         $user = User::findOrFail(Auth::id());
 
         // existing break did not end
-        $breaks = $user->breakTimes()->whereDate('created_at', Carbon::now())->whereNull('end_time')->get();
+        $breaks = $user->breakTimes()->whereDate('created_at', Carbon::now()->addHours(6))->whereNull('end_time')->get();
         if ($breaks->count() > 0) {
             return response()->json([
                 'break' => $breaks->first()->load('employee'),
@@ -39,7 +39,7 @@ class BreaktimeController extends Controller
 
         $break = $user->breakTimes()
             ->create([
-                'start_time' => now(),
+                'start_time' => Carbon::now()->addHours(6),
                 'reason' => $request->reason,
             ]);
 
@@ -51,7 +51,7 @@ class BreaktimeController extends Controller
     public function endingBreak(Request $request)
     {
         $user = auth()->user();
-        $breaks = $user->breakTimes()->whereDate('created_at', Carbon::now())->whereNull('end_time')->get();
+        $breaks = $user->breakTimes()->whereDate('created_at', Carbon::now()->addHours(6))->whereNull('end_time')->get();
         if ($breaks->count() === 0) {
             return response()->json([
                 'message' => 'No break found to end!',
@@ -60,14 +60,11 @@ class BreaktimeController extends Controller
         foreach ($breaks as $break) {
             info($break->toArray());
             $break->update([
-                'start_time' => $break->start_time,
-                'end_time' => Carbon::now()
+                'end_time' => Carbon::now()->addHours(6),
             ]);
         }
         info($breaks->toArray());
 
-
-        info(now());
         return response()->json([
             'break' => $user->breakTimes()->latest()->first()->load('employee'),
         ], 200);
@@ -83,9 +80,20 @@ class BreaktimeController extends Controller
             'reason' => 'required'
         ]);
 
+        $user = User::findOrFail($validated['employee_id']);
+        if (!$user->hasRole('developer')) {
+            return response()->json([
+                'message' => 'Break can only be created for developer users!',
+            ], 422);
+        }
+
+        $data = $validated;
+        $data['start_time'] = Carbon::parse($validated['start_time']);
+        $data['end_time'] = Carbon::parse($validated['end_time']);
+
         $break = BreakTime::updateOrCreate([
             'id' => $request->id,
-        ], $validated);
+        ], $data);
 
         return response()->json([
             'break' => $break,

@@ -16,8 +16,8 @@ class BreakTime extends Model
     protected $fillable = ['start_time', 'end_time', 'reason', 'employee_id'];
 
     protected $casts = [
-//        'start_time' => 'datetime',
-//        'end_time' => 'datetime',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
 //        'duration' => 'datetime:"H:i"',
     ];
 

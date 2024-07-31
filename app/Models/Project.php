@@ -30,7 +30,7 @@ class Project extends Model
         'status_id'
     ];
 
-    protected $cast = [
+    protected $casts = [
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'is_kpi_filled' => 'boolean'
@@ -72,7 +72,9 @@ class Project extends Model
 
     public function status(): MorphToOne
     {
-        return $this->morphToOne(LabelStatus::class, 'statusable')->where(['label_statuses.franchise' => 'project', 'label_statuses.type' => 'status'])->withPivot(['color', 'label_status_id']);
+        return $this->morphToOne(LabelStatus::class, 'statusable')
+            ->where(['label_statuses.franchise' => 'project', 'label_statuses.type' => 'status'])
+            ->withPivot(['color', 'label_status_id']);
     }
 
     public function taskStatuses()
@@ -99,7 +101,7 @@ class Project extends Model
     {
         if (count($data) > 0) return $queries->with($data);
         return $queries->with([
-            'client', 'labels', 'status',
+            'client', 'labels', 'status', 'reminders',
             'tasks' => function ($data) {
                 $data->filterAccessable()->with('assignee', 'status', 'labels');
             }, 'teams' => function ($data) {

@@ -33,7 +33,7 @@ class UserController extends Controller
 
     public function indexOld(Request $request): \Illuminate\Http\JsonResponse
     {
-        $queries = User::filteredByPermissions()->withData()->where('status', 'active')->withTrashed();
+        $queries = User::filteredByPermissions()->withData()->where('status', 'active');
 
         $queries->when($request->has('user_type'), function ($query) use ($request) {
             $request->validate([
@@ -72,12 +72,11 @@ class UserController extends Controller
         } else {
             $queries = User::filteredByPermissions()
                 ->withData()
-                ->where('status', 'active')
-                ->withTrashed();
+                ->where('status', 'active');
             $users = $queries;
         }
 
-        $users = $users->withTrashed()->latest()->paginate($request->per_page ?? 25);
+        $users = $users->latest()->paginate($request->per_page ?? 25);
         return response()->json([
             'users' => $users,
             'user' => Auth::user(),
@@ -252,6 +251,19 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function removeProfileImage(User $user): \Illuminate\Http\JsonResponse
+    {
+        if (count($user->uploads)) {
+            $oldImages = Upload::where('uploadable_id', $user->id)->where('uploadable_type', User::class)->get();
+            foreach ($oldImages as $oldImage) {
+                if (Storage::disk('public')->exists($oldImage->path)) Storage::disk('public')->delete($oldImage->path);
+                $oldImage->delete();
+            }
+            return $this->success('Profile image removed successfully');
+        }
+        return $this->failure('No profile image found', 404);
+    }
+
     public function destroy(User $user): \Illuminate\Http\JsonResponse
     {
         $user->forceDelete();
@@ -298,7 +310,8 @@ class UserController extends Controller
         }])->find(Auth::id());
 
         return response()->json([
-            'user' => $user
+            'user' => new UserDetailsResource($user),
+//            'user' => $user
         ], 200);
     }
 }

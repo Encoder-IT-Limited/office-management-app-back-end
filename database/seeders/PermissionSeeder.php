@@ -45,6 +45,7 @@ class PermissionSeeder extends Seeder
             'show-project',
             'update-project',
             'delete-project',
+            'update-project-status',
 
             'read-leave',
             'read-my-leave',
@@ -79,9 +80,12 @@ class PermissionSeeder extends Seeder
             'update-break',
             'delete-break',
 
-            'read-attendance',
-            'read-my-attendance',
-            'read-client-attendance',
+            'view-all-attendance',
+            'view-my-attendance',
+            'view-developer-attendance',
+//            'read-attendance',
+//            'read-my-attendance',
+//            'read-developer-attendance',
             'update-attendance',
             'checkin-attendance',
             'checkout-attendance',

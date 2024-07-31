@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Exception;
 use Carbon\Carbon;
 
-use App\Models\{User, Attendance};
+use App\Models\{Project, User, Attendance};
 
 class AttendanceController extends Controller
 {
@@ -29,7 +29,7 @@ class AttendanceController extends Controller
     {
         $user = User::findOrFail(Auth::id());
 //        $checkedInAt = Carbon::now()->subMinutes(5);
-        $checkedInAt = Carbon::now();
+        $checkedInAt = Carbon::now('Asia/Dhaka');
         if ($user->hasRole('admin')) {
             if ($request->has('employee_id')) {
                 $user = User::findOrFail($request->employee_id);
@@ -59,7 +59,7 @@ class AttendanceController extends Controller
     public function checkOut(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = User::findOrFail(Auth::id());
-        $checkedOutAt = Carbon::now();
+        $checkedOutAt = Carbon::now('Asia/Dhaka');
 
         if ($user->hasRole('admin')) {
             if ($request->has('employee_id')) {
@@ -96,10 +96,13 @@ class AttendanceController extends Controller
 
         if (!$request->has('delay_time')) {
             $default_delay_time = $user->delay_time;
-            $date = Carbon::parse($request->check_in)->toDateString();
-            $default_delay_time = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $default_delay_time, config('app.timezone'));
+            if ($default_delay_time) {
+                $date = Carbon::parse($request->check_in)->toDateString();
+//            $default_delay_time = Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $default_delay_time, config('app.timezone'));
+                $default_delay_time = Carbon::parse($date . ' ' . $default_delay_time, config('app.timezone'));
 
-            $validated['delay_time'] = $default_delay_time;
+                $validated['delay_time'] = $default_delay_time;
+            }
         }
 
         $checker = $request->except(['check_in', 'check_out', 'delay_time']);
@@ -131,30 +134,35 @@ class AttendanceController extends Controller
         $this->month = $validated['month'] ?? $this->month;
 
         $user = User::findOrFail(Auth::id());
-        if ($user->hasRole('admin')) {
-            $queries = Attendance::with('employee')
-                ->whereYear('check_in', '=', $this->year)
-                ->whereMonth('check_in', '=', $this->month);
-        } else {
-            $queries = Attendance::with('employee')->whereHas('employee', function ($employeeQ) {
-                $employeeQ->filteredByPermissions();
-            })->whereYear('check_in', '=', $this->year)
-                ->whereMonth('check_in', '=', $this->month);
+
+        $userIds = [];
+        if ($user->hasPermission('view-all-attendance')) {
+            if ($request->has('employee_id')) $userIds[] = $request->employee_id;
+            $userIds = array_merge($userIds, User::pluck('id')->toArray());
+        }
+        if ($user->hasPermission('view-my-attendance')) {
+            $userIds[] = $user->id;
+        }
+        if ($user->hasPermission('view-developer-attendance')) {
+            $project = Project::where('client_id', $user->id)->get();
+            $developerUserIds = $project->map(function ($item) {
+                return $item->users->pluck('id')->toArray();
+            })->flatten()->toArray();
+            if ($request->has('employee_id')) {
+                $userIds = array_intersect($userIds, [$request->employee_id]);
+            }
+            $userIds = array_merge($userIds, $developerUserIds);
         }
 
+        $userIds = array_unique($userIds);
 
-        if ($user->hasRole('admin')) {
-            $queries->when($request->has('employee_id'), function ($employeeQ) use ($request) {
-                $employeeQ->where('employee_id', $request->employee_id);
-            })->when($request->has('date'), function ($dateQ) use ($request) {
+        $queries = Attendance::with('employee')
+            ->whereIn('employee_id', $userIds)
+            ->when($request->has('date'), function ($dateQ) use ($request) {
                 $dateQ->whereDay('check_in', '=', $request->date);
-            });
-        } else if ($user->hasRole('developer')) {
-            $queries = Attendance::with('employee')
-                ->where('employee_id', $user->id)
-                ->whereYear('check_in', '=', $this->year)
-                ->whereMonth('check_in', '=', $this->month);
-        }
+            })
+            ->whereYear('check_in', '=', $this->year)
+            ->whereMonth('check_in', '=', $this->month);
 
         $attendances = $queries->orderByDesc('check_in')->paginate($request->per_page ?? 31);
 
@@ -187,11 +195,21 @@ class AttendanceController extends Controller
 
 //        $employees = User::filteredByPermissions()->delaysCount($this->year, $this->month)->onlyDeveloper()->paginate($request->per_page ?? 20);
         if (!$request->employee_id || $request->employee_id == 'all') {
-            $employees = User::delaysCount($this->year, $this->month)->onlyDeveloper()->latest()->paginate($request->per_page ?? 20);
+
+            $employees = User::withCount(['attendances AS delay_count' => function ($attendance) {
+                $attendance->whereYear('check_in', '=', $this->year)
+                    ->whereMonth('check_in', '=', $this->month);
+            }])
+                ->onlyDeveloper()
+                ->having('delay_count', '>', 0) // Add this line to filter users with non-zero delay count
+                ->latest()
+                ->paginate($request->per_page ?? 20);
+
+
+//            $employees = User::delaysCount($this->year, $this->month)->onlyDeveloper()->latest()->paginate($request->per_page ?? 20);
         } else {
             $employees = User::where('id', $request->employee_id)->delaysCount($this->year, $this->month)->onlyDeveloper()->latest()->paginate($request->per_page ?? 20);
         }
-
 
         return response()->json([
             'employees' => $employees ?? []

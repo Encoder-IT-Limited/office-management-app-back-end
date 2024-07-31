@@ -29,7 +29,7 @@ class CreateLabelStatusesTable extends Migration
 
         Schema::create('statusables', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(LabelStatus::class, 'label_status_id');
+            $table->foreignIdFor(LabelStatus::class, 'label_status_id')->nullable()->constrained();
             $table->string('color');
             $table->integer('list_order')->default(1);
             $table->morphs('statusable');

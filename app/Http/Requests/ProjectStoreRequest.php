@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProjectStoreUpdateRequest extends FormRequest
+class ProjectStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,7 +25,7 @@ class ProjectStoreUpdateRequest extends FormRequest
     {
         return [
             'id' => 'sometimes|required|exists:projects,id',
-            'name' => 'required|string|unique:projects,name,' . $this->id,
+            'name' => 'required|string|unique:projects,name',
             'budget' => 'sometimes|required',
             'start_date' => 'sometimes|required|date',
             'end_date' => 'sometimes|required|date',
