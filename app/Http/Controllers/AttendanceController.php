@@ -102,6 +102,8 @@ class AttendanceController extends Controller
                 $default_delay_time = Carbon::parse($date . ' ' . $default_delay_time, config('app.timezone'));
 
                 $validated['delay_time'] = $default_delay_time;
+            } else {
+                $validated['delay_time'] = null;
             }
         }
 
