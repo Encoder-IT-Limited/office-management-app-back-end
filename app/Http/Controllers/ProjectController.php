@@ -57,8 +57,9 @@ class ProjectController extends Controller
                 $query->whereHas('user', function ($query) {
                     $query->where('user_id', auth()->id());
                 });
-            }, 'reminders'])
-                ->latest()->paginate($request->per_page ?? 25);
+            }, 'reminders' => function ($query) {
+                $query->where('user_id', auth()->id());
+            }])->latest()->paginate($request->per_page ?? 25);
         } else {
             $projects = $queries->withCount(['billableTimes' => function ($query) {
                 $query->whereHas('user', function ($query) {
