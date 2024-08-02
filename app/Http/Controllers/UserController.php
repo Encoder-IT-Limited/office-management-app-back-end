@@ -90,17 +90,20 @@ class UserController extends Controller
         try {
             $data = $request->validated();
             $data['password'] = Hash::make($data['password']);
+            if ($request->get('delay_time')) {
+                $data['delay_time'] = Carbon::parse($request->get('delay_time'))->format('H:i:s');
+            }
             $user = User::create($data);
 
             if ($user) {
                 $user->roles()->attach($request->role_id);
 
-                $skillsData = [];
-
-                foreach ($request->skills as $skill) {
-                    $skillsData[$skill['skill_id']] = ['experience' => $skill['experience']];
+                $user->skills()->delete();
+                if (isset($request->skills)) {
+                    $user->skills()->sync($request->skills);
+                } else {
+                    $user->skills()->delete();
                 }
-                $user->skills()->attach($skillsData);
                 $user->children()->sync($request->users);
 
                 if ($request->has('document')) {
@@ -159,6 +162,10 @@ class UserController extends Controller
 
             if ($request->has('password')) {
                 $updatableData['password'] = Hash::make($request->get('password'));
+            }
+
+            if ($request->get('delay_time')) {
+                $updatableData['delay_time'] = Carbon::parse($request->get('delay_time'))->format('H:i:s');
             }
 
             $user = User::findOrFail($request->user_id);
