@@ -159,7 +159,11 @@ class UserController extends Controller
             $user->update($updatableData);
 
             if (isset($request->role_id)) $user->roles()->sync($request->role_id);
-            if (isset($request->skills)) $user->skills()->sync($request->skills);
+            if (isset($request->skills)) {
+                $user->skills()->sync($request->skills);
+            } else {
+                $user->skills()->delete();
+            }
             $user->children()->sync($request->users);
 
             if ($request->has('document')) {

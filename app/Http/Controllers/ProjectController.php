@@ -53,21 +53,27 @@ class ProjectController extends Controller
         }
 
         if ($user->hasRole('admin')) {
-            $projects = $queries->withCount(['billableTimes' => function ($query) {
-                $query->whereHas('user', function ($query) {
+            $projects = $queries->withCount([
+                'billableTimes' => function ($query) {
+                    $query->whereHas('user', function ($query) {
+                        $query->where('user_id', auth()->id());
+                    });
+                },
+                'reminders' => function ($query) {
                     $query->where('user_id', auth()->id());
-                });
-            }, 'reminders' => function ($query) {
-                $query->where('user_id', auth()->id());
-            }])->latest()->paginate($request->per_page ?? 25);
+                }
+            ])->latest()->paginate($request->per_page ?? 25);
         } else {
-            $projects = $queries->withCount(['billableTimes' => function ($query) {
-                $query->whereHas('user', function ($query) {
+            $projects = $queries->withCount([
+                'billableTimes' => function ($query) {
+                    $query->whereHas('user', function ($query) {
+                        $query->where('user_id', auth()->id());
+                    });
+                },
+                'reminders' => function ($query) {
                     $query->where('user_id', auth()->id());
-                });
-            }, 'reminders' => function ($query) {
-                $query->where('user_id', auth()->id());
-            }])->latest()->paginate($request->per_page ?? 25);
+                }
+            ])->latest()->paginate($request->per_page ?? 25);
         }
 
         $projectStatusCounts = LabelStatus::where('franchise', 'project')
