@@ -201,7 +201,7 @@ class AttendanceController extends Controller
             $employees = User::withCount(['attendances AS delay_count' => function ($attendance) {
                 $attendance->whereYear('check_in', '=', $this->year)
                     ->whereMonth('check_in', '=', $this->month)
-                    ->whereNotNull('check_in');
+                    ->whereNotNull('delay_time');
             }])->onlyDeveloper()
                 ->having('delay_count', '>', 0) // Add this line to filter users with non-zero delay count
                 ->latest()
