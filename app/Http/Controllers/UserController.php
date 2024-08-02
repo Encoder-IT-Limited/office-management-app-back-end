@@ -94,7 +94,13 @@ class UserController extends Controller
 
             if ($user) {
                 $user->roles()->attach($request->role_id);
-                $user->skills()->attach($request->skills);
+
+                $skillsData = [];
+
+                foreach ($request->skills as $skill) {
+                    $skillsData[$skill['skill_id']] = ['experience' => $skill['experience']];
+                }
+                $user->skills()->attach($skillsData);
                 $user->children()->sync($request->users);
 
                 if ($request->has('document')) {
@@ -113,7 +119,7 @@ class UserController extends Controller
             }
 
             DB::commit();
-            $user->load('parents', 'children', 'notes');
+            $user->load('parents', 'children', 'notes', 'skills');
             return $this->success('User created successfully', new UserDetailsResource($user));
         } catch (\Exception $e) {
             DB::rollBack();

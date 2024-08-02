@@ -82,9 +82,10 @@ class User extends Authenticatable
 
     public function skills()
     {
-        return $this->belongsToMany(Skill::class, 'skill_user', 'user_id', 'skill_id')->withPivot([
-            'experience'
-        ]);
+        return $this->belongsToMany(Skill::class, 'skill_user', 'user_id', 'skill_id')
+            ->withPivot([
+                'experience'
+            ]);
     }
 
     public function apiKeys()
@@ -153,6 +154,7 @@ class User extends Authenticatable
             return $attendance->whereYear('check_in', '=', $year)->whereMonth('check_in', '=', $month)->delay();
         }]);
     }
+
     public function scopeDelaysCount($query, $year, $month)
     {
         return $query->withCount(['attendances AS delay_count' => function ($attendance) use ($year, $month) {

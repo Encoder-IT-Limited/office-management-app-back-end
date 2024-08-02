@@ -54,11 +54,7 @@ class ProjectController extends Controller
 
         if ($user->hasRole('admin')) {
             $projects = $queries->withCount([
-                'billableTimes' => function ($query) {
-                    $query->whereHas('user', function ($query) {
-                        $query->where('user_id', auth()->id());
-                    });
-                },
+                'billableTimes',
                 'reminders' => function ($query) {
                     $query->where('user_id', auth()->id());
                 }
