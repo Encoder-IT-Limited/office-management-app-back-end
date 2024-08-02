@@ -37,6 +37,7 @@ class ReminderController extends Controller
         return $this->success('Success', ReminderResource::collection($reminder));
     }
 
+
     public function store(ReminderStoreRequest $request): \Illuminate\Http\JsonResponse
     {
         if ($request->remind_at && Carbon::parse($request->remind_at)->lessThanOrEqualTo(Carbon::now())) {
